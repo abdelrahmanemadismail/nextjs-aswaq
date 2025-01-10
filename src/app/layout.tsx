@@ -3,6 +3,7 @@ import { Lato } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
+import { ProfileProvider } from "@/context/ProfileContext";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={lato.className}>
-        {children}
+        <ProfileProvider>{children}</ProfileProvider>
         <Toaster />
       </body>
     </html>

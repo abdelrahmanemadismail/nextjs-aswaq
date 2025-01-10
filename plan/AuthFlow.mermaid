@@ -1,0 +1,58 @@
+graph TD
+    Start[User Action: Open App]
+
+    %% Sign-Up Flow %%
+    Start --> SignUpOption{Choose Sign-Up Method}
+    SignUpOption --> EmailSignUp[Sign Up with Email & Password]
+    SignUpOption --> GoogleSignUp[Sign Up with Google]
+
+    %% Email Sign-Up %%
+    EmailSignUp --> InputEmailPass[Input Email & Password]
+    InputEmailPass --> ValidateEmailPass[Supabase: Validate Inputs]
+    ValidateEmailPass -->|Success| SendConfirmEmail[Supabase: Send Confirmation Email]
+    SendConfirmEmail --> CheckEmail[User Action: Check Email for Confirmation Link]
+    CheckEmail --> ConfirmEmail[User Action: Click Confirmation Link]
+    ConfirmEmail -->|Success| PhoneVerificationStart[Start Phone Verification]
+    ConfirmEmail -->|Fail| Error[Error: Email Confirmation Failed]
+
+    %% Google Sign-Up %%
+    GoogleSignUp --> SupabaseOAuthSignUp[Supabase: Authenticate with Google]
+    SupabaseOAuthSignUp -->|Success| PhoneVerificationStart[Start Phone Verification]
+    SupabaseOAuthSignUp -->|Fail| Error[Error: Sign-Up with Google Failed]
+
+    %% Phone Verification %%
+    PhoneVerificationStart --> PhoneInput[Input Phone Number]
+    PhoneInput --> SendOTP[Supabase: Send OTP]
+    SendOTP --> EnterOTP[User Action: Enter OTP]
+    EnterOTP --> VerifyOTP[Supabase: Verify OTP]
+    VerifyOTP -->|Success| AccountCreated[Account Created]
+    VerifyOTP -->|Fail| Error[Error: Invalid OTP]
+
+    %% Login Flow %%
+    Start --> LoginOption{Choose Login Method}
+    LoginOption --> EmailLogin[Log In with Email & Password]
+    LoginOption --> GoogleOAuthLogin[Log In with Google]
+
+    %% Login with Email %%
+    EmailLogin --> InputEmailPassword[Input Email & Password]
+    InputEmailPassword --> SupabaseLogin[Supabase: Authenticate]
+    SupabaseLogin -->|Success| LoginSuccess[Logged In]
+    SupabaseLogin -->|Fail| Error[Error: Login Failed]
+
+    %% Google OAuth Login %%
+    GoogleOAuthLogin --> SupabaseOAuthLogin[Supabase: Authenticate with Google]
+    SupabaseOAuthLogin -->|Success| LoginSuccess
+    SupabaseOAuthLogin -->|Fail| Error[Error: Login Failed]
+
+    %% Reset Password Flow %%
+    Start --> ResetPasswordOption{Forgot Password?}
+    ResetPasswordOption --> ResetByEmail[Reset via Email]
+
+    %% Reset via Email %%
+    ResetByEmail --> InputEmailForReset[Input Email Address]
+    InputEmailForReset --> SupabaseSendResetLink[Supabase: Send Reset Link]
+    SupabaseSendResetLink --> ResetLinkSent[Check Email for Reset Link]
+    ResetLinkSent --> EnterNewPassword[Enter New Password]
+    EnterNewPassword --> SupabaseUpdatePassword[Supabase: Update Password]
+    SupabaseUpdatePassword -->|Success| PasswordResetSuccess[Password Reset Successfully]
+    SupabaseUpdatePassword -->|Fail| Error

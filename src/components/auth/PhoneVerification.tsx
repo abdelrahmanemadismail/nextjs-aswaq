@@ -22,6 +22,7 @@ import { toast } from "@/hooks/use-toast";
 import { addPhoneToUser, phoneLogin } from "@/actions/auth-actions";
 import { OtpVerificationForm } from "@/components/auth/OtpForm";
 import AuthCard from "@/components/auth/AuthCard";
+import { useProfile } from "@/context/ProfileContext";
 
 interface Country {
   code: string;
@@ -31,6 +32,7 @@ interface Country {
 
 const PhoneVerification: React.FC = () => {
   const [phone, setPhone] = useState<string>("");
+  const { refreshProfile } = useProfile();
   const [formattedPhone, setFormattedPhone] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [showOtpForm, setShowOtpForm] = useState<boolean>(false);
@@ -74,6 +76,7 @@ const PhoneVerification: React.FC = () => {
       setFormattedPhone(formattedNumber);
       console.log(formattedPhone);
       const response = await addPhoneToUser({ phone: formattedNumber });
+      await refreshProfile()
       const { error } = JSON.parse(response);
 
       if (error) {

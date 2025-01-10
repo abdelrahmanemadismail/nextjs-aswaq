@@ -1,0 +1,239 @@
+erDiagram
+    auth_users ||--|| profiles : has
+    roles ||--o{ user_roles : has
+    profiles ||--o{ user_roles : has
+    faq_categories ||--o{ faq_articles : contains
+    profiles ||--o{ pages : updates
+    profiles ||--o{ faq_articles : updates
+    profiles ||--o| business_profiles : has
+    profiles ||--o{ verification_requests : "submits/verifies"
+    profiles ||--o{ listings : creates
+    profiles ||--o{ reviews : "receives/gives"
+    profiles ||--o{ likes : creates
+    profiles ||--o{ reports : creates
+    categories ||--o{ listings : contains
+    categories ||--o{ categories : "parent of"
+    listings ||--o| vehicle_details : has
+    listings ||--o| property_details : has
+    listings ||--o{ likes : receives
+    listings ||--o{ reports : "reported for"
+    listings ||--o{ conversations : "discussed in"
+    listings ||--o{ reviews : receives
+    conversations ||--o{ messages : contains
+    messages ||--o{ reports : "reported for"
+
+    auth_users {
+        uuid id PK
+        string email
+        string encrypted_password
+        timestamp last_sign_in
+    }
+
+    roles {
+        uuid id PK
+        string name UK "admin/personal/business"
+        string description
+        integer listing_limit
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    user_roles {
+        uuid id PK "references profiles"
+        uuid role_id FK "references roles"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    profiles {
+        uuid id PK "references auth.users"
+        string email UK
+        string full_name
+        string avatar_url
+        string phone_number UK
+        string location
+        enum verification_status "unverified/pending/verified"
+        boolean is_banned
+        timestamp join_date
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    business_profiles {
+        uuid id PK "references profiles"
+        string business_name
+        string trade_license_number
+        date trade_license_expiry
+        boolean trade_license_verified
+        string company_address
+        string company_phone
+        string company_email
+        string tax_registration_number
+        string business_category
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    verification_requests {
+        uuid id PK
+        uuid user_id FK "references profiles"
+        enum document_type "id/passport/trade_license/other"
+        string document_url
+        string document_number
+        date document_expiry
+        enum verification_status "pending/approved/rejected"
+        string admin_notes
+        string rejection_reason
+        uuid verified_by FK "references profiles"
+        timestamp created_at
+        timestamp updated_at
+        timestamp verified_at
+    }
+
+    categories {
+        uuid id PK
+        uuid parent_id FK "references categories"
+        string name UK
+        string slug UK
+        string description
+        string icon
+        timestamp created_at
+    }
+
+    listings {
+        uuid id PK
+        uuid user_id FK "references profiles"
+        uuid category_id FK "references categories"
+        string title
+        string description
+        decimal price
+        string location
+        enum condition "new/used"
+        enum status "active/sold/unavailable"
+        boolean is_featured
+        boolean is_active
+        integer views_count
+        string[] images
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    vehicle_details {
+        uuid listing_id PK "references listings"
+        string brand
+        string model
+        string color
+        string version
+        integer year
+        integer mileage
+        string specs
+        enum sub_category "car/motorcycle/boats/heavytrucks"
+        enum payment_terms "rent/sale"
+    }
+
+    property_details {
+        uuid listing_id PK "references listings"
+        enum property_type "apartment/villa/commercial"
+        integer bedrooms
+        integer bathrooms
+        decimal square_footage
+        string community
+        boolean furnished
+        enum payment_terms "rent/sale"
+    }
+
+    reviews {
+        uuid id PK
+        uuid reviewer_id FK "references profiles"
+        uuid reviewed_user_id FK "references profiles"
+        uuid listing_id FK "references listings"
+        integer rating "1-5"
+        string comment
+        string seller_response
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    likes {
+        uuid id PK
+        uuid user_id FK "references profiles"
+        uuid listing_id FK "references listings"
+        timestamp created_at
+    }
+
+    conversations {
+        uuid id PK
+        uuid listing_id FK "references listings"
+        uuid buyer_id FK "references profiles"
+        uuid seller_id FK "references profiles"
+        timestamp last_message_at
+        timestamp created_at
+    }
+
+    messages {
+        uuid id PK
+        uuid conversation_id FK "references conversations"
+        uuid sender_id FK "references profiles"
+        string content
+        string[] attachments
+        timestamp read_at
+        timestamp created_at
+    }
+
+    reports {
+        uuid id PK
+        uuid reporter_id FK "references profiles"
+        uuid listing_id FK "references listings"
+        uuid reported_user_id FK "references profiles"
+        uuid message_id FK "references messages"
+        string reason
+        enum status "pending/resolved/dismissed"
+        string admin_notes
+        timestamp created_at
+        timestamp resolved_at
+    }
+
+    faq_categories {
+        uuid id PK
+        string name UK
+        string slug UK
+        string description
+        integer display_order
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    faq_articles {
+        uuid id PK
+        uuid category_id FK "references faq_categories"
+        string title
+        string slug UK
+        text content
+        string[] tags
+        integer view_count
+        boolean is_published
+        integer display_order
+        uuid last_updated_by FK "references profiles"
+        integer version
+        timestamp published_at
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    pages {
+        uuid id PK
+        string title
+        string slug UK "terms/privacy/about/etc"
+        text content
+        string meta_description
+        string meta_keywords
+        integer version
+        boolean is_published
+        uuid last_updated_by FK "references profiles"
+        timestamp published_at
+        timestamp created_at
+        timestamp updated_at
+        timestamp effective_from
+        timestamp effective_until
+    }
