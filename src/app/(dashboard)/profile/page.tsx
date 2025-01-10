@@ -169,8 +169,7 @@ export default function ProfilePage() {
             </div>
             {!isEditing ? (
               <Button
-                variant="outline"
-                className="border-primary text-primary"
+                variant="primary_outline"
                 onClick={() => {
                   setEditedProfile({
                     full_name: profile.full_name,
@@ -186,8 +185,7 @@ export default function ProfilePage() {
             ) : (
               <div className="flex gap-2">
                 <Button
-                  variant="outline"
-                  className="border-primary text-primary"
+                  variant="primary_outline"
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
@@ -339,11 +337,8 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 {profile.verification_status !== "verified" && (
-                  <Button
-                    variant="outline"
-                    className="border-primary text-primary"
-                  >
-                    <Shield className="mr-1 h-3 w-3 text-primary" />
+                  <Button variant="primary_outline">
+                    <Shield className="mr-1 h-3 w-3" />
                     Get Verified
                   </Button>
                 )}
