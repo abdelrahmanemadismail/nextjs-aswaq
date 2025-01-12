@@ -34,10 +34,18 @@ export async function signUpWithEmailPassword({ email, password, fullName }: { e
   return JSON.stringify(res)
 }
 
-export async function resendEmailConfirmation({ email }: { email: string }) {
+export async function resendEmailConfirmation({ email, type }: { email: string, type: 'signup' | 'email_change' }) {
   const supabase = await createClient()
   const res = await supabase.auth.resend({
-    type: 'signup',
+    type: type,
+    email: email,
+  })
+  return JSON.stringify(res)
+}
+
+export async function changeEmail({email}: {email: string}) {
+  const supabase = await createClient()
+  const res = await supabase.auth.updateUser({
     email: email,
   })
   return JSON.stringify(res)

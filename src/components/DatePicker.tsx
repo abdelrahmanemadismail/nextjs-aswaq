@@ -17,6 +17,8 @@ export interface DatePickerProps {
   value?: string | null
   /** Called when the date changes */
   onChange?: (date: string | null) => void
+  /** Called when the date is blurred */
+  onBlur?: () => void
   /** Whether the picker is disabled */
   disabled?: boolean
   /** Whether the picker is read-only */
@@ -44,6 +46,7 @@ export interface DatePickerProps {
 const DatePicker = ({
   value,
   onChange,
+  onBlur,
   disabled = false,
   readOnly = false,
   placeholder = "Pick a date",
@@ -147,6 +150,7 @@ const DatePicker = ({
             triggerClassName
           )}
           disabled={disabled}
+          onBlur={onBlur}
         >
           {showIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
           {selectedDate ? format(selectedDate, displayFormat) : placeholder}

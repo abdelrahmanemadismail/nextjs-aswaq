@@ -34,9 +34,11 @@ import {
   Loader2,
 } from "lucide-react";
 import ImageCropper from "@/components/ImageCropper";
-import { getUserProfile } from "@/actions/profile-actions";
 import DatePicker from "@/components/DatePicker";
+import { useRouter } from "next/navigation";
+
 export default function ProfilePage() {
+  const router = useRouter();
   const { profile, isLoading, refreshProfile } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,11 +61,9 @@ export default function ProfilePage() {
 
   // Handle save profile
   const handleSave = async () => {
-    console.log(editedProfile);
-    console.log(profile);
-    console.log(await getUserProfile());
     try {
       setIsSaving(true);
+      await deleteProfileImage();
       await updateUserProfile(editedProfile);
       await refreshProfile();
       setIsEditing(false);
@@ -267,6 +267,9 @@ export default function ProfilePage() {
                 <Label htmlFor="email">
                   <Mail className="inline mr-2 h-4 w-4 text-primary" />
                   Email
+                  {isEditing &&
+                    <Button variant="link" onClick={() => {router.push("/auth/change-email")}}>Change Email</Button>
+                  }
                 </Label>
                 <Input
                   id="email"
@@ -281,6 +284,9 @@ export default function ProfilePage() {
                 <Label htmlFor="phone_number">
                   <Phone className="inline mr-2 h-4 w-4 text-primary" />
                   Phone Number
+                  {isEditing &&
+                    <Button variant="link" onClick={() => {router.push("/auth/phone-verification")}}>Change Phone Number</Button>
+                  }
                 </Label>
                 <Input
                   id="phone_number"
@@ -328,7 +334,7 @@ export default function ProfilePage() {
                       variant={
                         profile.verification_status === "verified"
                           ? "default"
-                          : "secondary"
+                          : "destructive"
                       }
                     >
                       {profile.verification_status.charAt(0).toUpperCase() +

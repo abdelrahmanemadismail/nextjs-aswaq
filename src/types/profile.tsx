@@ -43,3 +43,15 @@ export interface UserProfile {
     created_at: string;
     updated_at: string;
   }
+
+export interface EditableBusinessProfile {
+    business_name: string;
+    company_logo?: string | null;
+    trade_license_number: string;
+    trade_license_expiry: string | null;  // Make this nullable
+    company_address: string;
+    company_phone: string;
+    company_email: string;
+    tax_registration_number?: string | null;  // Make this nullable
+    business_category: string;
+  }

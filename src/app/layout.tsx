@@ -26,8 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={lato.className}>
-        <ProfileProvider>{children}</ProfileProvider>
-        <Toaster />
+        <div className="h-screen w-screen">
+          <ProfileProvider>{children}</ProfileProvider>
+          <Toaster />
+        </div>
       </body>
     </html>
   );
