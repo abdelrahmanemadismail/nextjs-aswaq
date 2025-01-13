@@ -82,7 +82,7 @@ const businessProfileSchema = z.object({
 type BusinessFormData = z.infer<typeof businessProfileSchema>;
 
 const LoadingState = () => (
-  <div className="container max-w-2xl py-8">
+
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -111,11 +111,9 @@ const LoadingState = () => (
         </div>
       </CardContent>
     </Card>
-  </div>
 );
 
 const ErrorState = () => (
-  <div className="container max-w-2xl py-8">
     <Card>
       <CardHeader>
         <CardTitle>Error Loading Profile</CardTitle>
@@ -143,7 +141,6 @@ const ErrorState = () => (
         </div>
       </CardContent>
     </Card>
-  </div>
 );
 
 export default function BusinessProfilePage() {
@@ -342,7 +339,7 @@ export default function BusinessProfilePage() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
+    <>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -775,6 +772,6 @@ export default function BusinessProfilePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }

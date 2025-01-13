@@ -2,7 +2,7 @@ import BreadcrumbNav from "@/components/BreadcrumbNav";
 import Header from "@/components/Header";
 import CategoryBar from "@/components/CategoryBar";
 
-export default function DashboardLayout({
+export default function HomeLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

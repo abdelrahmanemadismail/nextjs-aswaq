@@ -10,11 +10,41 @@ import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/context/ProfileContext";
+import NotificationsPanel from "@/components/NotificationsPanel";
 
 export default function Header() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
-  const router = useRouter();
+  const [showNotifications, setShowNotifications] = useState(false)
+  const toggleNotifications = () => setShowNotifications(!showNotifications)
+  const notifications = [
+    {
+      id: '1',
+      image: '/400.svg',
+      status: 'UNSOLD',
+      title: 'Canon EOS 7D 18.0MP Digital SLR Camera Black w/ Charger',
+      timestamp: '31 minutes ago',
+      isUnread: true,
+    },
+    {
+      id: '2',
+      image: '/400.svg',
+      status: 'UNSOLD',
+      title: 'Canon EOS 7D 18.0MP Digital SLR Camera Black w/ Charger',
+      timestamp: '31 minutes ago',
+      isUnread: true,
+    },
+    {
+      id: '3',
+      image: '/400.svg',
+      status: 'UNSOLD',
+      title: 'Canon EOS 7D 18.0MP Digital SLR Camera Black w/ Charger',
+      timestamp: '31 minutes ago',
+      isUnread: true,
+    },
+  ]
+
 
   return (
     <header className="border-b bg-background">
@@ -49,19 +79,19 @@ export default function Header() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4 justify-end">
               {/* Notifications */}
               {profile && <div className="relative">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="hidden md:flex"
-                  // onClick={toggleNotifications}
+                  onClick={toggleNotifications}
                 >
                   <Bell className="scale-125" />
                 </Button>
-                {/* {showNotifications && (
-                <div className="absolute top-full right-0 z-50">
+                {showNotifications && (
+                <div className="absolute w-max top-full right-0 z-50">
                   <NotificationsPanel
                     notifications={notifications}
                     unreadCount={6}
@@ -69,7 +99,7 @@ export default function Header() {
                     onClearAll={() => console.log("clear all")}
                   />
                 </div>
-              )} */}
+              )}
               </div>}
 
               {/* Language Switcher */}

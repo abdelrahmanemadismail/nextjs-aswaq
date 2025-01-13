@@ -16,7 +16,7 @@ import {
   Layers2,
   Flag,
   BarChart,
-  Star,
+  FileText,
 } from 'lucide-react';
 import { AdminLayoutProps, NavigationItem } from '@/types/admin';
 
@@ -28,7 +28,7 @@ const navigation: NavigationItem[] = [
   { name: 'Categories', href: '/admin/categories', icon: Layers2 },
   { name: 'Reports', href: '/admin/reports', icon: Flag },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart },
-  { name: 'Featured', href: '/admin/featured', icon: Star },
+  { name: 'Pages', href: '/admin/pages', icon: FileText },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

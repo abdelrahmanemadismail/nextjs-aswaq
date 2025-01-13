@@ -64,7 +64,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8 space-y-8">
+    <div className="py-8 space-y-8">
       {/* Notification Settings */}
       <Card>
         <CardHeader>

@@ -114,7 +114,6 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-2xl py-8">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -136,13 +135,11 @@ export default function ProfilePage() {
             ))}
           </CardContent>
         </Card>
-      </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="container max-w-2xl py-8">
         <Card>
           <CardHeader>
             <CardTitle>Profile Not Found</CardTitle>
@@ -152,12 +149,11 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
     );
   }
 
   return (
-    <div className="container max-w-2xl py-8">
+    <>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -363,6 +359,6 @@ export default function ProfilePage() {
           onSave={handleCroppedImage}
         />
       )}
-    </div>
+    </>
   );
 }

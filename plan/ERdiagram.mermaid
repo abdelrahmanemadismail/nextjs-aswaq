@@ -11,6 +11,7 @@ erDiagram
     profiles ||--o{ reviews : "receives/gives"
     profiles ||--o{ likes : creates
     profiles ||--o{ reports : creates
+    profiles ||--o{ notifications : receives
     categories ||--o{ listings : contains
     categories ||--o{ categories : "parent of"
     listings ||--o| vehicle_details : has
@@ -21,6 +22,23 @@ erDiagram
     listings ||--o{ reviews : receives
     conversations ||--o{ messages : contains
     messages ||--o{ reports : "reported for"
+    messages ||--o{ notifications : triggers
+    reviews ||--o{ notifications : triggers
+    likes ||--o{ notifications : triggers
+    verification_requests ||--o{ notifications : triggers
+
+    notifications {
+        uuid id PK
+        uuid user_id FK "references profiles"
+        enum type "message/review/like/verification/listing/report"
+        uuid reference_id "polymorphic reference to source"
+        string title
+        string content
+        json metadata "additional context"
+        boolean is_read
+        timestamp read_at
+        timestamp created_at
+    }
 
     auth_users {
         uuid id PK
