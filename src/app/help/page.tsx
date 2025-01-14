@@ -1,0 +1,165 @@
+import { Metadata } from 'next';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { User, ListTodo, CreditCard, ImageIcon, ShieldCheck, FileText } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
+import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: 'Help Center - Aswaq',
+  description: 'Get help with your Aswaq account, listings, and more',
+}
+
+interface HelpCategory {
+  icon: React.ReactNode
+  name: string
+  slug: string
+  description: string
+}
+
+const categories: HelpCategory[] = [
+  {
+    icon: <User className="h-8 w-8 text-primary" />,
+    name: "Accounts",
+    slug: "accounts",
+    description: "Account management, updates, security & login/registration"
+  },
+  {
+    icon: <ListTodo className="h-8 w-8 text-primary" />,
+    name: "Listing services",
+    slug: "listing-services",
+    description: "Creating, managing & boosting listings including pricing rules & limits"
+  },
+  {
+    icon: <CreditCard className="h-8 w-8 text-primary" />,
+    name: "Payments & Purchases",
+    slug: "payments-purchases",
+    description: "Transactions, payments, credits & vouchers"
+  },
+  {
+    icon: <ImageIcon className="h-8 w-8 text-primary" />,
+    name: "Advertising",
+    slug: "advertising",
+    description: "Sliders, Banner & other services"
+  },
+  {
+    icon: <FileText className="h-8 w-8 text-primary" />,
+    name: "New paid listing model",
+    slug: "paid-listing",
+    description: "Features, benefits, paid listing visibility & more"
+  },
+  {
+    icon: <ShieldCheck className="h-8 w-8 text-primary" />,
+    name: "Safety & Security",
+    slug: "safety-security",
+    description: "Transactions & account protection, avoid scams, reporting issues"
+  }
+]
+
+const guides = [
+  {
+    title: "Finding your favourite stuff",
+    image: "/400.svg",
+    href: "/help/guides/finding-stuff"
+  },
+  {
+    title: "Setting up your account",
+    image: "/400.svg",
+    href: "/help/guides/account-setup"
+  },
+  {
+    title: "Securing your account",
+    image: "/400.svg",
+    href: "/help/guides/account-security"
+  },
+  {
+    title: "Selling stuff",
+    image: "/400.svg",
+    href: "/help/guides/selling"
+  }
+]
+
+export default async function HelpCenter() {
+  const searchPlaceholder = "Hi Ahmed, how can we help?"
+
+  return (
+    <div className="container max-w-7xl py-6 space-y-12">
+      {/* Search Section */}
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold text-center">{searchPlaceholder}</h1>
+        <div className="max-w-2xl mx-auto">
+          <div className="relative">
+            <Input 
+              type="search" 
+              placeholder="Search" 
+              className="h-12 pl-4"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="absolute right-0 top-0 h-12 w-12 rounded-l-none"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Categories Section */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Recommended for you</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {categories.map((category) => (
+            <Link key={category.slug} href={`/help/categories/${category.slug}`}>
+              <Card className="hover:bg-muted/50 transition-colors">
+                <CardContent className="p-6 flex gap-4">
+                  <div className="p-2 bg-primary/10 rounded-lg h-fit">
+                    {category.icon}
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-semibold">{category.name}</h3>
+                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Guides Section */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Guides for getting started</h2>
+          <Button variant="link" asChild>
+            <Link href="/help/guides">Browse all Topics →</Link>
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {guides.map((guide) => (
+            <Link key={guide.title} href={guide.href}>
+              <Card className="hover:bg-muted/50 transition-colors overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={guide.image}
+                      alt={guide.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold">{guide.title}</h3>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
