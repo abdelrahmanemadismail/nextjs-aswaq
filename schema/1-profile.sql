@@ -280,3 +280,14 @@ create policy "Users can update their business logo"
             where bp.id = auth.uid()
         )
     );
+
+create or replace function public.get_user_email(user_id uuid)
+returns text
+language sql
+security definer
+set search_path = public
+as $$
+    select email
+    from auth.users
+    where id = user_id;
+$$;

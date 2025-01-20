@@ -1,0 +1,257 @@
+'use server'
+
+import { createClient } from '@/utils/supabase/server'
+import {
+  VerificationFilters,
+  VerificationSort,
+  AdminVerificationRequest,
+  VerificationStats,
+} from '@/types/verification-admin'
+
+export async function getVerificationRequests(
+  page = 1,
+  limit = 10,
+  filters?: VerificationFilters,
+  search?: string,
+  sort?: VerificationSort,
+) {
+  const supabase = await createClient()
+  const start = (page - 1) * limit
+  const end = start + limit - 1
+
+  let query = supabase.from('verification_requests').select(`
+        *,
+        user:profiles!user_id (
+          full_name,
+          avatar_url
+        ),
+        verifier:profiles!verified_by (
+          full_name,
+          avatar_url
+        )
+      `)
+
+  // Apply search filter
+  if (search) {
+    const searchTerm = search.toLowerCase()
+    query = query.ilike('user.full_name', `%${searchTerm}%`)
+  }
+  // Apply filters
+  if (filters?.status && filters.status !== 'all') {
+    query = query.eq('verification_status', filters.status)
+  }
+  if (filters?.documentType && filters.documentType !== 'all') {
+    query = query.eq('document_type', filters.documentType)
+  }
+  if (filters?.dateRange) {
+    query = query
+      .gte('created_at', filters.dateRange.from.toISOString())
+      .lte('created_at', filters.dateRange.to.toISOString())
+  }
+
+  // Apply sorting
+  if (sort) {
+    query = query.order(sort.field, {
+      ascending: sort.direction === 'asc',
+    })
+  } else {
+    // Default sort by created_at desc
+    query = query.order('created_at', { ascending: false })
+  }
+
+  // Get total count for pagination
+  const { count } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+
+  // Get paginated results
+  const { data, error } = await query.range(start, end)
+
+  if (error) throw error
+    // Filter out any results where user is null
+    const filteredData = (data as AdminVerificationRequest[]).filter(
+        request => request.user !== null
+      )
+  // Generate signed URLs for each document
+  const requestsWithUrls = await Promise.all(
+    (filteredData as AdminVerificationRequest[]).map(async (request) => {
+      // Generate signed URLs for each document URL in the request
+      const signedDocUrls = await Promise.all(
+        request.document_urls.map(async (doc) => {
+          try {
+            // Use storage API to generate signed URL
+            const { data: signedUrl } = await supabase.storage
+              .from('verification_docs')
+              .createSignedUrl(doc, 3600) // URL valid for 1 hour
+            return signedUrl?.signedUrl || doc
+          } catch (err) {
+            console.error(`Error generating signed URL for ${doc}:`, err)
+            return doc // Fall back to original URL if signing fails
+          }
+        }),
+      )
+
+      // Return request with signed URLs
+      return {
+        ...request,
+        document_urls: signedDocUrls,
+      }
+    }),
+  )
+//   console.log(requestsWithUrls)
+  return {
+    requests: requestsWithUrls,
+    total: count || 0,
+    page,
+    limit,
+  }
+}
+
+export async function approveVerification(
+  requestId: string,
+  adminNotes?: string,
+) {
+  const supabase = await createClient()
+
+  // Get admin user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // Update verification request
+  const { error: requestError } = await supabase
+    .from('verification_requests')
+    .update({
+      verification_status: 'approved',
+      admin_notes: adminNotes,
+      verified_by: user.id,
+      verified_at: new Date().toISOString(),
+    })
+    .eq('id', requestId)
+
+  if (requestError) throw requestError
+
+  // Update user's verification status
+  const { data: verificationRequest } = await supabase
+    .from('verification_requests')
+    .select('user_id')
+    .eq('id', requestId)
+    .single()
+
+  if (!verificationRequest) throw new Error('Verification request not found')
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ verification_status: 'verified' })
+    .eq('id', verificationRequest.user_id)
+
+  if (profileError) throw profileError
+
+  return {
+    success: true,
+    message: 'Verification request approved successfully',
+  }
+}
+
+export async function rejectVerification(
+  requestId: string,
+  rejectionReason: string,
+  adminNotes?: string,
+) {
+  const supabase = await createClient()
+
+  // Get admin user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // Update verification request
+  const { error: requestError } = await supabase
+    .from('verification_requests')
+    .update({
+      verification_status: 'rejected',
+      rejection_reason: rejectionReason,
+      admin_notes: adminNotes,
+      verified_by: user.id,
+      verified_at: new Date().toISOString(),
+    })
+    .eq('id', requestId)
+
+  if (requestError) throw requestError
+
+  // Update user's verification status
+  const { data: verificationRequest } = await supabase
+    .from('verification_requests')
+    .select('user_id')
+    .eq('id', requestId)
+    .single()
+
+  if (!verificationRequest) throw new Error('Verification request not found')
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ verification_status: 'unverified' })
+    .eq('id', verificationRequest.user_id)
+
+  if (profileError) throw profileError
+
+  return {
+    success: true,
+    message: 'Verification request rejected successfully',
+  }
+}
+
+export async function addAdminNotes(requestId: string, notes: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('verification_requests')
+    .update({ admin_notes: notes })
+    .eq('id', requestId)
+
+  if (error) throw error
+
+  return { success: true, message: 'Admin notes updated successfully' }
+}
+
+export async function getVerificationStats(): Promise<VerificationStats> {
+  const supabase = await createClient()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Get total counts
+  const { count: total } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+
+  const { count: pending } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('verification_status', 'pending')
+
+  const { count: approved } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('verification_status', 'approved')
+
+  const { count: rejected } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('verification_status', 'rejected')
+
+  // Get today's submissions
+  const { count: todaySubmissions } = await supabase
+    .from('verification_requests')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', today.toISOString())
+
+  return {
+    total: total || 0,
+    pending: pending || 0,
+    approved: approved || 0,
+    rejected: rejected || 0,
+    todaySubmissions: todaySubmissions || 0,
+  }
+}

@@ -338,13 +338,23 @@ export default function ProfilePage() {
                     </Badge>
                   </div>
                 </div>
+                
                 {profile.verification_status !== "verified" && (
-                  <Button variant="primary_outline">
+                  <Button variant="primary_outline" onClick={() => {router.push("/profile/verification")}}>
                     <Shield className="mr-1 h-3 w-3" />
                     Get Verified
                   </Button>
                 )}
               </div>
+              <div className="space-y-3 text-sm text-muted-foreground mt-6">
+                    <p>Why Verification matters:</p>
+                    <ul className="list-decimal pl-4 space-y-2">
+                      <li>Verification assures buyers that they are dealing with a legitimate seller.</li>
+                      <li>Verified sellers can expect quicker sales due to increased buyer confidence.</li>
+                      <li>Higher prices can be achieved as buyers feel more secure in their transactions.</li>
+                      <li>Verification significantly reduces the risk of fraud in the marketplace.</li>
+                    </ul>
+                  </div>
             </div>
           </div>
         </CardContent>
