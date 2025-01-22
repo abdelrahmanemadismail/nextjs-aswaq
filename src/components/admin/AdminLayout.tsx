@@ -65,7 +65,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex">
       {/* Sidebar */}
       <div
         className={cn(

@@ -6,6 +6,9 @@ CREATE TABLE public.categories (
     slug text NOT NULL,
     description text,
     icon text,
+    display_in_header boolean NOT NULL DEFAULT false,
+    display_in_hero boolean NOT NULL DEFAULT false,
+    hero_image text,
     display_order integer NOT NULL DEFAULT 0,
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -185,3 +188,33 @@ SET
     description = EXCLUDED.description,
     icon = EXCLUDED.icon,
     display_order = EXCLUDED.display_order;
+
+
+
+-- Create the storage bucket for categories
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('categories', 'categories', true);
+
+-- Create policy to allow authenticated users to upload category images
+CREATE POLICY "Allow authenticated users to upload category images" ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (
+  bucket_id = 'categories' AND 
+  (storage.foldername(name))[1] = 'hero'
+);
+
+-- Create policy to allow public to view category images
+CREATE POLICY "Allow public to view category images" ON storage.objects
+FOR SELECT TO public
+USING (bucket_id = 'categories');
+
+-- Create policy to allow authenticated users to delete their uploaded images
+CREATE POLICY "Allow authenticated users to delete category images" ON storage.objects
+FOR DELETE TO authenticated
+USING (bucket_id = 'categories');
+
+-- Create policy to allow authenticated users to update category images
+CREATE POLICY "Allow authenticated users to update category images" ON storage.objects
+FOR UPDATE TO authenticated
+USING (bucket_id = 'categories')
+WITH CHECK (bucket_id = 'categories');

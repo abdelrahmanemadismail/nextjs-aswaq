@@ -153,3 +153,34 @@ AS $$
             ELSE public.get_user_active_listings_count(user_id_param) < public.get_user_listing_limit(user_id_param)
         END;
 $$;
+
+-- Enable storage for listings
+insert into storage.buckets (id, name, public)
+values ('listings', 'listings', true)
+on conflict (id) do nothing;
+
+-- Storage policies for listings
+create policy "Listing images are publicly accessible"
+    on storage.objects for select
+    using (bucket_id = 'listings');
+
+create policy "Users can upload their own listing images"
+    on storage.objects for insert
+    with check (
+        bucket_id = 'listings' 
+        and (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+create policy "Users can update their own listing images"
+    on storage.objects for update
+    using (
+        bucket_id = 'listings' 
+        and (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+create policy "Users can delete their own listing images"
+    on storage.objects for delete
+    using (
+        bucket_id = 'listings' 
+        and (storage.foldername(name))[1] = auth.uid()::text
+    );
