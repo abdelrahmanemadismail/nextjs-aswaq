@@ -91,6 +91,11 @@ export function CategoryTable({ categories, onAction }: CategoryTableProps) {
             </Badge>
           </TableCell>
           <TableCell>
+            <Badge variant={category.display_in_home ? "default" : "secondary"}>
+              {category.display_in_home ? "Yes" : "No"}
+            </Badge>
+          </TableCell>
+          <TableCell>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -140,6 +145,7 @@ export function CategoryTable({ categories, onAction }: CategoryTableProps) {
           <TableHead>Order</TableHead>
           <TableHead>Header</TableHead>
           <TableHead>Hero</TableHead>
+          <TableHead>Home</TableHead>
           <TableHead className="w-[70px]">Actions</TableHead>
         </TableRow>
       </TableHeader>

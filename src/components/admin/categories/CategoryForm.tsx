@@ -59,6 +59,7 @@ export function CategoryForm({
       is_active: category?.is_active ?? true,
       display_in_header: category?.display_in_header ?? false,
       display_in_hero: category?.display_in_hero ?? false,
+      display_in_home: category?.display_in_home ?? false,
       hero_image: category?.hero_image || null,
     },
   })

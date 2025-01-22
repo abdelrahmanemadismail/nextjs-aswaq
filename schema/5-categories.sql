@@ -8,6 +8,7 @@ CREATE TABLE public.categories (
     icon text,
     display_in_header boolean NOT NULL DEFAULT false,
     display_in_hero boolean NOT NULL DEFAULT false,
+    display_in_home boolean NOT NULL DEFAULT false,
     hero_image text,
     display_order integer NOT NULL DEFAULT 0,
     is_active boolean NOT NULL DEFAULT true,

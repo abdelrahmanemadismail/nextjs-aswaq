@@ -19,6 +19,7 @@ export interface AdminCategory extends Omit<DbCategory, 'created_at' | 'updated_
   created_at: string
   display_in_header: boolean
   display_in_hero: boolean
+  display_in_home: boolean
   hero_image: string | null
 }
 
@@ -33,6 +34,7 @@ export interface CreateCategoryInput {
   is_active?: boolean
   display_in_header?: boolean
   display_in_hero?: boolean
+  display_in_home?: boolean
   hero_image?: string | null
 }
 
