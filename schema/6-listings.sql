@@ -13,7 +13,7 @@ CREATE TABLE public.listings (
     condition text CHECK (condition IN ('new', 'used')) NOT NULL,
     status text CHECK (status IN ('active', 'sold', 'unavailable')) NOT NULL DEFAULT 'active',
     is_featured boolean NOT NULL DEFAULT false,
-    is_active boolean NOT NULL DEFAULT true,
+    is_active boolean NOT NULL DEFAULT false,
     views_count integer NOT NULL DEFAULT 0,
     images text[] NOT NULL DEFAULT '{}',
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -86,7 +86,7 @@ ALTER TABLE public.property_details ENABLE ROW LEVEL SECURITY;
 -- Policies for listings
 CREATE POLICY "Listings are viewable by everyone"
     ON public.listings FOR SELECT
-    USING (is_active = true);
+    USING ((is_active = true) OR (auth.uid() = user_id) OR (public.is_admin(auth.uid())));
 
 CREATE POLICY "Users can create their own listings"
     ON public.listings FOR INSERT
@@ -94,11 +94,11 @@ CREATE POLICY "Users can create their own listings"
 
 CREATE POLICY "Users can update their own listings"
     ON public.listings FOR UPDATE
-    USING (auth.uid() = user_id);
+    USING (auth.uid() = user_id OR (public.is_admin(auth.uid())));
 
 CREATE POLICY "Users can delete their own listings"
     ON public.listings FOR DELETE
-    USING (auth.uid() = user_id);
+    USING (auth.uid() = user_id OR (public.is_admin(auth.uid())));
 
 -- Policies for vehicle_details
 CREATE POLICY "Vehicle details are viewable by everyone"
@@ -110,7 +110,7 @@ CREATE POLICY "Users can manage vehicle details for their listings"
     USING (EXISTS (
         SELECT 1 FROM public.listings
         WHERE listings.id = vehicle_details.listing_id
-        AND listings.user_id = auth.uid()
+        AND (listings.user_id = auth.uid())
     ));
 
 -- Policies for property_details
