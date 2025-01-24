@@ -20,7 +20,7 @@ export const NavigationArrow = ({ direction, onClick, className = '', isVisible 
   <Button
     variant="ghost"
     size="icon"
-    className={`absolute top-0 bottom-0 ${direction === 'left' ? 'left-0' : 'right-0'} 
+    className={`absolute top-0 bottom-0 z-10 ${direction === 'left' ? 'left-0' : 'right-0'} 
       ${sizeClasses[size]} h-full flex items-center ${direction === 'left' ? 'justify-start pl-4' : 'justify-end pr-4'}
       ${isVisible ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity duration-300 hover:bg-transparent ${className}`}
     onClick={onClick}

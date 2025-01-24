@@ -4,10 +4,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import LikeButton from "@/components/LikeButton"
 import Image from "next/image"
 import ImageNavigation  from "@/components/ImageNavigation"
+import Link from "next/link"
+import { formatDistance } from "date-fns"
 
 export interface ListingCardProps {
   photos: string[]
   title: string
+  slug: string
   price: number | string
   location: string
   timestamp: string
@@ -28,6 +31,7 @@ const ASPECT_RATIOS = {
 export default function ListingCard({
   photos,
   title,
+  slug,
   price,
   location,
   timestamp,
@@ -49,14 +53,14 @@ export default function ListingCard({
   }
 
   return (
-    <Card className={`w-full max-w-md overflow-hidden border-none shadow-none ${className}`}>
+    <Card className={`w-full max-w-md overflow-hidden rounded-3xl shadow-none ${className}`}>
       <div className="relative">
         <Image
           src={photos[currentPhotoIndex]}
           alt={`Photo ${currentPhotoIndex + 1} of ${title}`}
-          width={300}
-          height={350}
-          className={`object-cover rounded-3xl ${ASPECT_RATIOS[aspectRatio]}`}
+          width={400}
+          height={400}
+          className={`object-cover w-full rounded-3xl ${ASPECT_RATIOS[aspectRatio]}`}
         />
         <div className="absolute top-4 right-4 z-20">
           <LikeButton
@@ -76,12 +80,15 @@ export default function ListingCard({
           arrowVisible={true}
         />
       </div>
+      <Link href={`/listings/${slug}`}>
       <CardContent className="p-4">
         <h2 className="text-2xl font-bold">{priceFormatter(price)}</h2>
         <h3 className="text-lg font-medium mt-2">{title}</h3>
         <p className="text-xs text-gray-600 mt-1">{location}</p>
-        <p className="text-xs text-gray-500 mt-2">{timestamp}</p>
+        
+        <p className="text-xs text-gray-500 mt-2">{formatDistance(new Date(timestamp), new Date(), { addSuffix: true })}</p>
       </CardContent>
+    </Link>
     </Card>
   )
 }

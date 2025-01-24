@@ -15,7 +15,7 @@ export const imageSchema = z.object({
       message: 'Must be a valid file'
     }))
       .min(1, 'At least one image is required')
-      .max(14, 'Maximum 14 images allowed')
+      .max(30, 'Maximum 30 images allowed')
       .refine(
         (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
         'Each file must be under 5MB'
@@ -74,7 +74,7 @@ export const listingFormSchema = z.object({
       )
     )
     .min(1, 'At least one image is required')
-    .max(14, 'Maximum 14 images allowed'),
+    .max(30, 'Maximum 30 images allowed'),
     details: z.object({
       title: z.string().min(3).max(200),
       description: z.string().min(10).max(5000),

@@ -84,7 +84,7 @@ export async function createListing(data: ListingFormData): Promise<string> {
         }
       }
   
-      return listingData.id
+      return listingData.slug
     } catch (error) {
       console.error('Error creating listing:', error)
       throw error

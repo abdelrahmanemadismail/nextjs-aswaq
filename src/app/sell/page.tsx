@@ -14,12 +14,12 @@ export default function SellPage() {
   const handleSubmit = async (data: ListingFormData) => {
     try {
       console.log('Submitting data:', data) // Debug log
-      const listingId = await createListing(data)
+      const listingSlug = await createListing(data)
       toast({
         title: "Success!",
         description: "Your listing has been published.",
       })
-      router.push(`/listings/${listingId}`)
+      router.push(`/listings/${listingSlug}`)
     } catch (error) {
       console.error('Error creating listing:', error)
       toast({

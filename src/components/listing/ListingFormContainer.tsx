@@ -52,15 +52,12 @@ export function ListingFormContainer({ initialData, onSubmit }: ListingFormConta
     mode: 'onChange',
   })
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { handleSubmit, trigger, formState: { errors } } = methods
 
   const handleNext = async () => {
     const fields = getFieldsToValidate(currentStep)
     const isValid = await trigger(fields)
-    console.log('isValid', isValid)
-    console.log('fields', fields)
-    console.log('currentStep', currentStep)
-    console.log('errors', errors)
 
     if (isValid) {
       setCurrentStep((prev) => prev + 1)
@@ -72,6 +69,9 @@ export function ListingFormContainer({ initialData, onSubmit }: ListingFormConta
   }
 
   const handleFormSubmit = async (data: ListingFormData) => {
+    const isValid = await trigger()
+    if (!isValid) return
+
     try {
       setIsSubmitting(true)
       await onSubmit(data)
@@ -112,7 +112,7 @@ export function ListingFormContainer({ initialData, onSubmit }: ListingFormConta
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form onSubmit={(e) => e.preventDefault()}>
         <Card className="max-w-4xl mx-auto">
           <CardHeader>
             <CardTitle>
@@ -148,7 +148,8 @@ export function ListingFormContainer({ initialData, onSubmit }: ListingFormConta
                 </Button>
               ) : (
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={() => handleSubmit(handleFormSubmit)()}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

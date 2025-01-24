@@ -20,7 +20,7 @@ interface ImageUploadProps {
 export function ImageUpload({ 
   images = [], 
   onChange, 
-  maxFiles = 14,
+  maxFiles = 30,
   error 
 }: ImageUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {

@@ -30,6 +30,7 @@ export function ImageStep() {
         <CardContent className="p-6">
           <ImageUpload
             images={images}
+            maxFiles={30}
             onChange={handleImagesChange}
             error={errors.images?.message as string}
           />
