@@ -1,9 +1,10 @@
 'use client'
+
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import LikeButton from "@/components/LikeButton"
 import Image from "next/image"
-import ImageNavigation  from "@/components/ImageNavigation"
+import ImageNavigation from "@/components/ImageNavigation"
 import Link from "next/link"
 import { formatDistance } from "date-fns"
 
@@ -35,7 +36,7 @@ export default function ListingCard({
   price,
   location,
   timestamp,
-  currency = "EGP",
+  currency = "AED",
   className = "",
   onLike,
   initialLiked = false,
@@ -56,7 +57,7 @@ export default function ListingCard({
     <Card className={`w-full max-w-md overflow-hidden rounded-3xl shadow-none ${className}`}>
       <div className="relative">
         <Image
-          src={photos[currentPhotoIndex]}
+          src={`${photos[currentPhotoIndex]}`}
           alt={`Photo ${currentPhotoIndex + 1} of ${title}`}
           width={400}
           height={400}
@@ -81,14 +82,15 @@ export default function ListingCard({
         />
       </div>
       <Link href={`/listings/${slug}`}>
-      <CardContent className="p-4">
-        <h2 className="text-2xl font-bold">{priceFormatter(price)}</h2>
-        <h3 className="text-lg font-medium mt-2">{title}</h3>
-        <p className="text-xs text-gray-600 mt-1">{location}</p>
-        
-        <p className="text-xs text-gray-500 mt-2">{formatDistance(new Date(timestamp), new Date(), { addSuffix: true })}</p>
-      </CardContent>
-    </Link>
+        <CardContent className="p-4">
+          <h2 className="text-2xl font-bold">{priceFormatter(price)}</h2>
+          <h3 className="text-lg font-medium mt-2">{title}</h3>
+          <p className="text-xs text-gray-600 mt-1">{location}</p>
+          <p className="text-xs text-gray-500 mt-2">
+            {formatDistance(new Date(timestamp), new Date(), { addSuffix: true })}
+          </p>
+        </CardContent>
+      </Link>
     </Card>
   )
 }

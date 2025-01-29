@@ -5,7 +5,6 @@ import { useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/lib/utils"
-import { getListingImageUrl } from "@/lib/storage"
 import { ImageNavigation } from "@/components/ImageNavigation"
 import { VehicleDetails } from '@/components/listing/VehicleDetails'
 import { PropertyDetails } from '@/components/listing/PropertyDetails'
@@ -25,7 +24,7 @@ export function ListingDisplay({ listing }: ListingDisplayProps) {
       {/* Image Gallery */}
       <div className="relative aspect-square">
         <Image
-          src={getListingImageUrl(listing.images[currentImageIndex])}
+          src={listing.images[currentImageIndex]}
           alt={listing.title}
           fill
           className="object-cover rounded-lg"

@@ -31,7 +31,6 @@ import {
 } from "lucide-react"
 import { AdminListing, ListingAction } from "@/types/listing-admin"
 import { formatPrice } from "@/lib/utils"
-import { getListingImageUrl } from "@/lib/storage"
 import { format } from "date-fns"
 
 interface ListingTableProps {
@@ -94,7 +93,7 @@ export function ListingTable({
                     {listing.images[0] && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={getListingImageUrl(listing.images[0])}
+                        src={listing.images[0]}
                         alt={listing.title}
                         className="object-cover h-full w-full"
                       />

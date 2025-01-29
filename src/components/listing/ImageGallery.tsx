@@ -4,7 +4,6 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import { getListingImageUrl } from "@/lib/storage"
 import { ImageNavigation } from "../ImageNavigation"
 import { FullscreenGallery } from "./FullscreenGallery"
 
@@ -30,13 +29,13 @@ export function ImageGallery({ images }: { images: string[] }) {
                 )}
               >
                 <Image
-                  src={getListingImageUrl(img)}
+                  src={img}
                   alt=""
                   fill
                   className="object-cover"
                 />
                 {i === 5 && remainingCount > 0 && (
-                  <button
+                  <div
                     onClick={(e) => {
                       e.stopPropagation()
                       setIsFullscreen(true)
@@ -44,7 +43,7 @@ export function ImageGallery({ images }: { images: string[] }) {
                     className="absolute inset-0 bg-black/50 flex items-center justify-center"
                   >
                     <span className="text-white font-medium">+{remainingCount}</span>
-                  </button>
+                  </div>
                 )}
               </button>
             ))}
@@ -58,7 +57,7 @@ export function ImageGallery({ images }: { images: string[] }) {
                 className="absolute inset-0 z-10"
               >
                 <Image
-                  src={getListingImageUrl(images[mainIndex])}
+                  src={images[mainIndex]}
                   alt=""
                   fill
                   className="object-cover rounded-lg"
@@ -86,13 +85,13 @@ export function ImageGallery({ images }: { images: string[] }) {
                   )}
                 >
                   <Image
-                    src={getListingImageUrl(img)}
+                    src={img}
                     alt=""
                     fill
                     className="object-cover"
                   />
                   {i === 5 && remainingCount > 0 && (
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation()
                         setIsFullscreen(true)
@@ -100,7 +99,7 @@ export function ImageGallery({ images }: { images: string[] }) {
                       className="absolute inset-0 bg-black/50 flex items-center justify-center"
                     >
                       <span className="text-white font-medium">+{remainingCount}</span>
-                    </button>
+                    </div>
                   )}
                 </button>
               ))}

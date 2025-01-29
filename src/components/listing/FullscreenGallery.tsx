@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import Image from "next/image"
-import { getListingImageUrl } from "@/lib/storage"
 import { ImageNavigation } from "../ImageNavigation"
 import { X } from "lucide-react"
 
@@ -47,7 +46,7 @@ export function FullscreenGallery({
       {/* Main image */}
       <div className="flex-1 relative">
         <Image
-          src={getListingImageUrl(images[currentIndex])}
+          src={images[currentIndex]}
           alt=""
           fill
           className="object-contain"
@@ -74,7 +73,7 @@ export function FullscreenGallery({
                 ${currentIndex === i ? 'ring-2 ring-white' : 'opacity-50 hover:opacity-100'}`}
             >
               <Image
-                src={getListingImageUrl(img)}
+                src={img}
                 alt=""
                 fill
                 className="object-cover"

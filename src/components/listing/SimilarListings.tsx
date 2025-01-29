@@ -1,7 +1,6 @@
 // components/listing/SimilarListings.tsx
 import ListingCard from "@/components/ListingCard"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { getListingImageUrl } from "@/lib/storage"
 import { DisplayListing } from "@/types/listing-display"
 
 interface SimilarListingsProps {
@@ -23,7 +22,7 @@ export function SimilarListings({ listings, categoryName }: SimilarListingsProps
            <ListingCard
              key={listing.id}
              slug={listing.slug}
-             photos={listing.images.map((img: string) => getListingImageUrl(img))}
+             photos={listing.images}
              title={listing.title}
              price={listing.price}
              location={listing.location} 

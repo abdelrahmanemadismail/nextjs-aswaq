@@ -19,16 +19,11 @@ export async function uploadListingImages(files: File[], userId: string) {
     if (error) {
       throw error
     }
-
-    return data.path
+    const { data: { publicUrl } } = supabase.storage.from('listings').getPublicUrl(data.path)
+    return publicUrl
   })
 
   return Promise.all(promises)
-}
-
-export function getListingImageUrl(path: string) {
-  const supabase = createClient()
-  return supabase.storage.from('listings').getPublicUrl(path).data.publicUrl
 }
 
 export async function uploadCategoryHeroImage(file: File): Promise<string> {

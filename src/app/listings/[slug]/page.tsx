@@ -21,9 +21,10 @@ import { PropertyDetails } from '@/components/listing/PropertyDetails'
 import { VehicleDetails } from '@/components/listing/VehicleDetails'
 import { formatDistance } from 'date-fns'
 
-
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
-  const listing = await getListing(params.slug)
+  const resolvedParams = await Promise.resolve(params)
+  const slug = resolvedParams.slug
+  const listing = await getListing(slug)
   
   return {
     title: `${listing.title} | Aswaq`,
@@ -43,7 +44,9 @@ interface ListingPageProps {
 }
 
 export default async function ListingPage({ params }: ListingPageProps) {
-  const listing = await getListing(params.slug)
+  const resolvedParams = await Promise.resolve(params)
+  const slug = resolvedParams.slug
+  const listing = await getListing(slug)
   await incrementViewCount(listing.id)
   const similarListings = await getSimilarListings(listing.category.id, listing.id)
 
