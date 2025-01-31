@@ -4,7 +4,8 @@ import Image from 'next/image';
 import SearchInput from '@/components/SearchInput';
 import { getCategories } from '@/actions/category-actions';
 
-const categories = await getCategories()
+// Get categories and filter for display_in_hero
+const categories = (await getCategories()).filter(category => category.display_in_hero);
 
 const HeroSection = async () => {
     return (
@@ -25,7 +26,7 @@ const HeroSection = async () => {
                     {categories.map((category, index) => (
                         <Link
                             key={index}
-                            href={`/${category.slug}`}
+                            href={`/listings?category=${category.slug}`}
                             className="flex flex-col items-center gap-2 group"
                         >
                             <div className="relative w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-white shadow-lg overflow-hidden group-hover:shadow-xl transition-all duration-300">

@@ -9,6 +9,7 @@ export default function Home() {
   const vehicles: ListingCardProps[] = [
     {
       photos: ["/400.svg", "/400.svg", "/400.svg"],
+      slug: "v-1",
       title: "Vehicle 1",
       price: 1000,
       location: "New York",
@@ -16,6 +17,7 @@ export default function Home() {
     },
     {
       photos: ["/400.svg", "/400.svg", "/400.svg"],
+      slug: "v-2",
       title: "Vehicle 2",
       price: 2000,
       location: "Los Angeles",
@@ -23,6 +25,7 @@ export default function Home() {
     },
     {
       photos: ["/400.svg", "/400.svg", "/400.svg"],
+      slug: "v-3",
       title: "Vehicle 3",
       price: 3000,
       location: "Chicago",
@@ -30,6 +33,7 @@ export default function Home() {
     },
     {
       photos: ["/400.svg", "/400.svg", "/400.svg"],
+      slug: "v-4",
       title: "Vehicle 4",
       price: 4000,
       location: "Chicago",

@@ -13,6 +13,7 @@ export interface UserProfile extends Omit<DbProfile, "verification_status"> {
     email: string;
     phone_number?: string | null;
     verification_status: 'unverified' | 'pending' | 'verified';
+    liked_listings: string[];
 }
 
 /**
@@ -31,7 +32,6 @@ export interface UserRole extends DbUserRole {
     role?: {
         name: 'admin' | 'personal' | 'business';
         description?: string;
-        listing_limit: number;
     };
 }
 

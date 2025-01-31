@@ -51,7 +51,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const similarListings = await getSimilarListings(listing.category.id, listing.id)
 
   return (
-<div className="min-h-screen bg-background">
+<div className="min-h-screen">
       <Header />
       <CategoryBar />
       

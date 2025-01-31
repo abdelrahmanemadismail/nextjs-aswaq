@@ -2,23 +2,8 @@
 "use server"
 
 import { createClient } from '@/utils/supabase/server'
+import { Category } from '@/types'
 
-export interface Category {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  icon: string | null
-  display_order: number
-  hero_image: string | null
-  display_in_hero: boolean
-  display_in_header: boolean
-  is_active: boolean
-  created_at: string
-  updated_at: string
-  
-  subCategories?: Category[]
-}
 
 export async function getCategories(): Promise<Category[]> {
   const supabase = await createClient()
@@ -59,7 +44,7 @@ export async function getCategories(): Promise<Category[]> {
           display_order: subCat.display_order
         })) || []
     }))
-
+    console.log(categoriesWithSubs)
     return categoriesWithSubs
 
   } catch (error) {

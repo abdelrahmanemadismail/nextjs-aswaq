@@ -4,6 +4,8 @@ import React, { useState, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { handleSearchFilter } from "@/lib/filter-utils"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface SearchInputProps {
   /** Additional class names to apply to the form container */
@@ -28,7 +30,9 @@ const SearchInput = ({
   isLoading = false,
   disabled = false,
 }: SearchInputProps) => {
-  const [searchValue, setSearchValue] = useState(defaultValue);
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [searchValue, setSearchValue] = useState(searchParams.get("search") || defaultValue);
 
   // Size mappings for different variants
   const sizeClasses = {
@@ -46,15 +50,17 @@ const SearchInput = ({
   // Handle input change
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
-  }, []);
+    if (e.target.value === '') {
+      router.push('/listings')
+    }
+  }, [router]);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    // You can implement your search logic here
-    // For example, using router.push or making an API call
-    console.log('Searching for:', searchValue);
-  }, [searchValue]);
+    const queryString = handleSearchFilter(searchValue, searchParams);
+    router.push(`/listings?${queryString}`);
+  }, [searchValue, searchParams, router]);
 
   return (
     <form
@@ -69,11 +75,9 @@ const SearchInput = ({
           placeholder={placeholder}
           disabled={disabled || isLoading}
           className={`
-            pr-20
+            pr-12
             bg-background
             ${sizeClasses[size]}
-            focus-visible:ring-2
-            focus-visible:ring-offset-2
             transition-colors
             duration-200
           `}

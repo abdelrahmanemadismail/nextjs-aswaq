@@ -5,7 +5,8 @@ import { getCategories } from '@/actions/category-actions';
 import { getIcon } from '@/lib/utils';
 
 const CategoryBar = async () => {
-  const categories = await getCategories();
+  // Get categories and filter for display_in_header
+  const categories = (await getCategories()).filter(category => category.display_in_header);
 
   return (
     <div className="w-full bg-background border-y border-border">
@@ -17,7 +18,7 @@ const CategoryBar = async () => {
               return (
                 <Link
                   key={index}
-                  href={`/${category.slug}`}
+                  href={`/listings?category=${category.slug}`}
                   className="flex flex-col items-center flex-shrink-0 group"
                 >
                   <div className="p-2 rounded-lg group-hover:bg-muted transition-colors">

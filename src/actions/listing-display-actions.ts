@@ -21,7 +21,8 @@ export async function getListing(slug: string): Promise<DisplayListing> {
         category:categories!category_id (
           id,
           name,
-          slug
+          slug,
+          parent_id
         ),
         vehicle_details (*),
         property_details (*)
@@ -42,13 +43,17 @@ export async function getListing(slug: string): Promise<DisplayListing> {
     category?: string
     search?: string
     sort?: 'price_asc' | 'price_desc' | 'date_desc' | 'date_asc'
+    minPrice?: number
+    maxPrice?: number
   }
   
   export async function getListings({
     page = 1,
     category,
     search,
-    sort = 'date_desc'
+    sort = 'date_desc',
+    minPrice,
+    maxPrice
   }: GetListingsParams) {
     const supabase = await createClient()
     const limit = 20
@@ -65,15 +70,31 @@ export async function getListing(slug: string): Promise<DisplayListing> {
           avatar_url
         ),
         category:categories!category_id (
+          id,
           name,
-          slug
+          slug,
+          parent_id
         )
       `)
       .eq('is_active', true)
   
     // Apply filters
     if (category) {
-      query = query.eq('category.slug', category)
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', category)
+        .single()
+
+      if (categoryData) {
+        const { data: subcategories } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('parent_id', categoryData.id)
+
+        const categoryIds = [categoryData.id, ...(subcategories?.map(c => c.id) || [])]
+        query = query.in('category_id', categoryIds)
+      }
     }
   
     if (search) {
@@ -93,6 +114,15 @@ export async function getListing(slug: string): Promise<DisplayListing> {
         break
       default:
         query = query.order('created_at', { ascending: false })
+    }
+  
+    // Apply price filters
+    if (minPrice) {
+      query = query.gte('price', minPrice)
+    }
+    
+    if (maxPrice) {
+      query = query.lte('price', maxPrice)
     }
   
     // Get total count

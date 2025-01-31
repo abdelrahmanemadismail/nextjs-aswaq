@@ -70,27 +70,13 @@ CREATE POLICY "Users can create their own reviews"
     ON public.reviews FOR INSERT
     WITH CHECK (auth.uid() = reviewer_id);
 
-CREATE POLICY "Users can update their own reviews"
+CREATE POLICY "Users can update their own review content"
     ON public.reviews FOR UPDATE
-    USING (auth.uid() = reviewer_id)
-    WITH CHECK (
-        -- Only allow updating comment and rating
-        OLD.reviewer_id = NEW.reviewer_id AND
-        OLD.reviewed_user_id = NEW.reviewed_user_id AND
-        OLD.listing_id = NEW.listing_id
-    );
+    USING (auth.uid() = reviewer_id);
 
-CREATE POLICY "Sellers can respond to their reviews"
+CREATE POLICY "Sellers can respond to reviews"
     ON public.reviews FOR UPDATE
-    USING (auth.uid() = reviewed_user_id)
-    WITH CHECK (
-        -- Only allow updating seller_response
-        OLD.reviewer_id = NEW.reviewer_id AND
-        OLD.reviewed_user_id = NEW.reviewed_user_id AND
-        OLD.listing_id = NEW.listing_id AND
-        OLD.rating = NEW.rating AND
-        OLD.comment = NEW.comment
-    );
+    USING (auth.uid() = reviewed_user_id);
 
 -- Helper function to get user's average rating
 CREATE OR REPLACE FUNCTION public.get_user_rating(user_id_param uuid)
