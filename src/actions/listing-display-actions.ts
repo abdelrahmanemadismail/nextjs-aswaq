@@ -66,6 +66,7 @@ export async function getListing(slug: string): Promise<DisplayListing> {
       .select(`
         *,
         user:profiles!user_id (
+          id,
           full_name,
           avatar_url
         ),

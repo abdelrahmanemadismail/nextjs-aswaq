@@ -4,15 +4,17 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
-import { Phone, MessageCircle, Share2 } from "lucide-react"
+import { Phone, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import ImageNavigation from "@/components/ImageNavigation"
 import LikeButton from "@/components/LikeButton"
 import { cn } from "@/lib/utils"
 import { formatDistance } from "date-fns"
-
+import {StartChat} from "@/components/chat/StartChat"
 export interface FullWidthListingCardProps {
+  id: string,
+  seller_id: string,
   photos: string[]
   title: string
   price: number | string
@@ -27,6 +29,8 @@ export interface FullWidthListingCardProps {
 }
 
 export default function FullWidthListingCard({
+  id,
+  seller_id,
   photos,
   title,
   price,
@@ -124,14 +128,10 @@ export default function FullWidthListingCard({
             <Phone className="w-4 h-4 mr-2" />
             Call
           </Button>
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="flex-1 border-primary text-primary hover:bg-primary/10 hover:text-primary"
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Chat
-          </Button>
+<StartChat 
+  listingId={id}
+  sellerId={seller_id}
+/>
           <Button 
             variant="outline" 
             size="lg"

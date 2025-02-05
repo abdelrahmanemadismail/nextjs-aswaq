@@ -152,6 +152,8 @@ export default async function ListingsPage({ searchParams }: PageProps) {
               {listings.map((listing) => (
                 <FullWidthListingCard
                   key={listing.id}
+                  id={listing.id}
+                  seller_id={listing.user.id}
                   photos={listing.images}
                   title={listing.title}
                   slug={listing.slug}
