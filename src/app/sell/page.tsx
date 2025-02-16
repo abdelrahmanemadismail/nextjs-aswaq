@@ -31,7 +31,7 @@ export default function SellPage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="py-10">
       <ListingFormContainer onSubmit={handleSubmit} />
     </div>
   )

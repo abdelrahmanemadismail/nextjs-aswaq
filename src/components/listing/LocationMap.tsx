@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
-import { ListingMap } from "@/components/listing/ListingMap"
+import Map from "@/components/listing/Map"
 
 export function LocationMap({ location }: { location: string }) {
   return (
@@ -20,7 +20,7 @@ export function LocationMap({ location }: { location: string }) {
       </CardHeader>
       <CardContent>
         <div className="h-[200px] rounded-lg overflow-hidden">
-          <ListingMap location={location} />
+          <Map initialLocation={{ lat: 0, lng: 0 }} onSelectLocation={() => {}} />
         </div>
       </CardContent>
     </Card>

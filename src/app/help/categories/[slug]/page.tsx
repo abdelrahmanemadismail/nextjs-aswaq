@@ -6,14 +6,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getFaqsByCategory } from '@/actions/help-actions'
 
-interface CategoryPageProps {
-  params: {
-    slug: string
-  }
-}
+// interface CategoryPageProps {
+//   params: {
+//     slug: string
+//   }
+// }
+type tParams = Promise<{ slug: string }>;
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const category = await getFaqsByCategory(params.slug)
+export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
+  const { slug }  = await props.params
+
+  const category = await getFaqsByCategory(slug)
   
   if (!category) {
     return {
@@ -27,8 +30,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = await getFaqsByCategory(params.slug)
+export default async function CategoryPage(props: { params: tParams }) {
+  const { slug }  = await props.params
+
+  const category = await getFaqsByCategory(slug)
 
   if (!category) {
     notFound()

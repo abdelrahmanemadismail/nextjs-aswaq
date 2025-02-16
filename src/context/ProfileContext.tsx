@@ -1,3 +1,4 @@
+// context/ProfileContext.tsx
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -12,7 +13,7 @@ interface ProfileContextType {
     isLoading: boolean
     error: Error | null
     refreshProfile: () => Promise<void>
-  }
+}
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined)
 
@@ -50,7 +51,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Load profile data on mount
+  // Load profile data on mount in browser environment only
   useEffect(() => {
     loadProfile()
   }, [])  

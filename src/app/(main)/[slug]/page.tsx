@@ -5,12 +5,14 @@ import { notFound } from 'next/navigation'
 import PageComponents from '@/components/mdx/PageComponents'
 import { Card, CardContent } from '@/components/ui/card'
 
-interface PageProps {
-  params: { slug: string }
-}
+// interface PageProps {
+//   params: { slug: string }
+// }
+type tParams = Promise<{ slug: string }>;
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const page = await getPageBySlug(params.slug)
+export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
+  const { slug }  = await props.params
+  const page = await getPageBySlug(slug)
 
   if (!page) {
     return {
@@ -25,8 +27,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function Page({ params }: PageProps) {
-  const page = await getPageBySlug(params.slug)
+export default async function Page(props: { params: tParams }) {
+  const { slug }  = await props.params
+  const page = await getPageBySlug(slug)
 
   if (!page || !page.is_published) {
     notFound()

@@ -6,7 +6,8 @@ import { useFormContext } from 'react-hook-form'
 import { ListingFormData } from '@/types/listing'
 import { CategorySelector } from '../CategorySelector'
 import { useEffect, useState } from 'react'
-import { getCategories, type Category } from '@/actions/category-actions'
+import { getCategories } from '@/actions/category-actions'
+import { Category } from '@/types'
 
 export function CategoryStep() {
   const [categories, setCategories] = useState<Category[]>([])

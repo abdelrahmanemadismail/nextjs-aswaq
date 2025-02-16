@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileProvider } from "@/context/ProfileContext";
+import { Suspense } from "react";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -25,15 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script
-          async
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
-        />
-      </head>
       <body className={lato.className}>
         <div className="h-screen w-screen">
-          <ProfileProvider>{children}</ProfileProvider>
+          <ProfileProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+              {children}
+            </Suspense>
+          </ProfileProvider>
           <Toaster />
         </div>
       </body>

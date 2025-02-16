@@ -1,7 +1,7 @@
 // app/(chat)/chat/page.tsx
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { ConversationList } from "@/components/chat/ConversationList"
 import { ChatMessages } from "@/components/chat/ChatMessages"
@@ -24,7 +24,8 @@ export default function ChatPage() {
   }
 
   return (
-    <>
+    <Suspense fallback={<div>Loading...</div>}>
+
       {/* Conversation List - Left Sidebar */}
       <div className="w-80 flex-shrink-0 border-r md:block">
         <ConversationList 
@@ -43,6 +44,7 @@ export default function ChatPage() {
           </div>
         )}
       </div>
-    </>
+      </Suspense>
+
   )
 }

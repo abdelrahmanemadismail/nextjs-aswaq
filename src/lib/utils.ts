@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import * as LucideIcons from "lucide-react"
 import { Vehicles, Hobbies } from '@/components/Icons'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

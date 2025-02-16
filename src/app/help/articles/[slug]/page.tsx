@@ -6,14 +6,17 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getFaqArticle } from '@/actions/help-actions'
 import PageComponents from '@/components/mdx/PageComponents'
 
-interface ArticlePageProps {
-  params: {
-    slug: string
-  }
-}
+// interface ArticlePageProps {
+//   params: {
+//     slug: string
+//   }
+// }
+type tParams = Promise<{ slug: string }>;
 
-export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
-  const article = await getFaqArticle(params.slug)
+
+export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
+  const { slug }  = await props.params
+  const article = await getFaqArticle(slug)
 
   if (!article) {
     return {
@@ -27,8 +30,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   }
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
-  const article = await getFaqArticle(params.slug)
+export default async function ArticlePage(props: { params: tParams }) {
+  const { slug }  = await props.params
+  const article = await getFaqArticle(slug)
 
   if (!article) {
     notFound()

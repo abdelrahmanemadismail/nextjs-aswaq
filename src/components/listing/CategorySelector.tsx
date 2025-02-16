@@ -4,7 +4,7 @@
 import React from 'react'
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { Category } from '@/actions/category-actions'
+import type { Category } from '@/types'
 import { getIcon } from '@/lib/utils'
 
 interface CategorySelectorProps {
@@ -25,7 +25,7 @@ export function CategorySelector({
   )
 
   const handleMainCategorySelect = (category: Category) => {
-    if (!category.subCategories?.length) {
+    if (!category.subcategories?.length) {
       onCategorySelect({ main_category: category.slug })
       setMainCategory(category)
       return
@@ -44,7 +44,7 @@ export function CategorySelector({
 
   return (
     <div className="space-y-4">
-      {!mainCategory || !mainCategory.subCategories?.length ? (
+      {!mainCategory || !mainCategory.subcategories?.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((category) => {
             const Icon = getIcon(category.icon)
@@ -80,7 +80,7 @@ export function CategorySelector({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mainCategory.subCategories.map((subCategory) => (
+            {mainCategory.subcategories.map((subCategory) => (
               <Card
                 key={subCategory.id}
                 className={cn(

@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
 import Image from "next/image";
 import SearchInput from "@/components/SearchInput";
-import { Menu, MapPin, Bell, Globe, User } from "lucide-react";
+import { Menu, Bell, Globe, User } from "lucide-react";
 import { useState } from "react";
 import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
@@ -64,14 +64,14 @@ export default function Header() {
             </Link>
 
             {/* Location Selector */}
-            <Button
+            {/* <Button
               variant="ghost"
               className="hidden md:flex items-center gap-2 text-primary"
               size="sm"
             >
               <MapPin className="h-4 w-4" />
               Location
-            </Button>
+            </Button> */}
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">

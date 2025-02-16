@@ -1,12 +1,22 @@
-import React from 'react';
+"use client"
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import { getCategories } from '@/actions/category-actions';
 import { getIcon } from '@/lib/utils';
+import { Category } from '@/types';
 
-const CategoryBar = async () => {
-  // Get categories and filter for display_in_header
-  const categories = (await getCategories()).filter(category => category.display_in_header);
+
+const CategoryBar = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      const cats = await getCategories();
+      setCategories(cats.filter(category => category.display_in_header));
+    };
+    loadCategories();
+  }, []);
 
   return (
     <div className="w-full bg-background border-y border-border">

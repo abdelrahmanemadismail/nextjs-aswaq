@@ -16,15 +16,17 @@ export const metadata: Metadata = {
   description: "Browse all listings on Aswaq",
 }
 
+interface SearchParams {
+  page?: string
+  category?: string
+  search?: string
+  sort?: string
+  minPrice?: string
+  maxPrice?: string
+}
+
 interface PageProps {
-  searchParams: {
-    page?: string
-    category?: string
-    search?: string
-    sort?: string
-    minPrice?: string
-    maxPrice?: string
-  }
+  searchParams: Promise<SearchParams>
 }
 
 export default async function ListingsPage({ searchParams }: PageProps) {
@@ -152,14 +154,14 @@ export default async function ListingsPage({ searchParams }: PageProps) {
               {listings.map((listing) => (
                 <FullWidthListingCard
                   key={listing.id}
-                  id={listing.id}
-                  seller_id={listing.user.id}
                   photos={listing.images}
                   title={listing.title}
                   slug={listing.slug}
                   price={listing.price}
                   location={listing.location}
                   timestamp={listing.created_at}
+                  id={listing.id}
+                  seller_id={listing.seller_id}
                 />
               ))}
             </div>

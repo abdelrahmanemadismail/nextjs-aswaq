@@ -44,7 +44,6 @@ export async function getCategories(): Promise<Category[]> {
           display_order: subCat.display_order
         })) || []
     }))
-    console.log(categoriesWithSubs)
     return categoriesWithSubs
 
   } catch (error) {
