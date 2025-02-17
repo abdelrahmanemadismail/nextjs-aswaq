@@ -158,7 +158,7 @@ export default async function LandingPage() {
               {categories.slice(0, 6).map((category) => (
                 <Link
                   key={category.name}
-                  href="#"
+                  href={`/listings?category=${category.slug}`}
                   className="group flex flex-col items-center p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="h-16 w-16 flex items-center justify-center">
