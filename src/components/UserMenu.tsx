@@ -10,7 +10,7 @@ import {
 import {
   Menu,
   User,
-  Wallet,
+  // Wallet,
   LayoutList,
   Heart,
   Percent,
@@ -61,23 +61,23 @@ export function UserMenu() {
           <User className="h-5 w-5 text-primary" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3">
+        {/* <DropdownMenuItem className="gap-2 py-3">
           <Wallet className="h-5 w-5 text-primary" />
           <span>Aswaq wallet</span>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuItem className="gap-2 py-3">
           <LayoutList className="h-5 w-5 text-primary" />
           <span>Ads Listing</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="gap-2 py-3">
           <Heart className="h-5 w-5 text-primary" />
-          <span>Favourites & Saved searches</span>
+          <span>Favourites</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="gap-2 py-3">
           <Percent className="h-5 w-5 text-primary" />
           <span>Promotion Packages</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3">
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/help')}>
           <HelpCircle className="h-5 w-5 text-primary" />
           <span>Help</span>
         </DropdownMenuItem>
