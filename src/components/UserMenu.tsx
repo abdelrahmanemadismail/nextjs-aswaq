@@ -49,8 +49,8 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full bg-background p-1 pr-3 shadow-sm">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={profile?.avatar_url || '/400.svg'} alt="User avatar" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={profile?.avatar_url || undefined} alt="User avatar" />
+            <AvatarFallback><User className="h-16 w-16 text-primary" /></AvatarFallback>
           </Avatar>
           <Menu className="h-5 w-5 text-primary" />
         </button>
