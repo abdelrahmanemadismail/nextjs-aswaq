@@ -1,17 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-// Define paths that don't require phone verification
-const phoneVerificationExemptPaths = [
-  '/',
-  '/auth/login',
-  '/auth/signup',
-  '/auth/reset-password',
-  '/auth/reset-password/request',
-  '/auth/callback',
-  '/auth/confirm',
-  '/auth/phone-verification',
-]
+// // Define paths that don't require phone verification
+// const phoneVerificationExemptPaths = [
+//   '/',
+//   '/auth/login',
+//   '/auth/signup',
+//   '/auth/reset-password',
+//   '/auth/reset-password/request',
+//   '/auth/callback',
+//   '/auth/confirm',
+//   '/auth/phone-verification',
+// ]
 
 // Define paths that don't require authentication
 const authenticationExemptPaths = [
@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const currentPath = request.nextUrl.pathname
-  const requiresPhoneVerification = !phoneVerificationExemptPaths.includes(currentPath)
+  // const requiresPhoneVerification = !phoneVerificationExemptPaths.includes(currentPath)
   
 
   if (user) {
@@ -65,21 +65,21 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
     // If user exists and path requires phone verification, check if phone is verified
-    if (requiresPhoneVerification && !user.phone_confirmed_at) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/phone-verification'
-      // Store original URL as redirect parameter
-      url.searchParams.set('redirectedFrom', currentPath)
-      return NextResponse.redirect(url)
-    }
-  } else if (
-    !phoneVerificationExemptPaths.includes(currentPath)
-  ) {
-    // No user and path requires authentication, redirect to login
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    url.searchParams.set('redirectedFrom', currentPath)
-    return NextResponse.redirect(url)
+  //   if (requiresPhoneVerification && !user.phone_confirmed_at) {
+  //     const url = request.nextUrl.clone()
+  //     url.pathname = '/auth/phone-verification'
+  //     // Store original URL as redirect parameter
+  //     url.searchParams.set('redirectedFrom', currentPath)
+  //     return NextResponse.redirect(url)
+  //   }
+  // } else if (
+  //   !phoneVerificationExemptPaths.includes(currentPath)
+  // ) {
+  //   // No user and path requires authentication, redirect to login
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = '/auth/login'
+  //   url.searchParams.set('redirectedFrom', currentPath)
+  //   return NextResponse.redirect(url)
   }
 
   return supabaseResponse

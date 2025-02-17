@@ -129,7 +129,7 @@ export default function Header() {
                   variant="primary_outline" 
                   size="lg" 
                   className="hidden md:flex"
-                  onClick={() => router.push('/login')}
+                  onClick={() => router.push('/auth/login')}
                 >
                   Login
                 </Button>
@@ -140,7 +140,7 @@ export default function Header() {
                 if (profile) {
                   router.push('/sell')
                 } else {
-                  router.push('/signup')
+                  router.push('/auth/signup')
                 }
               }}>
                 Sell

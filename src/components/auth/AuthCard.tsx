@@ -28,7 +28,7 @@ export default function AuthCard({ children, title="Continue to ASWAQ" }: { chil
             <Button
               variant="link"
               className="px-1 text-xs"
-            onClick={() => router.push("/auth/terms-of-service")}
+            onClick={() => router.push("/home/terms-of-service")}
           >
             Terms of Service
           </Button>
@@ -36,7 +36,7 @@ export default function AuthCard({ children, title="Continue to ASWAQ" }: { chil
           <Button
             variant="link"
             className="px-1 text-xs"
-            onClick={() => router.push("/auth/privacy-policy")}
+            onClick={() => router.push("/home/privacy-policy")}
           >
             Privacy Policy
           </Button>
