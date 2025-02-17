@@ -60,23 +60,23 @@ const categories: HelpCategory[] = [
 const guides = [
   {
     title: "Finding your favourite stuff",
-    image: "/400.svg",
-    href: "/help/guides/finding-stuff"
+    image: "/images/help/Guide.png",
+    href: "/help/categories/listing-services"
   },
   {
     title: "Setting up your account",
-    image: "/400.svg",
-    href: "/help/guides/account-setup"
+    image: "/images/help/Guide-2.png",
+    href: "/help/categories/accounts"
   },
   {
     title: "Securing your account",
-    image: "/400.svg",
-    href: "/help/guides/account-security"
+    image: "/images/help/Guide-3.png",
+    href: "/help/categories/accounts"
   },
   {
     title: "Selling stuff",
-    image: "/400.svg",
-    href: "/help/guides/selling"
+    image: "/images/help/Guide-4.png",
+    href: "/help/categories/listing-services"
   }
 ]
 

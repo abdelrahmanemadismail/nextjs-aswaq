@@ -52,13 +52,13 @@ export default function Header() {
         <nav className="px-2 lg:px-4 py-3">
           <div className="flex items-center justify-between gap-4 md:gap-6 lg:gap-8">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0" prefetch={true}>
               <Image
                 src="/logo.svg"
                 alt="ASWAQ Online"
                 width={140}
                 height={40}
-                className="h-12 w-auto"
+                className="h-16"
                 priority
               />
             </Link>

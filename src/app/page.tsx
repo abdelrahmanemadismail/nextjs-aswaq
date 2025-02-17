@@ -160,6 +160,7 @@ export default async function LandingPage() {
                 <Link
                   key={category.name}
                   href={`/listings?category=${category.slug}`}
+                  prefetch={true}
                   className="group flex flex-col items-center p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="h-16 w-16 flex items-center justify-center">
@@ -281,7 +282,7 @@ export default async function LandingPage() {
               <h3 className="text-2xl font-bold mb-8">Free Tier Packages</h3>
               <div className="w-full flex flex-col justify-center items-center">
                 {freeTierPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60 flex flex-col justify-center items-center w-max">
+                  <Card key={pkg.name} className="bg-background/60 flex flex-col justify-center items-start w-[50%] max-w-full sm:w-[50%]">
                     <CardHeader>
                       <CardTitle>{pkg.name}</CardTitle>
                       <CardDescription>{pkg.description}</CardDescription>
