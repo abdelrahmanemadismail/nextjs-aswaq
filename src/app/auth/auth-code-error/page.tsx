@@ -1,12 +1,19 @@
+// app/auth/auth-code-error/page.tsx
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-export default function AuthErrorPage({
-  searchParams,
+type SearchParams = {
+  error?: string
+}
+
+export default async function AuthErrorPage({
+  searchParams
 }: {
-  searchParams: { error?: string }
+  searchParams: Promise<SearchParams>
 }) {
+  const params = await searchParams;
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md">
@@ -15,9 +22,9 @@ export default function AuthErrorPage({
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            {searchParams.error === 'no_code'
+            {params.error === 'no_code'
               ? 'No authentication code was provided.'
-              : searchParams.error || 'An error occurred during authentication.'}
+              : params.error || 'An error occurred during authentication.'}
           </p>
         </CardContent>
         <CardFooter>
