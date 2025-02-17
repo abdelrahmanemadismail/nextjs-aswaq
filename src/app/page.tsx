@@ -18,6 +18,7 @@ import Header from "@/components/Header"
 import CategoryBar from "@/components/CategoryBar"
 import { getCategories } from "@/actions/category-actions"
 import MainSearch from "@/components/MainSearch"
+import Footer from "@/components/Footer"
 
 const freeTierPackages = [
   {
@@ -297,7 +298,7 @@ export default async function LandingPage() {
                         ))}
                       </ul>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="w-full">
                       <Button className="w-full">Get Started</Button>
                     </CardFooter>
                   </Card>
@@ -440,6 +441,7 @@ export default async function LandingPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   )
 }

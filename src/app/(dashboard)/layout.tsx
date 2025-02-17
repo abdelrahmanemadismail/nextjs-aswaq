@@ -1,6 +1,7 @@
 import BreadcrumbNav from "@/components/BreadcrumbNav";
 import Header from "@/components/Header";
 import CategoryBar from "@/components/CategoryBar";
+import Footer from "@/components/Footer";
 
 export default function DashboardLayout({
   children,
@@ -13,12 +14,13 @@ export default function DashboardLayout({
         <Header />
         <CategoryBar />
       </div>
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <BreadcrumbNav />
       </div>
         {children}
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
