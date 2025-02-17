@@ -1,13 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   HeadphonesIcon,
-  Search,
   Star,
   CheckCircle2,
   ArrowRight,
@@ -19,6 +17,7 @@ import {
 import Header from "@/components/Header"
 import CategoryBar from "@/components/CategoryBar"
 import { getCategories } from "@/actions/category-actions"
+import MainSearch from "@/components/MainSearch"
 
 const freeTierPackages = [
   {
@@ -153,15 +152,7 @@ export default async function LandingPage() {
               <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto">
                 Join the region&apos;s fastest-growing marketplace for buying and selling
               </p>
-              <div className="mx-auto mt-8 max-w-2xl">
-                <div className="flex gap-2 p-2 bg-background rounded-lg shadow-lg">
-                  <Input placeholder="What are you looking for?" className="h-12 text-lg border-none" />
-                  <Button size="lg" className="h-12 px-8">
-                    <Search className="h-5 w-5 mr-2" />
-                    Search
-                  </Button>
-                </div>
-              </div>
+              <MainSearch/>
             </div>
             <div className="mt-12 flex gap-4 justify-center flex-wrap">
               {categories.slice(0, 6).map((category) => (
