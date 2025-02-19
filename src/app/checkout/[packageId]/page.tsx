@@ -12,7 +12,7 @@ import { toast } from '@/hooks/use-toast';
 export default function CheckoutPage() {
   const params = useParams();
   const router = useRouter();
-  const { profile } = useProfile();
+  const { profile, isLoading } = useProfile();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   const [packageData, setPackageData] = useState<any>(null);
 
   useEffect(() => {
-    if (!profile) {
+    if (!profile && !isLoading) {
       router.push('/auth/login?redirectedFrom=/checkout/' + params.packageId);
       return;
     }
@@ -42,7 +42,7 @@ export default function CheckoutPage() {
         // 2. Create payment intent
         const { clientSecret } = await createPaymentIntent(
           params.packageId as string,
-          profile.id
+          profile?.id || ""
         );
         
         setClientSecret(clientSecret);
