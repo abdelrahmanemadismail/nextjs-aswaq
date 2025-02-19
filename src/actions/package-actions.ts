@@ -5,6 +5,8 @@ import { unstable_noStore as noStore } from 'next/cache'
 
 export interface PackageType {
   id: string
+  stripe_product_id: string
+  stripe_price_id: string
   name: string
   description: string
   listing_count: number

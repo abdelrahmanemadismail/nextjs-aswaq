@@ -331,7 +331,7 @@ export default async function LandingPage() {
                 </CardContent>
                 <CardFooter>
                   <BuyNowButton 
-                    packageId={pkg.id}
+                    packageId={pkg.stripe_product_id}
                     className="w-full"
                   >
                     Select Plan
