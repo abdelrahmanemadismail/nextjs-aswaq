@@ -1,13 +1,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   HeadphonesIcon,
   Star,
-  CheckCircle2,
   ArrowRight,
   ShoppingBag,
   Shield,
@@ -19,64 +18,7 @@ import CategoryBar from "@/components/CategoryBar"
 import { getCategories } from "@/actions/category-actions"
 import MainSearch from "@/components/MainSearch"
 import Footer from "@/components/Footer"
-
-const freeTierPackages = [
-  {
-    name: "Early Bird",
-    description: "For first 1000 users only",
-    features: ["3 free listings", "30 days duration per listing", "Basic visibility"],
-    price: "Free",
-    limit: "1000 users",
-  }
-]
-
-const paidPackages = [
-  {
-    name: "1 Month Plus",
-    price: "9.95",
-    duration: "30 days",
-    bonus: "10 bonus days",
-    listings: "1 listing",
-  },
-  {
-    name: "2 Months Plus",
-    price: "19.90",
-    duration: "60 days",
-    bonus: "21 bonus days",
-    listings: "1 listing",
-  },
-  {
-    name: "3 Months Plus",
-    price: "29.85",
-    duration: "90 days",
-    bonus: "33 bonus days",
-    listings: "1 listing",
-  },
-]
-
-const bulkPackages = [
-  {
-    name: "5+3 Package",
-    price: "49.75",
-    listings: "5 paid + 3 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-  {
-    name: "10+5 Package",
-    price: "99.50",
-    listings: "10 paid + 5 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-  {
-    name: "20+10 Package",
-    price: "199.00",
-    listings: "20 paid + 10 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-]
+import PackageList from "@/components/checkout/PackageList"
 
 const statistics = [
   { number: "10+", label: "Categories", icon: ShoppingBag },
@@ -268,105 +210,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Packages Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold">Choose Your Package</h2>
-              <p className="mt-4 text-muted-foreground">
-                Select the perfect plan to start your journey with ASWAQ Online
-              </p>
-            </div>
-
-            {/* Free Tier Packages */}
-            <div className="mb-16">
-              <h3 className="text-2xl font-bold mb-8">Free Tier Packages</h3>
-              <div className="w-full flex flex-col justify-center items-center">
-                {freeTierPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60 flex flex-col justify-center items-start w-[50%] max-w-full sm:w-[50%]">
-                    <CardHeader>
-                      <CardTitle>{pkg.name}</CardTitle>
-                      <CardDescription>{pkg.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">{pkg.price}</div>
-                      <p className="text-sm text-muted-foreground mb-4">Limited to {pkg.limit}</p>
-                      <ul className="space-y-2">
-                        {pkg.features.map((feature, index) => (
-                          <li key={index} className="flex items-center">
-                            <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter className="w-full">
-                      <Button className="w-full">Get Started</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Paid Packages */}
-            <div className="mb-16">
-              <h3 className="text-2xl font-bold mb-8">Duration-Based Packages</h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                {paidPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60">
-                    <CardHeader>
-                      <CardTitle>{pkg.name}</CardTitle>
-                      <CardDescription>
-                        {pkg.duration} + {pkg.bonus}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">
-                        {pkg.price} <span className="text-sm">AED</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-4">{pkg.listings}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full">Select Plan</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Bulk Packages */}
-            <div>
-              <h3 className="text-2xl font-bold mb-8">Bulk Packages</h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                {bulkPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60">
-                    <CardHeader>
-                      <CardTitle>{pkg.name}</CardTitle>
-                      <CardDescription>{pkg.listings}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">
-                        {pkg.price} <span className="text-sm">AED</span>
-                      </div>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
-                          {pkg.duration}
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
-                          Valid for {pkg.validity}
-                        </li>
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full">Select Package</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        <PackageList />
 
         {/* Compare Packages Section */}
         {/* <section className="py-20 bg-muted/30">
