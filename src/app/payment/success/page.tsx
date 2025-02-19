@@ -6,10 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 
+type PaymentDetails = {
+  status: string;
+  packageName?: string; // Optional if it may not be present
+};
+
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

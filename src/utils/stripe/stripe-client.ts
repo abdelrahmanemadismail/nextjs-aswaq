@@ -1,6 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 
 // Load the Stripe.js script and initialize a Stripe object
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let stripePromise: Promise<any>;
 
 export const getStripe = () => {

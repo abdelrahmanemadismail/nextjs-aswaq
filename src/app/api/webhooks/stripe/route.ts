@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         const supabase = await createClient();
         
         // Get metadata from the payment intent
-        const { user_id, package_id } = paymentIntent.metadata;
+        // const { user_id, package_id } = paymentIntent.metadata;
         
         // Update user_packages table with successful payment
         await supabase
