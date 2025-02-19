@@ -9,7 +9,7 @@ export default function PaymentCancelledPage() {
   const router = useRouter();
   
   return (
-    <div className="container max-w-2xl py-12">
+    <div className="max-w-2xl py-20 m-auto">
       <Card className="w-full">
         <CardHeader className="text-center">
           <CardTitle>Payment Cancelled</CardTitle>
