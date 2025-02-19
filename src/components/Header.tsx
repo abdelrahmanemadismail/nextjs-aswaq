@@ -117,6 +117,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 className="hidden md:flex text-primary hover:text-primary"
+                onClick={() => router.push('/chat')}
               >
                 <Messages className="scale-150" />
               </Button>}
