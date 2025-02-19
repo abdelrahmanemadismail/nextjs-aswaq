@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { createAdminClient } from '@/utils/supabase/admin'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 import { createCheckoutSession, verifyCheckoutSession } from '@/utils/stripe/stripe-server'
 import { packageSelectionSchema } from '@/schemas/package-schema'
 import { revalidatePath } from 'next/cache'
@@ -55,7 +55,7 @@ export async function initiateCheckout({ packageId }: { packageId: string }) {
 // Verify payment and create user package
 export async function verifyPayment(sessionId: string) {
   try {
-    const supabase = await createAdminClient()
+    const supabase = supabaseAdmin
     
     // Verify the session with Stripe
     const { isComplete, metadata, amountTotal, currency } = await verifyCheckoutSession(sessionId)
