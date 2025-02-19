@@ -1,7 +1,5 @@
 // app/listings/[slug]/page.tsx
 import { getListing, getSimilarListings, incrementViewCount } from '@/actions/listing-display-actions'
-import Header from "@/components/Header"
-import CategoryBar from "@/components/CategoryBar"
 // import { ListingDisplay } from '@/components/listing/ListingDisplay'
 import { SimilarListings } from '@/components/listing/SimilarListings'
 import { Metadata } from 'next'

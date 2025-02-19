@@ -1,4 +1,3 @@
-import BreadcrumbNav from "@/components/BreadcrumbNav";
 import Header from "@/components/Header";
 import CategoryBar from "@/components/CategoryBar";
 import Footer from "@/components/Footer";

@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Search, Loader2 } from 'lucide-react'
 import L from 'leaflet'
 
 const DEFAULT_CENTER = [25.2048, 55.2708] // Dubai coordinates
@@ -72,8 +69,8 @@ function MapController({ onLocationSelect }: {
 }
 
 export default function Map({ onSelectLocation, initialLocation }: MapProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
+  // const [searchQuery, setSearchQuery] = useState('')
+  // const [isSearching, setIsSearching] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<L.LatLng>(
     initialLocation 
       ? L.latLng(initialLocation.lat, initialLocation.lng)
@@ -82,6 +79,7 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
 
   // Fix for default marker icon
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (L.Icon.Default.prototype as any)._getIconUrl
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
@@ -90,35 +88,35 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
     })
   }, [])
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim() || isSearching) return
+  // const handleSearch = async (e: React.FormEvent) => {
+  //   e.preventDefault()
+  //   if (!searchQuery.trim() || isSearching) return
 
-    try {
-      setIsSearching(true)
-      const params = new URLSearchParams({ q: `${searchQuery}, UAE` })
-      const response = await fetch(`/api/geocode?${params}`)
-      const data = await response.json()
+  //   try {
+  //     setIsSearching(true)
+  //     const params = new URLSearchParams({ q: `${searchQuery}, UAE` })
+  //     const response = await fetch(`/api/geocode?${params}`)
+  //     const data = await response.json()
 
-      if (data && data[0]) {
-        const { lat, lon, display_name } = data[0]
-        const newPosition = L.latLng(parseFloat(lat), parseFloat(lon))
-        setSelectedPosition(newPosition)
+  //     if (data && data[0]) {
+  //       const { lat, lon, display_name } = data[0]
+  //       const newPosition = L.latLng(parseFloat(lat), parseFloat(lon))
+  //       setSelectedPosition(newPosition)
         
-        onSelectLocation({
-          formatted_address: display_name,
-          coordinates: {
-            lat: parseFloat(lat),
-            lng: parseFloat(lon)
-          }
-        })
-      }
-    } catch (error) {
-      console.error('Search error:', error)
-    } finally {
-      setIsSearching(false)
-    }
-  }
+  //       onSelectLocation({
+  //         formatted_address: display_name,
+  //         coordinates: {
+  //           lat: parseFloat(lat),
+  //           lng: parseFloat(lon)
+  //         }
+  //       })
+  //     }
+  //   } catch (error) {
+  //     console.error('Search error:', error)
+  //   } finally {
+  //     setIsSearching(false)
+  //   }
+  // }
 
   const handlePositionSelected = async (latlng: L.LatLng) => {
     setSelectedPosition(latlng)

@@ -1,6 +1,4 @@
 import { Metadata } from "next"
-import Header from "@/components/Header"
-import CategoryBar from "@/components/CategoryBar"
 import FullWidthListingCard from "@/components/FullWidthListingCard"
 import { getListings } from "@/actions/listing-display-actions"
 import BreadcrumbNav from "@/components/BreadcrumbNav"

@@ -26,11 +26,10 @@ interface ListingMapProps {
   title: string
 }
 
-export function ListingMap({ location, latitude, longitude, title }: ListingMapProps) {
+export function ListingMap({ location, latitude, longitude }: ListingMapProps) {
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(
     latitude && longitude ? { lat: latitude, lng: longitude } : null
   )
-  console.log("cor", coordinates)
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -38,6 +37,7 @@ export function ListingMap({ location, latitude, longitude, title }: ListingMapP
       setIsClient(true)
 
       import('leaflet').then((L) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (L.Icon.Default.prototype as any)._getIconUrl
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: '/leaflet/marker-icon-2x.png',

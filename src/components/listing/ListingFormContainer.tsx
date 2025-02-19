@@ -20,7 +20,6 @@ import { ImageStep } from './steps/ImageStep'
 import { DetailsStep } from './steps/DetailsStep'
 import { ReviewStep } from './steps/ReviewStep'
 import { Loader2, AlertCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface ListingFormContainerProps {
   initialData?: Partial<ListingFormData>
@@ -55,7 +54,7 @@ export function ListingFormContainer({ initialData, onSubmit }: ListingFormConta
     mode: 'onChange',
   })
 
-  const { handleSubmit, trigger, formState: { errors, isSubmitted } } = methods
+  const { handleSubmit, trigger, formState: { errors } } = methods
 
   const handleNext = async () => {
     const fields = getFieldsToValidate(currentStep)

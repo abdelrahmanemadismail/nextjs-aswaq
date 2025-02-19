@@ -25,7 +25,7 @@ export function SimilarListings({ listings, categoryName }: SimilarListingsProps
              photos={listing.images}
              title={listing.title}
              price={listing.price}
-             location={listing.location} 
+             location={listing.address} 
              timestamp={listing.created_at}
            />
          ))}

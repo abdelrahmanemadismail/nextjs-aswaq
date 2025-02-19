@@ -1,11 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+
 
 export default function AuthCard({ children, title="Continue to ASWAQ" }: { children: React.ReactNode, title: string }) {
-  const router = useRouter();
   return (
 <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">

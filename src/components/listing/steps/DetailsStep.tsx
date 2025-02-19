@@ -20,7 +20,6 @@ import { VehicleFields } from './VehicleFields'
 import { PropertyFields } from './PropertyFields'
 import { LocationSelector } from './LocationSelector'
 import LocationPicker from '../LocationPicker'
-import { AlertCircle } from 'lucide-react'
 
 export function DetailsStep() {
   const {
