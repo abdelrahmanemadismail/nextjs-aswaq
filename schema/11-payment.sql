@@ -10,84 +10,20 @@ BEGIN
 END;
 $$ language plpgsql security definer;
 
-/**
-* CUSTOMERS
-* Note: this is a private table that contains a mapping of user IDs to Stripe customer IDs.
-*/
-CREATE TABLE customers (
-    id uuid references auth.users PRIMARY KEY,
-    stripe_customer_id text UNIQUE,
-    billing_address jsonb,
-    payment_method jsonb,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
--- No policies as this is a private table
-
-/**
-* STRIPE PRODUCTS
-* Note: products are created and managed in Stripe and synced to our DB via Stripe webhooks.
-*/
-CREATE TABLE stripe_products (
-    id text PRIMARY KEY,
-    stripe_product_id text UNIQUE NOT NULL,
-    active boolean DEFAULT true NOT NULL,
-    name text NOT NULL,
-    description text,
-    product_type text CHECK (product_type IN ('free_tier', 'duration', 'bulk')) NOT NULL,
-    image text,
-    metadata jsonb,
-    stripe_metadata jsonb,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-CREATE TRIGGER handle_stripe_products_updated_at
-    BEFORE UPDATE ON stripe_products
-    FOR EACH ROW
-    EXECUTE PROCEDURE handle_updated_at();
-
-CREATE INDEX idx_stripe_products_active ON stripe_products(active) WHERE active = true;
-ALTER TABLE stripe_products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read-only access." ON stripe_products FOR SELECT USING (true);
-
-/**
-* STRIPE PRICES
-* Note: prices are created and managed in Stripe and synced to our DB via Stripe webhooks.
-*/
-CREATE TABLE stripe_prices (
-    id text PRIMARY KEY,
-    product_id text REFERENCES stripe_products NOT NULL,
-    stripe_price_id text UNIQUE NOT NULL,
-    active boolean DEFAULT true NOT NULL,
-    unit_amount bigint NOT NULL,
-    currency text CHECK (currency = 'aed') NOT NULL,
-    metadata jsonb,
-    stripe_metadata jsonb,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-CREATE TRIGGER handle_stripe_prices_updated_at
-    BEFORE UPDATE ON stripe_prices
-    FOR EACH ROW
-    EXECUTE PROCEDURE handle_updated_at();
-
-CREATE INDEX idx_stripe_prices_active ON stripe_prices(active) WHERE active = true;
-CREATE INDEX idx_stripe_prices_product ON stripe_prices(product_id);
-ALTER TABLE stripe_prices ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read-only access." ON stripe_prices FOR SELECT USING (true);
 
 /**
 * PACKAGES
 * Note: These are our application-specific package configurations.
 */
+CREATE TYPE package_type_enum AS ENUM ('free_tier', 'duration', 'bulk');
 CREATE TABLE packages (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    stripe_product_id text REFERENCES stripe_products NOT NULL,
-    stripe_price_id text REFERENCES stripe_prices NOT NULL,
+    stripe_product_id text NOT NULL,
+    stripe_price_id text NOT NULL,
     name text NOT NULL,
     description text,
+    price decimal(10,2) NOT NULL DEFAULT 0,
+    package_type package_type_enum NOT NULL,
     listing_count integer NOT NULL CHECK (listing_count >= 0),
     bonus_listing_count integer DEFAULT 0 CHECK (bonus_listing_count >= 0),
     duration_days integer NOT NULL CHECK (duration_days > 0),
@@ -249,6 +185,6 @@ CREATE TRIGGER validate_package_listing_trigger
  * REALTIME SUBSCRIPTIONS
  * Only allow realtime listening on public tables.
  */
-DROP PUBLICATION IF EXISTS supabase_realtime;
-CREATE PUBLICATION supabase_realtime 
-    FOR TABLE stripe_products, stripe_prices, packages;
+-- DROP PUBLICATION IF EXISTS supabase_realtime;
+-- CREATE PUBLICATION supabase_realtime 
+--     FOR TABLE stripe_products, stripe_prices, packages;
