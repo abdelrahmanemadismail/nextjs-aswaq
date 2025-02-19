@@ -1,11 +1,14 @@
 // types/listing-display.ts
+import { Location } from "./location";
 export interface DisplayListing {
     id: string;
     slug: string;
     title: string;
     description: string;
     price: number;
-    location: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
     condition: 'new' | 'used';
     status: 'active' | 'sold' | 'unavailable';
     is_featured: boolean;
@@ -42,4 +45,5 @@ export interface DisplayListing {
       furnished: boolean;
       payment_terms: 'rent' | 'sale';
     };
+    location: Location;
   }

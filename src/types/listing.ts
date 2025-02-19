@@ -20,7 +20,10 @@ export interface Listing extends Omit<DbListing, 'created_at' | 'updated_at'> {
   title: string
   description: string
   price: number
-  location: string
+  address: string
+  latitude: number | null
+  longitude: number | null
+  location_id: string
   condition: ListingCondition
   status: ListingStatus
   is_featured: boolean
@@ -66,7 +69,10 @@ export interface ListingFormData {
     title: string
     description: string
     price: number
-    location: string
+    address: string
+    latitude: number | null
+    longitude: number | null
+    location_id: string
     condition: ListingCondition
     is_negotiable: boolean
     contact_method: ('phone' | 'chat' | 'whatsapp')[]

@@ -10,6 +10,7 @@ import { getCategories } from "@/actions/category-actions"
 import Link from "next/link"
 import { PriceFilter } from '@/components/listing/PriceFilter'
 import { Button } from "@/components/ui/button"
+import { LocationSelector } from "@/components/listing/LocationSelector"
 
 export const metadata: Metadata = {
   title: "Listings | Aswaq",
@@ -23,6 +24,8 @@ interface SearchParams {
   sort?: string
   minPrice?: string
   maxPrice?: string
+  country?: string
+  city?: string
 }
 
 interface PageProps {
@@ -36,7 +39,9 @@ export default async function ListingsPage({ searchParams }: PageProps) {
     search: searchParam,
     sort: sortParam,
     minPrice: minPriceParam,
-    maxPrice: maxPriceParam
+    maxPrice: maxPriceParam,
+    country: countryParam,
+    city: cityParam
   } = await searchParams
 
   // Convert page to number and validate
@@ -49,7 +54,9 @@ export default async function ListingsPage({ searchParams }: PageProps) {
     search: searchParam,
     sort: sortParam as 'date_desc' | 'date_asc' | 'price_asc' | 'price_desc' | undefined,
     minPrice: minPriceParam ? Number(minPriceParam) : undefined,
-    maxPrice: maxPriceParam ? Number(maxPriceParam) : undefined
+    maxPrice: maxPriceParam ? Number(maxPriceParam) : undefined,
+    country: countryParam,
+    city: cityParam
   })
 
   // Create base params for "All Categories" link
@@ -60,7 +67,9 @@ export default async function ListingsPage({ searchParams }: PageProps) {
     search: searchParam,
     sort: sortParam,
     minPrice: minPriceParam,
-    maxPrice: maxPriceParam
+    maxPrice: maxPriceParam,
+    country: countryParam,
+    city: cityParam
   }
   
   Object.entries(cleanParams).forEach(([key, value]) => {
@@ -74,11 +83,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
 
   const categories = await getCategories()
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <CategoryBar />
-      
+  return (      
       <main className="container py-6 mx-auto">
         <BreadcrumbNav />
         <div className="flex gap-6 mt-6">
@@ -112,10 +117,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
 
             <div className="mb-6">
               <h3 className="font-semibold mb-3">Location</h3>
-              <select className="w-full p-2 border rounded bg-background">
-                <option>Egypt</option>
-                {/* Add other locations */}
-              </select>
+              <LocationSelector />
             </div>
 
             <PriceFilter />
@@ -173,6 +175,5 @@ export default async function ListingsPage({ searchParams }: PageProps) {
           </div>
         </div>
       </main>
-    </div>
   )
 }

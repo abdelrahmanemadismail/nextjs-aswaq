@@ -14,12 +14,7 @@ export default function HelpLayout({
         <Header />
         <CategoryBar />
       </div>
-      <main className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <BreadcrumbNav />
-      </div>
         {children}
-      </main>
       <Footer />
     </div>
   );

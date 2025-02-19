@@ -69,7 +69,11 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          display_in_header: boolean
+          display_in_hero: boolean
+          display_in_home: boolean
           display_order: number
+          hero_image: string | null
           icon: string | null
           id: string
           is_active: boolean
@@ -81,7 +85,11 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          display_in_header?: boolean
+          display_in_hero?: boolean
+          display_in_home?: boolean
           display_order?: number
+          hero_image?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean
@@ -93,7 +101,11 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          display_in_header?: boolean
+          display_in_hero?: boolean
+          display_in_home?: boolean
           display_order?: number
+          hero_image?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean
@@ -160,6 +172,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customers: {
+        Row: {
+          billing_address: Json | null
+          created_at: string
+          id: string
+          payment_method: Json | null
+          stripe_customer_id: string | null
+        }
+        Insert: {
+          billing_address?: Json | null
+          created_at?: string
+          id: string
+          payment_method?: Json | null
+          stripe_customer_id?: string | null
+        }
+        Update: {
+          billing_address?: Json | null
+          created_at?: string
+          id?: string
+          payment_method?: Json | null
+          stripe_customer_id?: string | null
+        }
+        Relationships: []
       }
       faq_articles: {
         Row: {
@@ -263,6 +299,42 @@ export type Database = {
         }
         Relationships: []
       }
+      likes: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           category_id: string
@@ -274,7 +346,9 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           location: string
+          location_id: string | null
           price: number
+          slug: string | null
           status: string
           title: string
           updated_at: string
@@ -291,7 +365,9 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           location: string
+          location_id?: string | null
           price: number
+          slug?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -308,7 +384,9 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           location?: string
+          location_id?: string | null
           price?: number
+          slug?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -324,10 +402,67 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "listings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "listings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          name_ar: string
+          parent_id: string | null
+          slug: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          name_ar: string
+          parent_id?: string | null
+          slug: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          name_ar?: string
+          parent_id?: string | null
+          slug?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "locations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
         ]
@@ -423,6 +558,132 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      package_listings: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          is_bonus_listing: boolean
+          is_featured: boolean
+          listing_id: string
+          paused_at: string | null
+          remaining_days: number
+          total_days: number
+          used_days: number | null
+          user_package_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_bonus_listing?: boolean
+          is_featured?: boolean
+          listing_id: string
+          paused_at?: string | null
+          remaining_days: number
+          total_days: number
+          used_days?: number | null
+          user_package_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_bonus_listing?: boolean
+          is_featured?: boolean
+          listing_id?: string
+          paused_at?: string | null
+          remaining_days?: number
+          total_days?: number
+          used_days?: number | null
+          user_package_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_listings_user_package_id_fkey"
+            columns: ["user_package_id"]
+            isOneToOne: false
+            referencedRelation: "user_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packages: {
+        Row: {
+          bonus_listing_count: number | null
+          created_at: string
+          description: string | null
+          duration_days: number
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          listing_count: number
+          name: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at: string
+          user_limit: number | null
+          validity_days: number
+        }
+        Insert: {
+          bonus_listing_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration_days: number
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          listing_count: number
+          name: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at?: string
+          user_limit?: number | null
+          validity_days: number
+        }
+        Update: {
+          bonus_listing_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          listing_count?: number
+          name?: string
+          stripe_price_id?: string
+          stripe_product_id?: string
+          updated_at?: string
+          user_limit?: number | null
+          validity_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packages_stripe_price_id_fkey"
+            columns: ["stripe_price_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_prices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "packages_stripe_product_id_fkey"
+            columns: ["stripe_product_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_products"
             referencedColumns: ["id"]
           },
         ]
@@ -628,6 +889,64 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          seller_response: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          seller_response?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          reviewed_user_id?: string
+          reviewer_id?: string
+          seller_response?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewed_user_id_fkey"
+            columns: ["reviewed_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles: {
         Row: {
           created_at: string
@@ -654,6 +973,157 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      stripe_prices: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          product_id: string
+          stripe_metadata: Json | null
+          stripe_price_id: string
+          unit_amount: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency: string
+          id: string
+          metadata?: Json | null
+          product_id: string
+          stripe_metadata?: Json | null
+          stripe_price_id: string
+          unit_amount: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          product_id?: string
+          stripe_metadata?: Json | null
+          stripe_price_id?: string
+          unit_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_products: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          metadata: Json | null
+          name: string
+          product_type: string
+          stripe_metadata: Json | null
+          stripe_product_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id: string
+          image?: string | null
+          metadata?: Json | null
+          name: string
+          product_type: string
+          stripe_metadata?: Json | null
+          stripe_product_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          metadata?: Json | null
+          name?: string
+          product_type?: string
+          stripe_metadata?: Json | null
+          stripe_product_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_packages: {
+        Row: {
+          activated_at: string | null
+          amount: number
+          bonus_listings_remaining: number | null
+          created_at: string
+          currency: string
+          expires_at: string
+          id: string
+          is_featured: boolean
+          listings_remaining: number
+          package_id: string
+          payment_status: string
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          amount: number
+          bonus_listings_remaining?: number | null
+          created_at?: string
+          currency?: string
+          expires_at: string
+          id?: string
+          is_featured?: boolean
+          listings_remaining: number
+          package_id: string
+          payment_status: string
+          status: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          amount?: number
+          bonus_listings_remaining?: number | null
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          is_featured?: boolean
+          listings_remaining?: number
+          package_id?: string
+          payment_status?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_packages_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -839,6 +1309,85 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_user_review_listing: {
+        Args: {
+          reviewer_id_param: string
+          listing_id_param: string
+        }
+        Returns: boolean
+      }
+      cube:
+        | {
+            Args: {
+              "": number[]
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": number
+            }
+            Returns: unknown
+          }
+      cube_dim: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      cube_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      cube_is_point: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      cube_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      cube_recv: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      cube_send: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      cube_size: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      earth: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      gc_to_sec: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      generate_listing_slug: {
+        Args: {
+          title: string
+          counter?: number
+        }
+        Returns: string
+      }
       get_active_page: {
         Args: {
           slug_param: string
@@ -868,6 +1417,34 @@ export type Database = {
           level: number
         }[]
       }
+      get_cities_in_country: {
+        Args: {
+          country_id: string
+        }
+        Returns: {
+          id: string
+          name: string
+          name_ar: string
+          slug: string
+          latitude: number
+          longitude: number
+        }[]
+      }
+      get_city_with_country: {
+        Args: {
+          input_city_id: string
+        }
+        Returns: {
+          city_id: string
+          city_name: string
+          city_name_ar: string
+          city_slug: string
+          country_id: string
+          country_name: string
+          country_name_ar: string
+          country_slug: string
+        }[]
+      }
       get_faq_article: {
         Args: {
           article_slug: string
@@ -891,6 +1468,25 @@ export type Database = {
           articles: Json
         }[]
       }
+      get_listing_likes_count: {
+        Args: {
+          listing_id_param: string
+        }
+        Returns: number
+      }
+      get_nearby_cities: {
+        Args: {
+          lat: number
+          lng: number
+          radius_km?: number
+        }
+        Returns: {
+          id: string
+          name: string
+          name_ar: string
+          distance: number
+        }[]
+      }
       get_subcategories: {
         Args: {
           parent_category_id: string
@@ -908,11 +1504,26 @@ export type Database = {
         }
         Returns: number
       }
+      get_user_email: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
       get_user_listing_limit: {
         Args: {
           user_id: string
         }
         Returns: number
+      }
+      get_user_rating: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          average_rating: number
+          total_reviews: number
+        }[]
       }
       get_user_reports_count: {
         Args: {
@@ -925,11 +1536,36 @@ export type Database = {
           dismissed_reports: number
         }[]
       }
+      get_verification_doc_url: {
+        Args: {
+          file_path: string
+        }
+        Returns: string
+      }
+      has_user_liked_listing: {
+        Args: {
+          user_id_param: string
+          listing_id_param: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: {
           user_id: string
         }
         Returns: boolean
+      }
+      latitude: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      longitude: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
       }
       resolve_report: {
         Args: {
@@ -938,6 +1574,12 @@ export type Database = {
           admin_notes_param?: string
         }
         Returns: undefined
+      }
+      sec_to_gc: {
+        Args: {
+          "": number
+        }
+        Returns: number
       }
       uuid_generate_v1: {
         Args: Record<PropertyKey, never>

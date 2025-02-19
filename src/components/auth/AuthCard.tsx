@@ -25,21 +25,19 @@ export default function AuthCard({ children, title="Continue to ASWAQ" }: { chil
       <div className="text-balance text-center text-xs text-muted-foreground">
           By clicking continue, you agree to our
           <div>
-            <Button
-              variant="link"
-              className="px-1 text-xs"
-            onClick={() => router.push("/home/terms-of-service")}
+            <Link
+              className="text-primary underline-offset-4 hover:underline px-1 text-xs"
+              href="/terms-of-service"
           >
             Terms of Service
-          </Button>
+          </Link>
           and
-          <Button
-            variant="link"
-            className="px-1 text-xs"
-            onClick={() => router.push("/home/privacy-policy")}
+          <Link
+            className="text-primary underline-offset-4 hover:underline px-1 text-xs"
+            href="/privacy-policy"
           >
             Privacy Policy
-          </Button>
+          </Link>
           </div>
         </div>
       </CardFooter>

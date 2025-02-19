@@ -18,7 +18,7 @@ interface ListingDisplayProps {
 
 export function ListingDisplay({ listing }: ListingDisplayProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
+  console.log("lis",listing)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* Image Gallery */}
@@ -68,7 +68,12 @@ export function ListingDisplay({ listing }: ListingDisplayProps) {
 {listing.property_details && (
   <PropertyDetails details={listing.property_details} />
 )}
-<ListingMap location={listing.location} title={listing.title} />
+<ListingMap 
+  location={listing.address}
+  latitude={listing.latitude}
+  longitude={listing.longitude}
+  title={listing.title}
+/>
     </div>
   )
 }

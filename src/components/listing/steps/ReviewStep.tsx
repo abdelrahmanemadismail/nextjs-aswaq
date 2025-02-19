@@ -14,10 +14,37 @@ import {
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { formatPrice } from '@/lib/utils'
+import { useEffect, useState } from 'react'
+import { useLocationStore } from '@/hooks/use-location-store'
 
 export function ReviewStep() {
   const { watch } = useFormContext<ListingFormData>()
   const formData = watch()
+  const [locationText, setLocationText] = useState<string>('No location selected')
+
+  // Get the cities data from the location store
+  const { countries, cities } = useLocationStore()
+
+  // Find the selected location whenever location_id changes
+  useEffect(() => {
+    if (!formData.details.location_id) return
+
+    // First try to find it in cities
+    for (const countryId in cities) {
+      const city = cities[countryId].find(city => city.id === formData.details.location_id)
+      if (city) {
+        const country = countries.find(c => c.id === countryId)
+        setLocationText(`${city.name}, ${country?.name || ''}`)
+        return
+      }
+    }
+
+    // If not found in cities, check countries
+    const country = countries.find(c => c.id === formData.details.location_id)
+    if (country) {
+      setLocationText(country.name)
+    }
+  }, [formData.details.location_id, countries, cities])
 
   const renderImages = () => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -170,7 +197,8 @@ export function ReviewStep() {
 
             <div>
               <h4 className="text-sm font-medium text-muted-foreground">Location</h4>
-              <p className="mt-1">{formData.details.location}</p>
+              <p className="mt-1">{formData.details.address}</p>
+              <p className="mt-1">{locationText}</p>
             </div>
 
             <div>

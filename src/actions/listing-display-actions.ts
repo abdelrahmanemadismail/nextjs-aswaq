@@ -24,6 +24,17 @@ export async function getListing(slug: string): Promise<DisplayListing> {
           slug,
           parent_id
         ),
+        location:locations (
+          id,
+          name,
+          name_ar,
+          type,
+          parent:locations (
+            id,
+            name,
+            name_ar
+          )
+        ),
         vehicle_details (*),
         property_details (*)
       `)
@@ -34,7 +45,7 @@ export async function getListing(slug: string): Promise<DisplayListing> {
     if (error || !listing) {
       throw new Error('Listing not found')
     }
-  
+      
     return listing as DisplayListing
   }
 
@@ -45,6 +56,8 @@ export async function getListing(slug: string): Promise<DisplayListing> {
     sort?: 'price_asc' | 'price_desc' | 'date_desc' | 'date_asc'
     minPrice?: number
     maxPrice?: number
+    country?: string
+    city?: string
   }
   
   export async function getListings({
@@ -53,7 +66,9 @@ export async function getListing(slug: string): Promise<DisplayListing> {
     search,
     sort = 'date_desc',
     minPrice,
-    maxPrice
+    maxPrice,
+    country,
+    city,
   }: GetListingsParams) {
     const supabase = await createClient()
     const limit = 20
@@ -75,6 +90,17 @@ export async function getListing(slug: string): Promise<DisplayListing> {
           name,
           slug,
           parent_id
+        ),
+        location:locations (
+          id,
+          name,
+          name_ar,
+          type,
+          parent:locations (
+            id,
+            name,
+            name_ar
+          )
         )
       `)
       .eq('is_active', true)
@@ -95,6 +121,39 @@ export async function getListing(slug: string): Promise<DisplayListing> {
 
         const categoryIds = [categoryData.id, ...(subcategories?.map(c => c.id) || [])]
         query = query.in('category_id', categoryIds)
+      }
+    }
+
+    // Apply location filters
+    if (city) {
+      const { data: cityData } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('slug', city)
+        .eq('type', 'city')
+        .single()
+
+      if (cityData) {
+        query = query.eq('location_id', cityData.id)
+      }
+    } else if (country) {
+      const { data: countryData } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('slug', country)
+        .eq('type', 'country')
+        .single()
+
+      if (countryData) {
+        const { data: cityData } = await supabase
+          .from('locations')
+          .select('id')
+          .eq('parent_id', countryData.id)
+
+        const cityIds = cityData?.map(city => city.id) || []
+        if (cityIds.length > 0) {
+          query = query.in('location_id', cityIds)
+        }
       }
     }
   
@@ -154,6 +213,17 @@ export async function getSimilarListings(categoryId: string, currentListingId: s
       user:profiles!user_id (
         full_name,
         avatar_url
+      ),
+      location:locations (
+        id,
+        name,
+        name_ar,
+        type,
+        parent:locations (
+          id,
+          name,
+          name_ar
+        )
       )
     `)
     .eq('category_id', categoryId)

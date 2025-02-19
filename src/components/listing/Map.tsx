@@ -1,15 +1,19 @@
-'use client'
-
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker,  useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, Loader2 } from 'lucide-react'
 import L from 'leaflet'
-import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_ATTRIBUTION, TILE_URL, UAE_BOUNDS } from '@/lib/maps'
+
+const DEFAULT_CENTER = [25.2048, 55.2708] // Dubai coordinates
+const DEFAULT_ZOOM = 12
+const UAE_BOUNDS: L.LatLngBoundsLiteral = [
+  [22.6333, 51.5833], // Southwest coordinates
+  [26.0833, 56.3833]  // Northeast coordinates
+]
 
 interface MapProps {
-  onSelectLocation?: (location: {
+  onSelectLocation: (location: {
     formatted_address: string
     coordinates: {
       lat: number
@@ -78,7 +82,6 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
 
   // Fix for default marker icon
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (L.Icon.Default.prototype as any)._getIconUrl
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
@@ -93,7 +96,7 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
 
     try {
       setIsSearching(true)
-      const params = new URLSearchParams({ q: searchQuery })
+      const params = new URLSearchParams({ q: `${searchQuery}, UAE` })
       const response = await fetch(`/api/geocode?${params}`)
       const data = await response.json()
 
@@ -102,15 +105,13 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
         const newPosition = L.latLng(parseFloat(lat), parseFloat(lon))
         setSelectedPosition(newPosition)
         
-        if (onSelectLocation) {
-          onSelectLocation({
-            formatted_address: display_name,
-            coordinates: {
-              lat: parseFloat(lat),
-              lng: parseFloat(lon)
-            }
-          })
-        }
+        onSelectLocation({
+          formatted_address: display_name,
+          coordinates: {
+            lat: parseFloat(lat),
+            lng: parseFloat(lon)
+          }
+        })
       }
     } catch (error) {
       console.error('Search error:', error)
@@ -132,7 +133,7 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
       const response = await fetch(`/api/geocode?${params}`)
       const data = await response.json()
 
-      if (data && onSelectLocation) {
+      if (data) {
         onSelectLocation({
           formatted_address: data.display_name,
           coordinates: {
@@ -148,7 +149,7 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleSearch} className="relative">
+      {/* <form onSubmit={handleSearch} className="relative">
         <Input
           type="text"
           placeholder="Search location..."
@@ -168,7 +169,7 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
             <Search className="h-4 w-4" />
           )}
         </Button>
-      </form>
+      </form> */}
 
       <div className="h-[400px] rounded-lg overflow-hidden border">
         <MapContainer
@@ -178,8 +179,8 @@ export default function Map({ onSelectLocation, initialLocation }: MapProps) {
           minZoom={6}
         >
           <TileLayer
-            attribution={MAP_ATTRIBUTION}
-            url={TILE_URL}
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <DraggableMarker 
             position={selectedPosition}

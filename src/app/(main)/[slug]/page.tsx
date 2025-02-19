@@ -30,7 +30,6 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
 export default async function Page(props: { params: tParams }) {
   const { slug }  = await props.params
   const page = await getPageBySlug(slug)
-  console.log(page)
   if (!page || !page.is_published) {
     notFound()
   }

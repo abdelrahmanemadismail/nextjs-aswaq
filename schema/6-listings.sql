@@ -10,7 +10,9 @@ CREATE TABLE public.listings (
     slug text NOT NULL UNIQUE,
     description text NOT NULL,
     price decimal(12,2) NOT NULL CHECK (price >= 0),
-    location text NOT NULL,
+    address text NOT NULL,
+    latitude numeric(10,8),
+    longitude numeric(11,8),
     condition text CHECK (condition IN ('new', 'used')) NOT NULL,
     status text CHECK (status IN ('active', 'sold', 'unavailable')) NOT NULL DEFAULT 'active',
     is_featured boolean NOT NULL DEFAULT false,
@@ -59,7 +61,7 @@ CREATE TABLE public.property_details (
 CREATE INDEX listings_user_id_idx ON public.listings(user_id);
 CREATE INDEX listings_category_id_idx ON public.listings(category_id);
 CREATE INDEX listings_status_idx ON public.listings(status) WHERE status = 'active';
-CREATE INDEX listings_location_idx ON public.listings(location);
+CREATE INDEX listings_address_idx ON public.listings(address);
 CREATE INDEX listings_price_idx ON public.listings(price);
 CREATE INDEX listings_created_at_idx ON public.listings(created_at DESC);
 

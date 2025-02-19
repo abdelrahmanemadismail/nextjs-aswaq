@@ -30,7 +30,10 @@ export const detailsSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title must not exceed 200 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters').max(5000, 'Description must not exceed 5000 characters'),
   price: z.number().min(0, 'Price must be a positive number'),
-  location: z.string().min(1, 'Location is required'),
+  address: z.string().min(1, 'address is required'),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  location_id: z.string().uuid('Please select a address'),
   condition: z.enum(['new', 'used']),
   is_negotiable: z.boolean(),
   contact_method: z.array(z.enum(['phone', 'chat', 'whatsapp'])).min(1, 'Select at least one contact method')
@@ -79,10 +82,13 @@ export const listingFormSchema = z.object({
       title: z.string().min(3).max(200),
       description: z.string().min(10).max(5000),
       price: z.number().min(0),
-      location: z.string().min(1),
+      address: z.string().min(1),
       condition: z.enum(['new', 'used']),
       is_negotiable: z.boolean(),
-      contact_method: z.array(z.enum(['phone', 'chat', 'whatsapp'])).min(1)
+      contact_method: z.array(z.enum(['phone', 'chat', 'whatsapp'])).min(1),
+      location_id: z.string().uuid('Please select a address'),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
     })
   })
 
