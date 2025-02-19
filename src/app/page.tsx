@@ -19,6 +19,8 @@ import CategoryBar from "@/components/CategoryBar"
 import { getCategories } from "@/actions/category-actions"
 import MainSearch from "@/components/MainSearch"
 import Footer from "@/components/Footer"
+import { getPackages } from '@/actions/package-actions'
+import BuyNowButton from '@/components/payments/BuyNowButton'
 
 const freeTierPackages = [
   {
@@ -30,53 +32,53 @@ const freeTierPackages = [
   }
 ]
 
-const paidPackages = [
-  {
-    name: "1 Month Plus",
-    price: "9.95",
-    duration: "30 days",
-    bonus: "10 bonus days",
-    listings: "1 listing",
-  },
-  {
-    name: "2 Months Plus",
-    price: "19.90",
-    duration: "60 days",
-    bonus: "21 bonus days",
-    listings: "1 listing",
-  },
-  {
-    name: "3 Months Plus",
-    price: "29.85",
-    duration: "90 days",
-    bonus: "33 bonus days",
-    listings: "1 listing",
-  },
-]
+// const paidPackages = [
+//   {
+//     name: "1 Month Plus",
+//     price: "9.95",
+//     duration: "30 days",
+//     bonus: "10 bonus days",
+//     listings: "1 listing",
+//   },
+//   {
+//     name: "2 Months Plus",
+//     price: "19.90",
+//     duration: "60 days",
+//     bonus: "21 bonus days",
+//     listings: "1 listing",
+//   },
+//   {
+//     name: "3 Months Plus",
+//     price: "29.85",
+//     duration: "90 days",
+//     bonus: "33 bonus days",
+//     listings: "1 listing",
+//   },
+// ]
 
-const bulkPackages = [
-  {
-    name: "5+3 Package",
-    price: "49.75",
-    listings: "5 paid + 3 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-  {
-    name: "10+5 Package",
-    price: "99.50",
-    listings: "10 paid + 5 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-  {
-    name: "20+10 Package",
-    price: "199.00",
-    listings: "20 paid + 10 bonus",
-    duration: "30 days per listing",
-    validity: "12 months",
-  },
-]
+// const bulkPackages = [
+//   {
+//     name: "5+3 Package",
+//     price: "49.75",
+//     listings: "5 paid + 3 bonus",
+//     duration: "30 days per listing",
+//     validity: "12 months",
+//   },
+//   {
+//     name: "10+5 Package",
+//     price: "99.50",
+//     listings: "10 paid + 5 bonus",
+//     duration: "30 days per listing",
+//     validity: "12 months",
+//   },
+//   {
+//     name: "20+10 Package",
+//     price: "199.00",
+//     listings: "20 paid + 10 bonus",
+//     duration: "30 days per listing",
+//     validity: "12 months",
+//   },
+// ]
 
 const statistics = [
   { number: "10+", label: "Categories", icon: ShoppingBag },
@@ -132,6 +134,7 @@ const faqs = [
 
 export default async function LandingPage() {
   const categories = (await getCategories()).filter(category => category.display_in_hero)
+  const { durationPackages, bulkPackages } = await getPackages()
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -307,64 +310,80 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            {/* Paid Packages */}
-            <div className="mb-16">
-              <h3 className="text-2xl font-bold mb-8">Duration-Based Packages</h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                {paidPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60">
-                    <CardHeader>
-                      <CardTitle>{pkg.name}</CardTitle>
-                      <CardDescription>
-                        {pkg.duration} + {pkg.bonus}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">
-                        {pkg.price} <span className="text-sm">AED</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-4">{pkg.listings}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full">Select Plan</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
+                  {/* Duration-Based Packages */}
+      {durationPackages.length > 0 && (
+        <div className="mb-16">
+          <h3 className="text-2xl font-bold mb-8">Duration-Based Packages</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {durationPackages.map((pkg) => (
+              <Card key={pkg.id} className="bg-background/60">
+                <CardHeader>
+                  <CardTitle>{pkg.name}</CardTitle>
+                  <CardDescription>
+                    {pkg.duration_days} days + {pkg.bonus_listing_count > 0 ? `${pkg.bonus_listing_count} bonus days` : 'no bonus'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold mb-2">
+                    {pkg.price.toFixed(2)} <span className="text-sm">AED</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">{pkg.listing_count} listing{pkg.listing_count !== 1 ? 's' : ''}</p>
+                </CardContent>
+                <CardFooter>
+                  <BuyNowButton 
+                    packageId={pkg.id}
+                    className="w-full"
+                  >
+                    Select Plan
+                  </BuyNowButton>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
-            {/* Bulk Packages */}
-            <div>
-              <h3 className="text-2xl font-bold mb-8">Bulk Packages</h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                {bulkPackages.map((pkg) => (
-                  <Card key={pkg.name} className="bg-background/60">
-                    <CardHeader>
-                      <CardTitle>{pkg.name}</CardTitle>
-                      <CardDescription>{pkg.listings}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">
-                        {pkg.price} <span className="text-sm">AED</span>
-                      </div>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
-                          {pkg.duration}
-                        </li>
-                        <li className="flex items-center">
-                          <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
-                          Valid for {pkg.validity}
-                        </li>
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full">Select Package</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
+      {/* Bulk Packages */}
+      {bulkPackages.length > 0 && (
+        <div>
+          <h3 className="text-2xl font-bold mb-8">Bulk Packages</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {bulkPackages.map((pkg) => (
+              <Card key={pkg.id} className="bg-background/60">
+                <CardHeader>
+                  <CardTitle>{pkg.name}</CardTitle>
+                  <CardDescription>
+                    {pkg.listing_count} paid + {pkg.bonus_listing_count} bonus
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold mb-2">
+                    {pkg.price.toFixed(2)} <span className="text-sm">AED</span>
+                  </div>
+                  <ul className="space-y-2">
+                    <li className="flex items-center">
+                      <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
+                      {pkg.duration_days} days per listing
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle2 className="h-5 w-5 text-primary mr-2" />
+                      Valid for {pkg.validity_days} days
+                    </li>
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <BuyNowButton 
+                    packageId={pkg.id}
+                    className="w-full"
+                  >
+                    Select Package
+                  </BuyNowButton>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
           </div>
         </section>
 
