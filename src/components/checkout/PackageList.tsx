@@ -67,6 +67,7 @@ export default async function PackageList() {
                       description={pkg.description || undefined}
                       price={pkg.price}
                       features={formatPackageFeatures(pkg)}
+                      isFree={true}
                     />
                   </div>
                 ))}
