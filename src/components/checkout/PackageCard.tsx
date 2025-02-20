@@ -5,6 +5,7 @@ import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
+import { useProfile } from "@/context/ProfileContext";
 
 interface PackageCardProps {
   id: string;
@@ -28,6 +29,8 @@ export default function PackageCard({
   isFree = false
 }: PackageCardProps) {
     const router = useRouter();
+    const { profile } = useProfile();
+
   return (
     <Card className={`bg-background/60 ${className}`}>
       <CardHeader>
@@ -50,7 +53,7 @@ export default function PackageCard({
       </CardContent>
       <CardFooter>
         {isFree ?
-         <Button className="w-full" onClick={() => router.push('/auth/signup')}>Get Started</Button>
+         <Button disabled={!!profile} className="w-full" onClick={() => router.push('/auth/signup')}>Get Started</Button>
          : 
          <StripeCheckoutButton packageId={id} className="w-full" buttonText="Select Package" />
          }
