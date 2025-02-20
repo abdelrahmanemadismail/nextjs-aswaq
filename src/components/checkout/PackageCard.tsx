@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface PackageCardProps {
   id: string;
