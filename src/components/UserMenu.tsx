@@ -11,8 +11,9 @@ import {
   Menu,
   User,
   // Wallet,
-  LayoutList,
-  Heart,
+  // LayoutList,
+  // Heart,
+  Package,
   Percent,
   HelpCircle,
   Settings,
@@ -74,6 +75,10 @@ export function UserMenu() {
           <span>Favourites</span>
         </DropdownMenuItem> */}
         <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/profile/packages')}>
+          <Package className="h-5 w-5 text-primary" />
+          <span>My Packages</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/packages')}>
           <Percent className="h-5 w-5 text-primary" />
           <span>Promotion Packages</span>
         </DropdownMenuItem>
