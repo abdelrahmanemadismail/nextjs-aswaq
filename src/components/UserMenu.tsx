@@ -65,15 +65,15 @@ export function UserMenu() {
           <Wallet className="h-5 w-5 text-primary" />
           <span>Aswaq wallet</span>
         </DropdownMenuItem> */}
-        <DropdownMenuItem className="gap-2 py-3">
+        {/* <DropdownMenuItem className="gap-2 py-3">
           <LayoutList className="h-5 w-5 text-primary" />
           <span>Ads Listing</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="gap-2 py-3">
           <Heart className="h-5 w-5 text-primary" />
           <span>Favourites</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3">
+        </DropdownMenuItem> */}
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/profile/packages')}>
           <Percent className="h-5 w-5 text-primary" />
           <span>Promotion Packages</span>
         </DropdownMenuItem>
