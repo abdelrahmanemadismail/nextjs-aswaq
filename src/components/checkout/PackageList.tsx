@@ -46,7 +46,7 @@ export default async function PackageList() {
   
     return (
       <div>
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto py-12">
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold mb-4">Choose Your Package</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
