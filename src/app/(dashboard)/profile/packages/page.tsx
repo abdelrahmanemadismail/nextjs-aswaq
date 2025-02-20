@@ -110,10 +110,16 @@ export default async function UserPackagesPage() {
                       <span className="text-muted-foreground">Listing duration:</span>
                       <span className="font-medium">{pkg.duration_days} days</span>
                     </div>
+                    {pkg.bonus_duration_days > 0 && (
+                      <div className="grid grid-cols-2 text-sm">
+                        <span className="text-muted-foreground">Bonus duration:</span>
+                        <span className="font-medium">{userPackage.bonus_duration_days}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/30 border-t text-xs text-muted-foreground">
+              <CardFooter className="bg-muted/30 border-t text-xs text-muted-foreground pt-5">
                 <div className="w-full flex justify-between">
                   <span>Purchased {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
                   <span>ID: {userPackage.id.split('-')[0]}</span>

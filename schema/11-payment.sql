@@ -27,6 +27,7 @@ CREATE TABLE packages (
     listing_count integer NOT NULL CHECK (listing_count >= 0),
     bonus_listing_count integer DEFAULT 0 CHECK (bonus_listing_count >= 0),
     duration_days integer NOT NULL CHECK (duration_days > 0),
+    bonus_duration_days integer DEFAULT 0 CHECK (bonus_duration_days >= 0),
     validity_days integer NOT NULL CHECK (validity_days > 0),
     user_limit integer CHECK (user_limit > 0),
     is_featured boolean DEFAULT false NOT NULL,

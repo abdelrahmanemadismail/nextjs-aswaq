@@ -9,6 +9,7 @@ export interface Package {
     listing_count: number;
     bonus_listing_count: number;
     duration_days: number;
+    bonus_duration_days: number;
     validity_days: number;
     user_limit: number | null;
     is_featured: boolean;
