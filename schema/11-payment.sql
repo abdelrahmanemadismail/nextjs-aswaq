@@ -182,10 +182,105 @@ CREATE TRIGGER validate_package_listing_trigger
     FOR EACH ROW
     EXECUTE FUNCTION validate_package_listing();
 
-/**
- * REALTIME SUBSCRIPTIONS
- * Only allow realtime listening on public tables.
- */
--- DROP PUBLICATION IF EXISTS supabase_realtime;
--- CREATE PUBLICATION supabase_realtime 
---     FOR TABLE stripe_products, stripe_prices, packages;
+-- First, let's ensure we have the early bird package in the system
+INSERT INTO public.packages (
+    id, 
+    stripe_product_id, 
+    stripe_price_id, 
+    name, 
+    description, 
+    price, 
+    package_type, 
+    listing_count, 
+    bonus_listing_count,
+    duration_days, 
+    bonus_duration_days,
+    validity_days, 
+    user_limit, 
+    is_featured, 
+    is_active
+)
+VALUES (
+    '7ef61d1f-dd7f-4d85-8826-d0dc46a918e1', 
+    'N/A', 
+    'N/A', 
+    'Early Bird', 
+    'For first 1000 users only', 
+    0, 
+    'free_tier', 
+    3, 
+    0, 
+    30, 
+    0,
+    365, 
+    1000, 
+    FALSE, 
+    TRUE
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Create a function to grant early bird package to new users
+CREATE OR REPLACE FUNCTION public.grant_early_bird_package()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    early_bird_package_id uuid := '7ef61d1f-dd7f-4d85-8826-d0dc46a918e1';
+    user_count integer;
+    package_limit integer;
+BEGIN
+    -- Check if the early bird package exists and is active
+    SELECT user_limit INTO package_limit
+    FROM packages
+    WHERE id = early_bird_package_id AND is_active = true;
+    
+    IF package_limit IS NULL THEN
+        -- Early bird package not found or not active
+        RETURN NEW;
+    END IF;
+    
+    -- Count the number of users who already have the early bird package
+    SELECT COUNT(*) INTO user_count
+    FROM user_packages
+    WHERE package_id = early_bird_package_id;
+    
+    -- Only grant the package if we haven't reached the limit
+    IF user_count < package_limit THEN
+        -- Grant the early bird package to the new user
+        INSERT INTO user_packages (
+            user_id,
+            package_id,
+            amount,
+            payment_status,
+            status,
+            listings_remaining,
+            bonus_listings_remaining,
+            is_featured,
+            activated_at,
+            expires_at
+        )
+        VALUES (
+            NEW.id,
+            early_bird_package_id,
+            0,
+            'succeeded',
+            'active',
+            (SELECT listing_count FROM packages WHERE id = early_bird_package_id),
+            (SELECT bonus_listing_count FROM packages WHERE id = early_bird_package_id),
+            FALSE,
+            NOW(),
+            NOW() + INTERVAL '1 year'
+        );
+    END IF;
+    
+    RETURN NEW;
+END;
+$$;
+
+-- Create trigger to automatically grant early bird package on new user creation
+CREATE TRIGGER on_auth_user_created_grant_early_bird
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.grant_early_bird_package();

@@ -3,6 +3,8 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
+import { Button } from '../ui/button';
+import { useRouter } from 'next/router';
 
 interface PackageCardProps {
   id: string;
@@ -12,6 +14,7 @@ interface PackageCardProps {
   currency?: string;
   features: string[];
   className?: string;
+  isFree?: boolean;
 }
 
 export default function PackageCard({
@@ -21,8 +24,10 @@ export default function PackageCard({
   price,
   currency = 'AED',
   features,
-  className = ''
+  className = '',
+  isFree = false
 }: PackageCardProps) {
+    const router = useRouter();
   return (
     <Card className={`bg-background/60 ${className}`}>
       <CardHeader>
@@ -44,7 +49,11 @@ export default function PackageCard({
         </ul>
       </CardContent>
       <CardFooter>
-        <StripeCheckoutButton packageId={id} className="w-full" buttonText="Select Package" />
+        {isFree ?
+         <Button className="w-full" onClick={() => router.push('/auth/signup')}>Get Started</Button>
+         : 
+         <StripeCheckoutButton packageId={id} className="w-full" buttonText="Select Package" />
+         }
       </CardFooter>
     </Card>
   );
