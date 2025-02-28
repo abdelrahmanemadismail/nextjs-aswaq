@@ -35,7 +35,7 @@ export default async function PackageList() {
       if (pkg.bonus_duration_days > 0) {
         features.push(`${pkg.bonus_duration_days} bonus day${pkg.bonus_duration_days > 1 ? 's' : ''}`);
       }
-      features.push(`Valid for ${pkg.validity_days} days`);
+      // features.push(`Valid for ${pkg.validity_days} days`);
       
       if (pkg.is_featured) {
         features.push('Featured listings');

@@ -126,6 +126,9 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* Packages Section */}
+        <PackageList />
+
         {/* Statistics Section */}
         <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
@@ -209,8 +212,6 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* Packages Section */}
-        <PackageList />
 
         {/* Compare Packages Section */}
         {/* <section className="py-20 bg-muted/30">

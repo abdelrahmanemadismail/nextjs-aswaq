@@ -39,7 +39,7 @@ export default function PackageCard({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold mb-4">
-          {price > 0 ? price.toFixed(2) : 'Free'} <span className="text-sm">{currency}</span>
+          {price > 0 ? price.toFixed(2) : 'Free'} <span className="text-sm">{isFree? "" : currency}</span>
         </div>
         
         <ul className="space-y-2">

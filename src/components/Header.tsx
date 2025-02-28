@@ -1,10 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import Link from "next/link";
 import Image from "next/image";
 import SearchInput from "@/components/SearchInput";
-import { Menu, Bell, Globe, User } from "lucide-react";
+import { Menu, Bell, Globe } from "lucide-react";
 import { useState } from "react";
 import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
@@ -16,8 +16,8 @@ export default function Header() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
-  const [showNotifications, setShowNotifications] = useState(false)
-  const toggleNotifications = () => setShowNotifications(!showNotifications)
+  const [showNotifications, setShowNotifications] = useState(false);
+  const toggleNotifications = () => setShowNotifications(!showNotifications);
   const notifications = [
     {
       id: '1',
@@ -43,8 +43,7 @@ export default function Header() {
       timestamp: '31 minutes ago',
       isUnread: true,
     },
-  ]
-
+  ];
 
   return (
     <header className="border-b bg-background">
@@ -62,16 +61,6 @@ export default function Header() {
                 priority
               />
             </Link>
-
-            {/* Location Selector */}
-            {/* <Button
-              variant="ghost"
-              className="hidden md:flex items-center gap-2 text-primary"
-              size="sm"
-            >
-              <MapPin className="h-4 w-4" />
-              Location
-            </Button> */}
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
@@ -122,6 +111,7 @@ export default function Header() {
                 <Messages className="scale-150" />
               </Button>}
 
+              {/* User Menu if logged in */}
               {profile && <UserMenu />}
               
               {/* Login Button - Hidden on mobile */}
@@ -136,19 +126,22 @@ export default function Header() {
                 </Button>
               )}
 
-              {/* Sell Button - Hidden on mobile */}
-              <Button size="lg" className="hidden md:flex" onClick={() => {
-                if (profile) {
-                  router.push('/sell')
-                } else {
-                  router.push('/auth/signup')
-                }
-              }}>
+              {/* Sell Button - Visible on both mobile and desktop */}
+              <Button 
+                size="lg" 
+                onClick={() => {
+                  if (profile) {
+                    router.push('/sell');
+                  } else {
+                    router.push('/auth/signup');
+                  }
+                }}
+              >
                 Sell
               </Button>
 
               {/* Mobile Menu */}
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              {!profile && (<Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden">
                     <Menu className="h-5 w-5" />
@@ -156,47 +149,34 @@ export default function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <SheetHeader>
+                    <SheetTitle>ASWAQ Menu</SheetTitle>
+                  </SheetHeader>
                   <div className="flex flex-col gap-4 mt-8">
                     <div className="px-2">
                       <SearchInput />
                     </div>
                     <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="primary_outline" 
+                          onClick={() => {
+                            router.push('/auth/login');
+                            setIsOpen(false);
+                          }}
+                        >
+                          Login
+                        </Button>
                       <Button
                         variant="ghost"
-                        className="justify-start gap-2 text-primary"
-                      >
-                        <User className="h-4 w-4" />
-                        Profile
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="justify-start gap-2 text-primary"
-                      >
-                        <Bell className="h-4 w-4" />
-                        Notifications
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="justify-start gap-2 text-primary"
-                      >
-                        <Messages className="h-4 w-4" />
-                        Messages
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="justify-start gap-2 text-primary"
+                        className="justify-center gap-2 text-primary"
                       >
                         <Globe className="h-4 w-4" />
                         العربية
                       </Button>
-                      <Button variant="primary_outline">
-                        Login
-                      </Button>
-                      <Button>Sell</Button>
                     </div>
                   </div>
                 </SheetContent>
-              </Sheet>
+              </Sheet>)}
             </div>
           </div>
         </nav>
