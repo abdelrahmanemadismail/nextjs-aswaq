@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@formatjs/intl-localematcher':
+        specifier: ^0.6.0
+        version: 0.6.0
       '@hookform/resolvers':
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.54.2(react@19.0.0))
@@ -113,6 +116,9 @@ importers:
       micro:
         specifier: ^10.0.1
         version: 10.0.1
+      negotiator:
+        specifier: ^1.0.0
+        version: 1.0.0
       next:
         specifier: 15.1.7
         version: 15.1.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -171,6 +177,9 @@ importers:
       '@types/lodash':
         specifier: ^4.17.15
         version: 4.17.15
+      '@types/negotiator':
+        specifier: ^0.6.3
+        version: 0.6.3
       '@types/node':
         specifier: ^20.17.19
         version: 20.17.19
@@ -275,6 +284,9 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+
+  '@formatjs/intl-localematcher@0.6.0':
+    resolution: {integrity: sha512-4rB4g+3hESy1bHSBG3tDFaMY2CH67iT7yne1e+0CLTsGLDcmoEWWpJjjpWVaYgYfYuohIRuo0E+N536gd2ZHZA==}
 
   '@hookform/resolvers@3.10.0':
     resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
@@ -1316,6 +1328,9 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
+
+  '@types/negotiator@0.6.3':
+    resolution: {integrity: sha512-JkXTOdKs5MF086b/pt8C3+yVp3iDUwG635L7oCH6HvJvvr6lSUU5oe/gLXnPEfYRROHjJIPgCV6cuAg8gGkntQ==}
 
   '@types/node@20.17.19':
     resolution: {integrity: sha512-LEwC7o1ifqg/6r2gn9Dns0f1rhK+fPFDoMiceTJ6kWmVk6bgXBI/9IOWfVan4WiAavK9pIVWdX0/e3J+eEUh5A==}
@@ -2723,6 +2738,10 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
+  negotiator@1.0.0:
+    resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
+    engines: {node: '>= 0.6'}
+
   next-mdx-remote@5.0.0:
     resolution: {integrity: sha512-RNNbqRpK9/dcIFZs/esQhuLA8jANqlH694yqoDBK8hkVdJUndzzGmnPHa2nyi90N4Z9VmzuSWNRpr5ItT3M7xQ==}
     engines: {node: '>=14', npm: '>=7'}
@@ -3736,6 +3755,10 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
 
   '@floating-ui/utils@0.2.9': {}
+
+  '@formatjs/intl-localematcher@0.6.0':
+    dependencies:
+      tslib: 2.8.1
 
   '@hookform/resolvers@3.10.0(react-hook-form@7.54.2(react@19.0.0))':
     dependencies:
@@ -4770,6 +4793,8 @@ snapshots:
   '@types/mdx@2.0.13': {}
 
   '@types/ms@2.1.0': {}
+
+  '@types/negotiator@0.6.3': {}
 
   '@types/node@20.17.19':
     dependencies:
@@ -6749,6 +6774,8 @@ snapshots:
   nanoid@3.3.8: {}
 
   natural-compare@1.4.0: {}
+
+  negotiator@1.0.0: {}
 
   next-mdx-remote@5.0.0(@types/react@19.0.9)(acorn@8.14.0)(react@19.0.0):
     dependencies:

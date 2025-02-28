@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Cairo, Lato } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { Suspense } from "react";
 import { LoaderCircle } from 'lucide-react';
+import { Locale } from "@/i18n.config";
+import { Directions, Languages } from "@/constants/enums";
+
+export async function generateStaticParams() {
+  return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
+}
 
 const lato = Lato({
   subsets: ["latin"],
@@ -13,6 +19,11 @@ const lato = Lato({
   style: ["normal", "italic"],
   preload: true,
   display: "swap",
+});
+const cairo = Cairo({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  preload: true,
 });
 
 // Simple spinner component
@@ -27,14 +38,20 @@ export const metadata: Metadata = {
   description: "Aswaq Online",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
+  params,
   children,
 }: Readonly<{
+  params: Promise<{ locale: Locale }>;
   children: React.ReactNode;
 }>) {
+  const locale = (await params).locale;
   return (
-    <html lang="en">
-      <body className={lato.className}>
+    <html
+      lang={locale}
+      dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
+    >
+      <body className={locale === Languages.ARABIC ? cairo.className : lato.className}>
         <div className="h-screen w-screen">
           <ProfileProvider>
             <Suspense fallback={<Spinner />}>

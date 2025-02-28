@@ -1,6 +1,6 @@
 import { ListingCardProps } from "@/components/ListingCard";
-import HeroSection from "@/app/_components/Hero";
-import ListingsSection from "@/app/_components/ListingsSection";
+import HeroSection from "@/app/[locale]/_components/Hero";
+import ListingsSection from "@/app/[locale]/_components/ListingsSection";
 import AdsBanner from "@/components/AdsBanner";
 import Header from "@/components/Header";
 import CategoryBar from "@/components/CategoryBar";
