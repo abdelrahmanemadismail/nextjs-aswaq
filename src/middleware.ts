@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { i18n, LanguageType, Locale } from "./i18n.config";
+import { i18n, LanguageType } from "./i18n.config";
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
-import { Languages } from '@/constants/enums'
 import { createServerClient } from '@supabase/ssr'
 
 // Helper function to get the preferred locale from the request
@@ -63,6 +62,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
           response = NextResponse.next({
             request: {

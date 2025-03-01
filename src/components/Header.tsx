@@ -4,11 +4,11 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import Link from "next/link";
 import Image from "next/image";
 import SearchInput from "@/components/SearchInput";
-import { Menu, Bell, Globe } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { useState } from "react";
 import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useProfile } from "@/context/ProfileContext";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -16,10 +16,9 @@ import { useTranslation } from "@/hooks/use-translation";
 
 export default function Header() {
   const router = useRouter();
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
-  const { t, locale, getLocalizedPath } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   const [showNotifications, setShowNotifications] = useState(false);
   const toggleNotifications = () => setShowNotifications(!showNotifications);
   const notifications = [

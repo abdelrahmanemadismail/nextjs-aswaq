@@ -168,8 +168,8 @@ export function useTranslation() {
       try {
         setIsLoading(true);
         // Dynamic import based on locale
-        const module = await import(`@/dictionaries/${locale}.json`);
-        setTranslations(module.default as TranslationType);
+        const translationModule = await import(`@/dictionaries/${locale}.json`);
+        setTranslations(translationModule.default as TranslationType);
       } catch (error) {
         console.error('Failed to load translations:', error);
       } finally {
@@ -184,7 +184,7 @@ export function useTranslation() {
   const switchLanguage = useCallback(() => {
     const segments = pathname.split('/');
     const newLocale = locale === Languages.ARABIC ? Languages.ENGLISH : Languages.ARABIC;
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (segments.length > 1 && i18n.locales.includes(segments[1] as any)) {
       segments[1] = newLocale;
     } else {
