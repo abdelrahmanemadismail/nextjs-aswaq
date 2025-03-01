@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { signUpWithEmailPassword } from "@/actions/auth-actions";
 import GoogleButton from "@/components/auth/GoogleButton";
 import AuthCard from "@/components/auth/AuthCard";
+import { useTranslation } from '@/hooks/use-translation';
 
 const signupSchema = z.object({
   fullName: z
@@ -36,6 +37,7 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>;
 
 const SignupForm = () => {
+  const { t, getLocalizedPath } = useTranslation();
   const [formData, setFormData] = useState<SignupFormData>({
     fullName: "",
     email: "",
@@ -117,22 +119,22 @@ const SignupForm = () => {
 
       if (error) {
         toast({
-          title: "Registration error",
-          description: "Could not create account. Please try again.",
+          title: t.auth.registrationError,
+          description: t.auth.accountCreationError,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Account created",
-          description: "Check your email for a verification link",
+          title: t.auth.accountCreated,
+          description: t.auth.verificationEmailSent,
         });
-        router.push("/");
+        router.push(getLocalizedPath("/"));
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -141,7 +143,7 @@ const SignupForm = () => {
   };
 
   return (
-    <AuthCard title="Create your ASWAQ account">
+    <AuthCard title={t.auth.createAswaqAccount}>
       <GoogleButton />
 
       <div className="relative">
@@ -150,19 +152,19 @@ const SignupForm = () => {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 py-3 text-muted-foreground">
-            Or continue with email
+            {t.auth.orContinueWithEmail}
           </span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name</Label>
+          <Label htmlFor="fullName">{t.auth.fullName}</Label>
           <Input
             id="fullName"
             type="text"
             autoComplete="name"
-            placeholder="Enter your full name"
+            placeholder={t.auth.enterFullName}
             value={formData.fullName}
             onChange={handleChange("fullName")}
             onBlur={handleBlur("fullName")}
@@ -178,12 +180,12 @@ const SignupForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t.auth.email}</Label>
           <Input
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="Enter your email"
+            placeholder={t.auth.enterEmail}
             value={formData.email}
             onChange={handleChange("email")}
             onBlur={handleBlur("email")}
@@ -199,12 +201,12 @@ const SignupForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t.auth.password}</Label>
           <Input
             id="password"
             type="password"
             autoComplete="new-password"
-            placeholder="Enter your password"
+            placeholder={t.auth.enterPassword}
             value={formData.password}
             onChange={handleChange("password")}
             onBlur={handleBlur("password")}
@@ -223,22 +225,22 @@ const SignupForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating account...
+              {t.auth.creatingAccount}
             </>
           ) : (
-            "Create account"
+            t.auth.createAccount
           )}
         </Button>
       </form>
 
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">Already have an account? </span>
+        <span className="text-muted-foreground">{t.auth.haveAccount} </span>
         <Button
           variant="link"
           className="px-1 font-semibold"
-          onClick={() => router.push("/auth/login")}
+          onClick={() => router.push(getLocalizedPath("/auth/login"))}
         >
-          Sign in
+          {t.auth.signIn}
         </Button>
       </div>
     </AuthCard>

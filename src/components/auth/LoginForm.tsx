@@ -13,6 +13,7 @@ import { signInWithPassword } from "@/actions/auth-actions";
 import GoogleButton from "@/components/auth/GoogleButton";
 import AuthCard from "@/components/auth/AuthCard";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/use-translation";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").toLowerCase(),
@@ -33,6 +34,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+  const { t, getLocalizedPath } = useTranslation();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -114,22 +116,22 @@ const LoginForm = () => {
 
       if (error) {
         toast({
-          title: "Authentication error",
-          description: "Wrong email or password. Please try again.",
+          title: t.auth.authError,
+          description: t.auth.wrongCredentials,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Sign in successful",
-          description: "You have been signed in successfully",
+          title: t.auth.signInSuccess,
+          description: t.auth.signInSuccessDescription,
         });
-        router.push("/");
+        router.push(getLocalizedPath("/"));
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -138,7 +140,7 @@ const LoginForm = () => {
   };
 
   return (
-    <AuthCard title="Continue to ASWAQ">
+    <AuthCard title={t.auth.continueToAswaq}>
       <GoogleButton />
 
       <div className="relative">
@@ -147,19 +149,19 @@ const LoginForm = () => {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 py-3 text-muted-foreground">
-            Or continue with email
+            {t.auth.orContinueWithEmail}
           </span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t.auth.email}</Label>
           <Input
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="Enter your email"
+            placeholder={t.auth.enterEmail}
             value={formData.email}
             onChange={handleChange("email")}
             onBlur={handleBlur("email")}
@@ -176,19 +178,19 @@ const LoginForm = () => {
 
         <div className="space-y-2 py-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t.auth.password}</Label>
             <Link
-              href="/auth/reset-password/request"
+              href={getLocalizedPath("/auth/reset-password/request")}
               className="text-primary underline-offset-4 hover:underline text-sm"
             >
-              Forgot password?
+              {t.auth.forgotPassword}
             </Link>
           </div>
           <Input
             id="password"
             type="password"
             autoComplete="current-password"
-            placeholder="Enter your password"
+            placeholder={t.auth.enterPassword}
             value={formData.password}
             onChange={handleChange("password")}
             onBlur={handleBlur("password")}
@@ -207,24 +209,24 @@ const LoginForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
+              {t.auth.signingIn}
             </>
           ) : (
-            "Sign in"
+            t.auth.signIn
           )}
         </Button>
       </form>
 
       <div className="text-center text-sm">
         <span className="text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t.auth.noAccount}{" "}
         </span>
         <Button
           variant="link"
           className="px-1 font-semibold"
-          onClick={() => router.push("/auth/signup")}
+          onClick={() => router.push(getLocalizedPath("/auth/signup"))}
         >
-          Sign up
+          {t.auth.signup}
         </Button>
       </div>
     </AuthCard>

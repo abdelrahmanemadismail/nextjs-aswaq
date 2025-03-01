@@ -11,6 +11,7 @@ import { resetPasswordForEmail } from '@/actions/auth-actions';
 import Link from 'next/link';
 import AuthCard from '@/components/auth/AuthCard';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
 const resetSchema = z.object({
   email: z.string().email("Invalid email address").toLowerCase(),
@@ -19,6 +20,7 @@ const resetSchema = z.object({
 type ResetFormData = z.infer<typeof resetSchema>;
 
 const ResetPasswordRequest: React.FC = () => {
+  const { t, getLocalizedPath } = useTranslation();
   const router = useRouter();
   const [formData, setFormData] = useState<ResetFormData>({ email: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof ResetFormData, string>>>({});
@@ -90,22 +92,22 @@ const ResetPasswordRequest: React.FC = () => {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to send reset instructions. Please try again.",
+          title: t.common.error,
+          description: t.auth.resetInstructionsError,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Success",
-          description: "Password reset instructions have been sent to your email.",
+          title: t.common.success,
+          description: t.auth.resetInstructionsSent,
         });
-        router.push('/auth/login');
+        router.push(getLocalizedPath('/auth/login'));
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -114,10 +116,10 @@ const ResetPasswordRequest: React.FC = () => {
   };
 
   return (
-    <AuthCard title="Reset your password">
+    <AuthCard title={t.auth.resetYourPassword}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t.auth.email}</Label>
           <Input
             id="email"
             type="email"
@@ -125,7 +127,7 @@ const ResetPasswordRequest: React.FC = () => {
             onChange={handleChange}
             onBlur={handleBlur}
             autoComplete="email"
-            placeholder="Enter your email"
+            placeholder={t.auth.enterEmail}
             required
             disabled={isLoading}
             className={errors.email ? "border-red-500 h-10" : "h-10"}
@@ -141,20 +143,20 @@ const ResetPasswordRequest: React.FC = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
+              {t.auth.sending}
             </>
           ) : (
-            "Send Reset Link"
+            t.auth.sendResetLink
           )}
         </Button>
 
         <div className="text-center text-sm py-4">
-          <span className="text-muted-foreground">Remember your password? </span>
+          <span className="text-muted-foreground">{t.auth.rememberPassword} </span>
           <Link
-            href="/auth/login"
+            href={getLocalizedPath('/auth/login')}
             className="text-primary underline-offset-4 hover:underline text-sm"
           >
-            Sign in
+            {t.auth.signIn}
           </Link>
         </div>
       </form>

@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { updatePassword } from '@/actions/auth-actions';
 import AuthCard from '@/components/auth/AuthCard';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
 const basePasswordSchema = z.string()
   .min(1, "Password is required")
@@ -34,6 +35,7 @@ const passwordSchema = z.object({
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 function NewPasswordForm() {
+  const { t, getLocalizedPath } = useTranslation();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<PasswordFormData>({
@@ -125,23 +127,23 @@ function NewPasswordForm() {
       if (error) {
         console.log(error);
         toast({
-          title: "Error",
-          description: "Failed to update password. Please try again.",
+          title: t.common.error,
+          description: t.auth.passwordUpdateError,
           variant: "destructive",
         });
       } else {
         console.log(response);
         toast({
-          title: "Success",
-          description: "Your password has been updated successfully.",
+          title: t.common.success,
+          description: t.auth.passwordUpdateSuccess,
         });
-        router.push('/auth/login');
+        router.push(getLocalizedPath('/auth/login'));
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -154,10 +156,10 @@ function NewPasswordForm() {
   }
 
   return (
-    <AuthCard title="Set your new password">
+    <AuthCard title={t.auth.setNewPassword}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="password">New Password</Label>
+          <Label htmlFor="password">{t.auth.newPassword}</Label>
           <Input
             id="password"
             type="password"
@@ -165,7 +167,7 @@ function NewPasswordForm() {
             onChange={handleChange('password')}
             onBlur={handleBlur('password')}
             autoComplete="new-password"
-            placeholder="Enter your new password"
+            placeholder={t.auth.enterNewPassword}
             required
             disabled={isLoading}
             className={errors.password ? "border-red-500 h-10" : "h-10"}
@@ -179,7 +181,7 @@ function NewPasswordForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Label htmlFor="confirmPassword">{t.auth.confirmPassword}</Label>
           <Input
             id="confirmPassword"
             type="password"
@@ -187,7 +189,7 @@ function NewPasswordForm() {
             onChange={handleChange('confirmPassword')}
             onBlur={handleBlur('confirmPassword')}
             autoComplete="new-password"
-            placeholder="Confirm your new password"
+            placeholder={t.auth.confirmNewPassword}
             required
             disabled={isLoading}
             className={errors.confirmPassword ? "border-red-500 h-10" : "h-10"}
@@ -204,10 +206,10 @@ function NewPasswordForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating password...
+              {t.auth.updatingPassword}
             </>
           ) : (
-            "Update Password"
+            t.auth.updatePassword
           )}
         </Button>
       </form>

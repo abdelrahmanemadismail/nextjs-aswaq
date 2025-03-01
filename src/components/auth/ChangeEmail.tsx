@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { changeEmail } from '@/actions/auth-actions';
 import AuthCard from '@/components/auth/AuthCard';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
 const emailSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -18,6 +19,7 @@ const emailSchema = z.object({
 type EmailFormData = z.infer<typeof emailSchema>;
 
 function ChangeEmailForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<EmailFormData>({
@@ -101,23 +103,23 @@ function ChangeEmailForm() {
       if (error) {
         console.log(error);
         toast({
-          title: "Error",
-          description: "Failed to change email. Please try again.",
+          title: t.common.error,
+          description: t.auth.emailChangeError,
           variant: "destructive",
         });
       } else {
         console.log(response);
         toast({
-          title: "Success",
-          description: "Your email has been changed successfully.",
+          title: t.common.success,
+          description: t.auth.emailChangeSuccess,
         });
         router.push('/auth/login');
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -130,10 +132,10 @@ function ChangeEmailForm() {
   }
 
   return (
-    <AuthCard title="Change Email Address">
+    <AuthCard title={t.auth.changeEmailAddress}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">New Email</Label>
+          <Label htmlFor="email">{t.auth.newEmail}</Label>
           <Input
             id="email"
             type="email"
@@ -141,7 +143,7 @@ function ChangeEmailForm() {
             onChange={handleChange('email')}
             onBlur={handleBlur('email')}
             autoComplete="new-password"
-            placeholder="Enter your new email"
+            placeholder={t.auth.enterNewEmail}
             required
             disabled={isLoading}
             className={errors.email ? "border-red-500 h-10" : "h-10"}
@@ -158,10 +160,10 @@ function ChangeEmailForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Changing email...
+              {t.auth.changingEmail}
             </>
           ) : (
-            "Change Email"
+            t.auth.changeEmail
           )}
         </Button>
       </form>
