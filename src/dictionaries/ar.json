@@ -118,6 +118,17 @@
     "durationBasedPackages": "الباقات المحددة بمدة",
     "bulkPackages": "باقات البيع بالجملة"
   },
+  "listings": {
+    "km": "كم",
+    "share": "مشاركة",
+    "call": "اتصال",
+    "whatsapp": "واتساب",
+    "phoneNotAvailable": "رقم الهاتف غير متاح",
+    "callSeller": "اتصل بالبائع",
+    "whatsappNotAvailable": "رقم الواتساب غير متاح",
+    "messageOnWhatsapp": "مراسلة عبر واتساب",
+    "whatsappMessage": "مرحباً، أنا مهتم بإعلانك: \"{listingTitle}\" على أسواق"
+  },
   "homepage": {
     "heroTitle": "سوقك الموثوق في",
     "heroTitleHighlight": "الشرق الأوسط",
@@ -199,5 +210,9 @@
     "termsOfService": "شروط الخدمة",
     "privacyPolicy": "سياسة الخصوصية",
     "copyright": "© {year} أسواق. جميع الحقوق محفوظة."
+  },
+  "images": {
+    "cropProfilePicture": "اقتصاص صورة الملف الشخصي",
+    "errorCropping": "خطأ في اقتصاص الصورة:"
   }
 }

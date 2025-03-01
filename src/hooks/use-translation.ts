@@ -128,6 +128,17 @@ const defaultTranslations = {
     durationBasedPackages: '',
     bulkPackages: ''
   },
+  listings: {
+    km: '',
+    share: '',
+    call: '',
+    whatsapp: '',
+    phoneNotAvailable: '',
+    callSeller: '',
+    whatsappNotAvailable: '',
+    messageOnWhatsapp: '',
+    whatsappMessage: ''
+  },
   homepage: {
     heroTitle: '',
     heroTitleHighlight: '',
@@ -193,6 +204,10 @@ const defaultTranslations = {
     termsOfService: '',
     privacyPolicy: '',
     copyright: ''
+  },
+  images: {
+    cropProfilePicture: '',
+    errorCropping: ''
   }
 };
 

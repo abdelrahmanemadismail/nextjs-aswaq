@@ -118,6 +118,17 @@
     "durationBasedPackages": "Duration-Based Packages",
     "bulkPackages": "Bulk Packages"
   },
+  "listings": {
+    "km": "km",
+    "share": "Share",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "phoneNotAvailable": "Phone number not available",
+    "callSeller": "Call seller",
+    "whatsappNotAvailable": "WhatsApp number not available",
+    "messageOnWhatsapp": "Message on WhatsApp",
+    "whatsappMessage": "Hi, I'm interested in your listing: \"{listingTitle}\" on Aswaq"
+  },
   "homepage": {
     "heroTitle": "Your Trusted Marketplace in the",
     "heroTitleHighlight": "Middle East",
@@ -199,5 +210,9 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "copyright": "© {year} Aswaq. All rights reserved."
+  },
+  "images": {
+    "cropProfilePicture": "Crop Profile Picture",
+    "errorCropping": "Error cropping image:"
   }
 }

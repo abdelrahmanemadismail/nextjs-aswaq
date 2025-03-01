@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Crop, X, ZoomIn, ZoomOut } from 'lucide-react';
 import Cropper from 'react-easy-crop';
+import { useTranslation } from '@/hooks/use-translation';
 
 // Define types that were previously imported
 interface Point {
@@ -31,6 +32,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
   onSave,
   imageFile
 }) => {
+  const { t } = useTranslation();
   const [imageSrc, setImageSrc] = useState<string>('');
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -118,7 +120,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
 
       onSave(file);
     } catch (error) {
-      console.error('Error cropping image:', error);
+      console.error(t.images.errorCropping, error);
     }
   };
 
@@ -132,7 +134,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crop className="h-5 w-5" />
-            Crop Profile Picture
+            {t.images.cropProfilePicture}
           </DialogTitle>
         </DialogHeader>
         
@@ -174,14 +176,14 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
           <div className="flex gap-2 justify-end w-full">
             <Button variant="outline" onClick={onClose}>
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button 
               onClick={handleSave}
               disabled={!imageSrc}
             >
               <Crop className="h-4 w-4 mr-2" />
-              Save
+              {t.common.save}
             </Button>
           </div>
         </div>
