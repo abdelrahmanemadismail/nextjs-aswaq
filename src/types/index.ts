@@ -1,6 +1,7 @@
 export interface Category {
   id: string;
   name: string;
+  name_ar: string;
   slug: string;
   icon: string | null;
   display_in_header: boolean;

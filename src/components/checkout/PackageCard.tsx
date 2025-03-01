@@ -6,6 +6,7 @@ import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { useProfile } from "@/context/ProfileContext";
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PackageCardProps {
   id: string;
@@ -30,6 +31,7 @@ export default function PackageCard({
 }: PackageCardProps) {
     const router = useRouter();
     const { profile } = useProfile();
+    const { t } = useTranslation();
 
   return (
     <Card className={`bg-background/60 ${className}`}>
@@ -39,7 +41,7 @@ export default function PackageCard({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold mb-4">
-          {price > 0 ? price.toFixed(2) : 'Free'} <span className="text-sm">{isFree? "" : currency}</span>
+          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree? "" : currency}</span>
         </div>
         
         <ul className="space-y-2">
@@ -53,9 +55,15 @@ export default function PackageCard({
       </CardContent>
       <CardFooter>
         {isFree ?
-         <Button disabled={!!profile} className="w-full" onClick={() => router.push('/auth/signup')}>Get Started</Button>
+         <Button disabled={!!profile} className="w-full" onClick={() => router.push('/auth/signup')}>
+           {t.payments.getStarted}
+         </Button>
          : 
-         <StripeCheckoutButton packageId={id} className="w-full" buttonText="Select Package" />
+         <StripeCheckoutButton 
+           packageId={id} 
+           className="w-full" 
+           buttonText={t.payments.selectPackage} 
+         />
          }
       </CardFooter>
     </Card>

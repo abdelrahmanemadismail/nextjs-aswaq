@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { handleSearchFilter } from "@/lib/filter-utils"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslation } from "@/hooks/use-translation";
 
 interface SearchInputProps {
   /** Additional class names to apply to the form container */
@@ -25,13 +26,14 @@ interface SearchInputProps {
 const SearchInput = ({
   className = '',
   defaultValue = '',
-  placeholder = 'Search...',
+  placeholder,
   size = 'md',
   isLoading = false,
   disabled = false,
 }: SearchInputProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || defaultValue);
 
   // Size mappings for different variants
@@ -72,7 +74,7 @@ const SearchInput = ({
           type="search"
           value={searchValue}
           onChange={handleChange}
-          placeholder={placeholder}
+          placeholder={placeholder || t.common.searchPlaceholder}
           disabled={disabled || isLoading}
           className={`
             pr-12
@@ -99,7 +101,7 @@ const SearchInput = ({
           `}
         >
           <Search className={`${sizeClasses[size]} ${sizeBox[size]} ${isLoading ? 'animate-pulse' : ''}`} />
-          <span className="sr-only">Search</span>
+          <span className="sr-only">{t.common.search}</span>
         </Button>
       </div>
     </form>

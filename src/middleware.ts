@@ -1,54 +1,58 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { i18n, LanguageType, Locale } from "./i18n.config";
+import { match as matchLocale } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
+import { Languages } from '@/constants/enums'
 import { createServerClient } from '@supabase/ssr'
-import { match as matchLocale } from "@formatjs/intl-localematcher"
-import Negotiator from "negotiator"
-import { i18n, LanguageType, Locale } from "./i18n.config"
 
-// Define paths that don't require authentication
-const authenticationExemptPaths = [
-  '/auth/login',
-  '/auth/signup',
-  '/auth/reset-password/request',
-  '/auth/callback',
-  '/auth/confirm',
-]
+// Helper function to get the preferred locale from the request
+function getLocale(request: NextRequest): string | undefined {
+  const negotiatorHeaders: Record<string, string> = {};
+  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value));
 
-// Function to get the preferred locale from the request
-function getLocale(request: NextRequest): string {
-  const negotiatorHeaders: Record<string, string> = {}
-  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
-  
-  const locales: LanguageType[] = i18n.locales
-  const languages = new Negotiator({ headers: negotiatorHeaders }).languages()
-  
+  const locales: LanguageType[] = i18n.locales;
+  const languages = new Negotiator({ headers: negotiatorHeaders }).languages();
+  let locale = "";
+
   try {
-    return matchLocale(languages, locales, i18n.defaultLocale)
-  } catch (error) {
-    return i18n.defaultLocale
+    locale = matchLocale(languages, locales, i18n.defaultLocale);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+  } catch (error: any) {
+    locale = i18n.defaultLocale;
   }
+  return locale;
 }
-
 export async function middleware(request: NextRequest) {
-  // Create response with headers setup
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-url', request.url)
+  const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-url", request.url);
+
+
+  // Step 1: Check if the pathname has a supported locale
+  const pathname = request.nextUrl.pathname
+  const pathnameHasLocale = i18n.locales.some(
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  )
+
+  // Step 2: Redirect if there is no locale in the pathname
+  if (!pathnameHasLocale) {
+    const locale = getLocale(request)
+    const url = new URL(`/${locale}${pathname.startsWith('/') ? pathname : `/${pathname}`}`, request.url)
+    url.search = request.nextUrl.search
+    
+    return NextResponse.redirect(url)
+  }
   
-  let supabaseResponse = NextResponse.next({
+  // Get the current locale from the URL
+  const pathnameParts = pathname.split('/')
+  const currentLocale = pathnameParts.length > 1 ? pathnameParts[1] : null
+  
+  // Step 3: Process Supabase authentication
+  let response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   })
 
-  const { pathname, search } = request.nextUrl
-  
-  // Check if the pathname already includes a locale
-  const pathnameHasLocale = i18n.locales.some(
-    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  )
-  
-  // Get locale from pathname or from the accept-language header
-  let locale = pathnameHasLocale ? pathname.split('/')[1] as Locale : getLocale(request) as Locale
-  
   // Create Supabase client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,72 +63,51 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          response = NextResponse.next({
             request: {
-              headers: requestHeaders,
+              headers: request.headers,
             },
           })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           )
         },
       },
     }
   )
 
-  // IMPORTANT: Don't add any code between here and auth.getUser()
+  // IMPORTANT: DO NOT REMOVE auth.getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Redirect if there is no locale in the pathname
-  if (!pathnameHasLocale) {
-    // Create a URL with the detected locale
+  // Step 4: Check auth and redirect for protected routes if needed
+  // Get the path without the locale prefix for easier checks
+  const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
+  
+  const publicPaths = ['', '/about-us', '/contact', '/terms-of-service', '/privacy-policy']
+  const pathStartsWithPublic = ['/help', '/auth', '/listings','/sell']
+  
+  const isPublicPath = 
+    publicPaths.includes(pathWithoutLocale) || 
+    pathStartsWithPublic.some(p => pathWithoutLocale.startsWith(p))
+  
+  if (!user && !isPublicPath) {
+    // No user and trying to access protected route
+    // Redirect to login page with the correct locale
     const url = request.nextUrl.clone()
-    url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`
-    url.search = search
+    url.pathname = `/${currentLocale}/auth/login`
+    url.search = `?redirectTo=${encodeURIComponent(pathname)}`
     return NextResponse.redirect(url)
   }
 
-  // Get the path without the locale prefix for auth checks
-  const pathWithoutLocale = pathname.replace(`/${locale}`, '')
-
-  // if (user) {
-  //   // If user is logged in and trying to access auth pages, redirect to home
-  //   if (authenticationExemptPaths.includes(pathWithoutLocale)) {
-  //     const url = request.nextUrl.clone()
-  //     url.pathname = `/${locale}/`
-  //     return NextResponse.redirect(url)
-  //   }
-  // } else {
-  //   // If user is not logged in and the path requires authentication, redirect to login
-  //   const isAuthExempt = authenticationExemptPaths.includes(pathWithoutLocale) || pathWithoutLocale === '/'
-    
-  //   if (!isAuthExempt) {
-  //     const url = request.nextUrl.clone()
-  //     url.pathname = `/${locale}/auth/login`
-  //     // Store original URL as redirect parameter
-  //     url.searchParams.set('redirectedFrom', pathname)
-  //     return NextResponse.redirect(url)
-  //   }
-  // }
-
-  // Add the locale to headers
-  requestHeaders.set('x-locale', locale)
-  
-  return supabaseResponse
+  return response
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (images, etc.)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+    // Skip all internal paths (_next, api, static files, etc.)
+    '/((?!_next|api|favicon.ico|images|.*\\.png$|.*\\.svg$).*)',
+  ]
 }

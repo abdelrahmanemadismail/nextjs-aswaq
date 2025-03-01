@@ -1,0 +1,151 @@
+{
+  "common": {
+    "language": "English",
+    "search": "Search",
+    "searchPlaceholder": "Search for products...",
+    "contactSupport": "Contact Support",
+    "viewAll": "View All",
+    "loadMore": "Load More",
+    "moreDetails": "More Details",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "yes": "Yes",
+    "no": "No",
+    "sell": "Sell",
+    "toggleMenu": "Toggle menu",
+    "aswaqMenu": "ASWAQ Menu",
+    "error": "Error",
+    "unexpectedError": "An unexpected error occurred",
+    "processing": "Processing..."
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "forgotPassword": "Forgot Password"
+  },
+  "account": {
+    "profile": "Profile",
+    "myPackages": "My Packages",
+    "promotionPackages": "Promotion Packages",
+    "help": "Help",
+    "settings": "Settings",
+    "logout": "Logout",
+    "userAvatar": "User avatar",
+    "signOutSuccess": "Signed out successfully",
+    "signOutSuccessDescription": "You have been signed out of your account",
+    "signOutError": "Error signing out",
+    "signOutErrorDescription": "There was a problem signing out. Please try again."
+  },
+  "payments": {
+    "selectPlan": "Select Plan",
+    "packageIdRequired": "Package ID is required",
+    "noCheckoutUrl": "No checkout URL returned",
+    "checkoutFailed": "Checkout Failed",
+    "free": "Free",
+    "getStarted": "Get Started",
+    "selectPackage": "Select Package",
+    "packages": "Packages",
+    "errorLoadingPackages": "Error loading packages",
+    "listing": "listing",
+    "listings": "listings",
+    "bonusListing": "bonus listing",
+    "days": "days",
+    "bonusDay": "bonus day",
+    "validFor": "Valid for",
+    "featuredListings": "Featured listings",
+    "chooseYourPackage": "Choose Your Package",
+    "selectPerfectPlan": "Select the perfect plan to start your journey with ASWAQ Online",
+    "freeTierPackages": "Free Tier Packages",
+    "durationBasedPackages": "Duration-Based Packages",
+    "bulkPackages": "Bulk Packages"
+  },
+  "homepage": {
+    "heroTitle": "Your Trusted Marketplace in the",
+    "heroTitleHighlight": "Middle East",
+    "heroSubtitle": "Join the region's fastest-growing marketplace for buying and selling",
+    "statistics": {
+      "categories": "Categories",
+      "customerSupport": "Customer Support",
+      "secureTransactions": "Secure Transactions"
+    },
+    "howItWorks": {
+      "title": "How ASWAQ Online Works",
+      "subtitle": "Start buying or selling in three simple steps",
+      "step1": {
+        "step": "1",
+        "title": "Create Account",
+        "description": "Sign up for free and verify your account"
+      },
+      "step2": {
+        "step": "2",
+        "title": "Post or Browse",
+        "description": "List your items or browse thousands of listings"
+      },
+      "step3": {
+        "step": "3",
+        "title": "Connect & Trade",
+        "description": "Connect with buyers or sellers and make deals"
+      }
+    },
+    "whyChooseUs": {
+      "title": "Why Choose ASWAQ Online",
+      "subtitle": "Discover the features that make us the leading marketplace",
+      "secureTransactions": {
+        "title": "Secure Transactions",
+        "description": "Built-in security measures to protect buyers and sellers"
+      },
+      "realTimeUpdates": {
+        "title": "Real-time Updates",
+        "description": "Instant notifications for your listings and offers"
+      },
+      "userFriendly": {
+        "title": "User-Friendly Interface",
+        "description": "Easy-to-use platform for seamless buying and selling"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Round-the-clock customer service in multiple languages"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Find answers to common questions about ASWAQ Online",
+      "createListing": {
+        "question": "How do I create a listing?",
+        "answer": "Creating a listing is simple! Click the 'Sell' button, choose your category, fill in the details, add photos, and publish. Free tier users can post up to 3 listings."
+      },
+      "listingDuration": {
+        "question": "How long do listings stay active?",
+        "answer": "Listing duration depends on your package. Free listings last 30 days, while paid packages offer extended durations plus bonus days."
+      },
+      "featuredListing": {
+        "question": "Is featured listing worth it?",
+        "answer": "Featured listings appear on the homepage and are designed to get more views. It's perfect for items you want to sell quickly."
+      },
+      "verifiedSeller": {
+        "question": "How do I become a verified seller?",
+        "answer": "Complete your profile, verify your contact information, and maintain a positive rating. Verified sellers will enjoy higher visibility and trust."
+      }
+    },
+    "support": {
+      "title": "Need Help?",
+      "subtitle": "Our support team is here to assist you 24/7"
+    }
+  },
+  "footer": {
+    "aboutUs": "About us",
+    "contactUs": "Contact us",
+    "helpCenter": "Help Center",
+    "termsOfUse": "Terms of use",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "copyright": "© {year} Aswaq. All rights reserved."
+  }
+}

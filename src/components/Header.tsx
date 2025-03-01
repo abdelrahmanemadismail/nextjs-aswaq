@@ -8,14 +8,18 @@ import { Menu, Bell, Globe } from "lucide-react";
 import { useState } from "react";
 import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useProfile } from "@/context/ProfileContext";
 import NotificationsPanel from "@/components/NotificationsPanel";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
+  const { t, locale, getLocalizedPath } = useTranslation();
   const [showNotifications, setShowNotifications] = useState(false);
   const toggleNotifications = () => setShowNotifications(!showNotifications);
   const notifications = [
@@ -45,13 +49,18 @@ export default function Header() {
     },
   ];
 
+  // Helper function to navigate with locale preserved
+  const navigateTo = (path: string) => {
+    router.push(getLocalizedPath(path));
+  };
+
   return (
     <header className="border-b bg-background">
       <div className="max-w-[1400px] mx-auto">
         <nav className="px-2 lg:px-4 py-3">
           <div className="flex items-center justify-between gap-4 md:gap-6 lg:gap-8">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0" prefetch={true}>
+            <Link href={getLocalizedPath("/")} className="flex-shrink-0" prefetch={true}>
               <Image
                 src="/logo.svg"
                 alt="ASWAQ Online"
@@ -92,21 +101,14 @@ export default function Header() {
               </div>}
 
               {/* Language Switcher */}
-              <Button
-                variant="ghost"
-                className="hidden md:flex items-center gap-2"
-                size="sm"
-              >
-                <Globe className="scale-110" />
-                العربية
-              </Button>
+              <LanguageSwitcher/>
 
               {/* Messages */}
               {profile && <Button
                 variant="ghost"
                 size="icon"
                 className="hidden md:flex text-primary hover:text-primary"
-                onClick={() => router.push('/chat')}
+                onClick={() => navigateTo("/chat")}
               >
                 <Messages className="scale-150" />
               </Button>}
@@ -120,9 +122,9 @@ export default function Header() {
                   variant="primary_outline" 
                   size="lg" 
                   className="hidden md:flex"
-                  onClick={() => router.push('/auth/login')}
+                  onClick={() => navigateTo("/auth/login")}
                 >
-                  Login
+                  {t.auth.login}
                 </Button>
               )}
 
@@ -131,13 +133,13 @@ export default function Header() {
                 size="lg" 
                 onClick={() => {
                   if (profile) {
-                    router.push('/sell');
+                    navigateTo("/sell");
                   } else {
-                    router.push('/auth/signup');
+                    navigateTo("/auth/signup");
                   }
                 }}
               >
-                Sell
+                {t.common.sell}
               </Button>
 
               {/* Mobile Menu */}
@@ -145,12 +147,12 @@ export default function Header() {
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden">
                     <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
+                    <span className="sr-only">{t.common.toggleMenu}</span>
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                   <SheetHeader>
-                    <SheetTitle>ASWAQ Menu</SheetTitle>
+                    <SheetTitle>{t.common.aswaqMenu}</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-4 mt-8">
                     <div className="px-2">
@@ -160,19 +162,13 @@ export default function Header() {
                         <Button 
                           variant="primary_outline" 
                           onClick={() => {
-                            router.push('/auth/login');
+                            navigateTo("/auth/login");
                             setIsOpen(false);
                           }}
                         >
-                          Login
+                          {t.auth.login}
                         </Button>
-                      <Button
-                        variant="ghost"
-                        className="justify-center gap-2 text-primary"
-                      >
-                        <Globe className="h-4 w-4" />
-                        العربية
-                      </Button>
+                        <LanguageSwitcher />
                     </div>
                   </div>
                 </SheetContent>

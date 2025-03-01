@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { handleSearchFilter } from "@/lib/filter-utils"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslation } from "@/hooks/use-translation";
 
 const MainSearch = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { t } = useTranslation();
     const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
-
 
     // Handle input change
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,12 +39,12 @@ const MainSearch = () => {
                 type="search"
                 value={searchValue}
                 onChange={handleChange} 
-                placeholder="What are you looking for?"
+                placeholder={t.common.searchPlaceholder}
                 className="h-12 text-lg border-none"
                 />
                 <Button size="lg" className="h-12 px-8" type="submit">
                     <Search className="h-5 w-5 mr-2" />
-                    Search
+                    {t.common.search}
                 </Button>
             </div>
         </form>

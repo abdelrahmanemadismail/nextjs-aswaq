@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
 import { initiateCheckout } from '@/actions/payment-actions';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface StripeCheckoutButtonProps {
   packageId: string;
@@ -15,17 +16,21 @@ interface StripeCheckoutButtonProps {
 
 export default function StripeCheckoutButton({
   packageId,
-  buttonText = 'Select Plan',
+  buttonText,
   className = '',
   variant = 'default'
 }: StripeCheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
+
+  const defaultButtonText = t.payments.selectPlan;
+  const finalButtonText = buttonText || defaultButtonText;
 
   const handleClick = async () => {
     if (!packageId) {
       toast({
-        title: 'Error',
-        description: 'Package ID is required',
+        title: t.common.error,
+        description: t.payments.packageIdRequired,
         variant: 'destructive',
       });
       return;
@@ -43,13 +48,13 @@ export default function StripeCheckoutButton({
         // Redirect to Stripe checkout page
         window.location.href = result.checkoutUrl;
       } else {
-        throw new Error('No checkout URL returned');
+        throw new Error(t.payments.noCheckoutUrl);
       }
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
-        title: 'Checkout Failed',
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        title: t.payments.checkoutFailed,
+        description: error instanceof Error ? error.message : t.common.unexpectedError,
         variant: 'destructive',
       });
     } finally {
@@ -67,10 +72,10 @@ export default function StripeCheckoutButton({
       {isLoading ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Processing...
+          {t.common.processing}
         </>
       ) : (
-        buttonText
+        finalButtonText
       )}
     </Button>
   );
