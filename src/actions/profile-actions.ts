@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { UserProfile, BusinessProfile } from '@/types/profile'
+import { UserProfile } from '@/types/profile'
 
 export async function getUserProfile() {
     const supabase = await createClient()
@@ -49,71 +49,50 @@ export async function getUserRole() {
       *,
       role:roles (
         name,
-        description,
-        listing_limit
+        description
       )
     `)
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (error) throw error
-  return data
-}
-
-export async function getBusinessProfile() {
-  const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const { data, error } = await supabase
-    .from('business_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  if (error && error.code !== 'PGRST116') throw error // PGRST116 is "no rows returned"
-  return data as BusinessProfile | null
-}
-
-export async function updateBusinessProfile(profile: Partial<BusinessProfile>) {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  // First check if business profile exists
-  const { data: existingProfile } = await supabase
-    .from('business_profiles')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-
-  if (existingProfile) {
-    // Update existing profile
-    const { data, error } = await supabase
-      .from('business_profiles')
-      .update(profile)
-      .eq('id', user.id)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data as BusinessProfile
-  } else {
-    // Insert new profile
-    const { data, error } = await supabase
-      .from('business_profiles')
-      .insert({
-        ...profile,
-        id: user.id
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-    return data as BusinessProfile
+  // If no role is found, try to create a default 'personal' role for the user
+  if (!data) {
+    try {
+      // Get the personal role ID
+      const { data: personalRole } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'user')
+        .single()
+      
+      if (personalRole) {
+        // Insert the default role for the user
+        const { data: newUserRole, error: insertError } = await supabase
+          .from('user_roles')
+          .insert({
+            id: user.id,
+            role_id: personalRole.id
+          })
+          .select(`
+            *,
+            role:roles (
+              name,
+              description
+            )
+          `)
+          .single()
+        
+        if (insertError) throw insertError
+        return newUserRole
+      }
+    } catch (createError) {
+      console.error('Failed to create default role:', createError)
+    }
   }
+  
+  return data
 }
 
 export async function uploadProfileImage(file: File) {

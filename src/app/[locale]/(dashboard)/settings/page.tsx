@@ -1,224 +1,101 @@
-"use client";
-
-import { useState } from "react";
+import { Metadata } from "next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { signOut } from "@/actions/auth-actions";
-import { useTranslation } from "@/hooks/use-translation";
+import { Locale } from "@/i18n.config";
+import { Languages } from "@/constants/enums";
+import NotificationSettings from "./components/NotificationSettings";
+import DeleteAccountButton from "./components/DeleteAccountButton";
+import getTrans from "@/utils/translation";
+import Link from "next/link";
+import { headers } from "next/headers";
 
-export default function SettingsPage() {
-  const router = useRouter();
-  const { t } = useTranslation();
-  const [notificationSettings, setNotificationSettings] = useState({
-    generalProducts: true,
-    adsInterested: true,
-    userActions: true,
-    accountInfo: true,
-    promotions: true,
-  });
+export const metadata: Metadata = {
+  title: "Settings | Aswaq Online",
+  description: "Manage your account settings and preferences",
+};
 
-  const handleNotificationChange = (
-    setting: keyof typeof notificationSettings
-  ) => {
-    setNotificationSettings((prev) => ({
-      ...prev,
-      [setting]: !prev[setting],
-    }));
+export default async function SettingsPage() {
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
+  const isRTL = locale === Languages.ARABIC;
 
-    // Show toast notification
-    toast({
-      title: t.settings.notifications.updated,
-      description: t.settings.notifications.savedPreferences,
-    });
-  };
+  // Function to generate a localized path
+  function getLocalizedPath(path: string): string {
+    return `/${locale}${path.startsWith('/') ? path : `/${path}`}`;
+  }
 
-  const handleDeleteAccount = async () => {
-    try {
-      await signOut();
-      router.push("/auth/login");
-      toast({
-        title: t.settings.deleteAccount.success,
-        description: t.settings.deleteAccount.successDescription,
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast({
-        title: t.settings.deleteAccount.error,
-        description: t.settings.deleteAccount.errorDescription,
-        variant: "destructive",
-      });
-    }
-  };
+  // RTL-aware layout classes with improved mobile responsiveness
+  const flexLayoutClass = `flex flex-col ${isRTL ? 'sm:flex-row-reverse' : 'sm:flex-row'} items-start sm:items-center justify-between gap-2 sm:gap-4 w-full`;
+
+  // Common button class with responsive adjustments
+  const buttonClass = "w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-primary text-primary bg-background shadow-sm hover:bg-accent hover:text-primary h-9 px-4 py-2";
 
   return (
-    <div className="py-8 space-y-8">
+    <div className="py-4 md:py-8 px-4 md:px-0 space-y-4 md:space-y-8">
       {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.notifications.title}</CardTitle>
+      <Card className="w-full">
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">{t.settings?.notifications?.title || "Notification Settings"}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* General Products */}
-          <div className="flex items-center justify-between space-x-2">
-            <Label
-              htmlFor="general-products"
-              className="flex flex-col space-y-1"
-            >
-              <span>{t.settings.notifications.generalProducts.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {t.settings.notifications.generalProducts.description}
-              </span>
-            </Label>
-            <Switch
-              id="general-products"
-              checked={notificationSettings.generalProducts}
-              onCheckedChange={() =>
-                handleNotificationChange("generalProducts")
-              }
-            />
-          </div>
-
-          {/* Ads Interested */}
-          <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="ads-interested" className="flex flex-col space-y-1">
-              <span>{t.settings.notifications.adsInterested.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {t.settings.notifications.adsInterested.description}
-              </span>
-            </Label>
-            <Switch
-              id="ads-interested"
-              checked={notificationSettings.adsInterested}
-              onCheckedChange={() => handleNotificationChange("adsInterested")}
-            />
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="user-actions" className="flex flex-col space-y-1">
-              <span>{t.settings.notifications.userActions.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {t.settings.notifications.userActions.description}
-              </span>
-            </Label>
-            <Switch
-              id="user-actions"
-              checked={notificationSettings.userActions}
-              onCheckedChange={() => handleNotificationChange("userActions")}
-            />
-          </div>
-
-          {/* Account Info */}
-          <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="account-info" className="flex flex-col space-y-1">
-              <span>{t.settings.notifications.accountInfo.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {t.settings.notifications.accountInfo.description}
-              </span>
-            </Label>
-            <Switch
-              id="account-info"
-              checked={notificationSettings.accountInfo}
-              onCheckedChange={() => handleNotificationChange("accountInfo")}
-            />
-          </div>
-
-          {/* Promotions */}
-          <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="promotions" className="flex flex-col space-y-1">
-              <span>{t.settings.notifications.promotions.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {t.settings.notifications.promotions.description}
-              </span>
-            </Label>
-            <Switch
-              id="promotions"
-              checked={notificationSettings.promotions}
-              onCheckedChange={() => handleNotificationChange("promotions")}
-            />
-          </div>
+        <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
+          {/* We'll use a client component for the switches */}
+          <NotificationSettings flexLayoutClass={flexLayoutClass} />
         </CardContent>
       </Card>
 
-      {/* change email */}
-      <Card className="flex items-center justify-between">
-        <CardHeader>
-          <CardTitle>{t.settings.email.title}</CardTitle>
+      {/* Change Email */}
+      <Card className="w-full">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg md:text-xl">{t.settings?.email?.title || "Email Address"}</CardTitle>
+          <div className="mt-3 sm:mt-0 w-full sm:w-auto">
+            <Link 
+              className={buttonClass} 
+              href={getLocalizedPath("/auth/change-email")}
+            >
+              {t.settings?.email?.button || "Change Email"}
+            </Link>
+          </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/change-email")}}>{t.settings.email.button}</Button>
-        </CardContent>
       </Card>
 
       {/* Change Password */}
-      <Card className="flex items-center justify-between">
-        <CardHeader>
-          <CardTitle>{t.settings.password.title}</CardTitle>
+      <Card className="w-full">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg md:text-xl">{t.settings?.password?.title || "Password"}</CardTitle>
+          <div className="mt-3 sm:mt-0 w-full sm:w-auto">
+            <Link 
+              className={buttonClass}
+              href={getLocalizedPath("/auth/reset-password")}
+            >
+              {t.settings?.password?.button || "Change Password"}
+            </Link>
+          </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/reset-password")}}>{t.settings.password.button}</Button>
-        </CardContent>
       </Card>
 
-      {/* change phone number */}
-      <Card className="flex items-center justify-between">
-        <CardHeader>
-          <CardTitle>{t.settings.phone.title}</CardTitle>
+      {/* Change Phone Number */}
+      <Card className="w-full">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg md:text-xl">{t.settings?.phone?.title || "Phone Number"}</CardTitle>
+          <div className="mt-3 sm:mt-0 w-full sm:w-auto">
+            <Link 
+              className={buttonClass}
+              href={getLocalizedPath("/auth/phone-verification")}
+            >
+              {t.settings?.phone?.button || "Update Phone"}
+            </Link>
+          </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/phone-verification")}}>{t.settings.phone.button}</Button>
-        </CardContent>
       </Card>
 
       {/* Delete Account */}
-      <Card className="flex items-center justify-between">
-        <CardHeader>
-          <CardTitle>{t.settings.deleteAccount.title}</CardTitle>
+      <Card className="w-full">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg md:text-xl">{t.settings?.deleteAccount?.title || "Delete Account"}</CardTitle>
+          <div className="mt-3 sm:mt-0 w-full sm:w-auto">
+            <DeleteAccountButton />
+          </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="text-destructive hover:text-destructive"
-              >
-                {t.settings.deleteAccount.button}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t.settings.deleteAccount.confirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t.settings.deleteAccount.confirmDescription}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t.settings.deleteAccount.cancel}</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {t.settings.deleteAccount.confirm}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
       </Card>
     </div>
   );

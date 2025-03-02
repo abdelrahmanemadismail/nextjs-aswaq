@@ -522,6 +522,7 @@ userPackages: {
     listingDuration: '',
     bonusDuration: '',
     days: '',
+    day: '',
     purchased: '',
     id: ''
   }

@@ -2,14 +2,13 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { UserProfile, UserRole, BusinessProfile } from '@/types/profile'
-import { getUserProfile, getUserRole, getBusinessProfile } from '@/actions/profile-actions'
+import { UserProfile, UserRole } from '@/types/profile'
+import { getUserProfile, getUserRole } from '@/actions/profile-actions'
 import { toast } from "@/hooks/use-toast"
 
 interface ProfileContextType {
     profile: UserProfile | null
     role: UserRole | null
-    businessProfile: BusinessProfile | null
     isLoading: boolean
     error: Error | null
     refreshProfile: () => Promise<void>
@@ -20,7 +19,6 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined)
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -30,15 +28,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       setError(null)
 
       // Load user profile, role, and business profile in parallel
-      const [profileData, roleData, businessProfileData] = await Promise.all([
+      const [profileData, roleData] = await Promise.all([
         getUserProfile(),
         getUserRole(),
-        getBusinessProfile()
       ])
 
       setProfile(profileData)
       setRole(roleData)
-      setBusinessProfile(businessProfileData)
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load profile'))
       toast({
@@ -59,7 +55,6 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const contextValue: ProfileContextType = {
     profile,
     role,
-    businessProfile,
     isLoading,
     error,
     refreshProfile: loadProfile

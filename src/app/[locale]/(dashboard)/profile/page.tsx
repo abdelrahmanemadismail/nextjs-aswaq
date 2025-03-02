@@ -40,7 +40,7 @@ import { useTranslation } from "@/hooks/use-translation";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   const { profile, isLoading, refreshProfile } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -265,7 +265,7 @@ export default function ProfilePage() {
                   <Mail className="inline mr-2 h-4 w-4 text-primary" />
                   {t.profile.email}
                   {isEditing &&
-                    <Button variant="link" onClick={() => {router.push("/auth/change-email")}}>{t.profile.changeEmail}</Button>
+                    <Button variant="link" onClick={() => {router.push(getLocalizedPath("/auth/change-email"))}}>{t.profile.changeEmail}</Button>
                   }
                 </Label>
                 <Input
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                   <Phone className="inline mr-2 h-4 w-4 text-primary" />
                   {t.profile.phoneNumber}
                   {isEditing &&
-                    <Button variant="link" onClick={() => {router.push("/auth/phone-verification")}}>{t.profile.changePhoneNumber}</Button>
+                    <Button variant="link" onClick={() => {router.push(getLocalizedPath("/auth/phone-verification"))}}>{t.profile.changePhoneNumber}</Button>
                   }
                 </Label>
                 <Input
@@ -341,7 +341,7 @@ export default function ProfilePage() {
                 </div>
                 
                 {profile.verification_status !== "verified" && (
-                  <Button variant="primary_outline" onClick={() => {router.push("/profile/verification")}}>
+                  <Button variant="primary_outline" onClick={() => {router.push(getLocalizedPath("/profile/verification"))}}>
                     <Shield className="mr-1 h-3 w-3" />
                     {t.profile.getVerified}
                   </Button>

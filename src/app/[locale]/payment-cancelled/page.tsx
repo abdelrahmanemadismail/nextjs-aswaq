@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/use-translation';
 
 export default function PaymentCancelledPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   
   return (
     <div className="max-w-2xl py-20 m-auto">
@@ -25,10 +25,10 @@ export default function PaymentCancelledPage() {
               {t.payments.cancelled.message}
             </p>
             <div className="flex gap-4">
-              <Button onClick={() => router.push('/packages')}>
+              <Button onClick={() => router.push(getLocalizedPath('/packages'))}>
                 {t.payments.cancelled.returnToPackages}
               </Button>
-              <Button variant="outline" onClick={() => router.push('/')}>
+              <Button variant="outline" onClick={() => router.push(getLocalizedPath('/'))}>
                 {t.payments.cancelled.backToHome}
               </Button>
             </div>

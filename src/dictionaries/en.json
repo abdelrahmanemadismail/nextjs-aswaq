@@ -126,7 +126,7 @@
     "listing": "listing",
     "listings": "listings",
     "bonusListing": "bonus listing",
-    "days": "days",
+    "days": "days for each listing",
     "bonusDay": "bonus day",
     "validFor": "Valid for",
     "featuredListings": "Featured listings",
@@ -224,11 +224,11 @@
       "subtitle": "Find answers to common questions about ASWAQ Online",
       "createListing": {
         "question": "How do I create a listing?",
-        "answer": "Creating a listing is simple! Click the 'Sell' button, choose your category, fill in the details, add photos, and publish. Free tier users can post up to 3 listings."
+        "answer": "Creating a listing is simple! Click the 'Sell' button, choose your category, fill in the details, add photos, and publish."
       },
       "listingDuration": {
         "question": "How long do listings stay active?",
-        "answer": "Listing duration depends on your package. Free listings last 30 days, while paid packages offer extended durations plus bonus days."
+        "answer": "Listing duration depends on your package. listings last 30 days, while packages offer extended durations plus bonus days."
       },
       "featuredListing": {
         "question": "Is featured listing worth it?",
@@ -512,6 +512,7 @@
     "listingDuration": "Listing duration:",
     "bonusDuration": "Bonus duration:",
     "days": "days",
+    "day": "days",
     "purchased": "Purchased",
     "id": "ID:"
   }

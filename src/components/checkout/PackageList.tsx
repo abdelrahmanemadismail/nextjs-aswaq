@@ -2,6 +2,7 @@ import { getAvailablePackages } from '@/actions/payment-actions';
 import PackageCard from '@/components/checkout/PackageCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Locale } from '@/i18n.config';
+import { Languages } from '@/constants/enums';
 import getTrans from '@/utils/translation';
 import { headers } from 'next/headers';
 
@@ -35,12 +36,22 @@ export default async function PackageList() {
       }
       
       if (pkg.bonus_listing_count > 0) {
-        features.push(`${pkg.bonus_listing_count} ${t.payments.bonusListing}${pkg.bonus_listing_count > 1 ? 's' : ''}`);
+        // For Arabic, don't add 's' for plural
+        if (locale === Languages.ARABIC) {
+          features.push(`${pkg.bonus_listing_count} ${t.payments.bonusListing}`);
+        } else {
+          features.push(`${pkg.bonus_listing_count} ${t.payments.bonusListing}${pkg.bonus_listing_count > 1 ? 's' : ''}`);
+        }
       }
       
       features.push(`${pkg.duration_days} ${t.payments.days}`);
       if (pkg.bonus_duration_days > 0) {
-        features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}${pkg.bonus_duration_days > 1 ? 's' : ''}`);
+        // For Arabic, don't add 's' for plural
+        if (locale === Languages.ARABIC) {
+          features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}`);
+        } else {
+          features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}${pkg.bonus_duration_days > 1 ? 's' : ''}`);
+        }
       }
       // features.push(`${t.payments.validFor} ${pkg.validity_days} ${t.payments.days}`);
       

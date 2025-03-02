@@ -13,7 +13,7 @@ export default function PaymentSuccessPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -63,10 +63,10 @@ export default function PaymentSuccessPage() {
               {t.payments.success.successMessage}
             </p>
             <div className="flex gap-4">
-              <Button onClick={() => router.push('/profile/packages')}>
+              <Button onClick={() => router.push(getLocalizedPath('/profile/packages'))}>
                 {t.payments.success.viewPackages}
               </Button>
-              <Button variant="outline" onClick={() => router.push('/')}>
+              <Button variant="outline" onClick={() => router.push(getLocalizedPath('/'))}>
                 {t.payments.success.backToHome}
               </Button>
             </div>
@@ -85,10 +85,10 @@ export default function PaymentSuccessPage() {
               {errorMessage || t.payments.success.errorDefault}
             </p>
             <div className="flex gap-4">
-              <Button variant="destructive" onClick={() => router.push('/packages')}>
+              <Button variant="destructive" onClick={() => router.push(getLocalizedPath('/packages'))}>
                 {t.payments.success.tryAgain}
               </Button>
-              <Button variant="outline" onClick={() => router.push('/help')}>
+              <Button variant="outline" onClick={() => router.push(getLocalizedPath('/help'))}>
                 {t.payments.success.contactSupport}
               </Button>
             </div>

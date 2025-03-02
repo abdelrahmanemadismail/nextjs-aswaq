@@ -18,23 +18,25 @@ import {
   HelpCircle,
   Settings,
   LogOut,
+  Globe,
 } from "lucide-react";
 import { signOut } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { useProfile } from "@/context/ProfileContext";
 import { useTranslation } from "@/hooks/use-translation";
+import { Languages } from "@/constants/enums";
 
 export function UserMenu() {
   const { profile, refreshProfile } = useProfile();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, getLocalizedPath, locale, switchLanguage } = useTranslation();
   
   const handleSignOut = async () => {
     try {
       await signOut();
       await refreshProfile(); // Refresh the user state after signing out
-      router.push("/"); // Redirect to home page
+      router.push(getLocalizedPath("/")); // Redirect to home page with locale
       toast({
         title: t.account.signOutSuccess,
         description: t.account.signOutSuccessDescription,
@@ -48,6 +50,10 @@ export function UserMenu() {
       });
     }
   };
+  
+  // Get the opposite language label to display
+  const languageToSwitchTo = locale === Languages.ARABIC ? 'English' : 'العربية';
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -61,7 +67,7 @@ export function UserMenu() {
         {/* <span className="text-sm font-medium">{user?.role}</span> */}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px]">
-        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/profile')}>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/profile"))}>
           <User className="h-5 w-5 text-primary" />
           <span>{t.account.profile}</span>
         </DropdownMenuItem>
@@ -77,21 +83,25 @@ export function UserMenu() {
           <Heart className="h-5 w-5 text-primary" />
           <span>Favourites</span>
         </DropdownMenuItem> */}
-        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/profile/packages')}>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/profile/packages"))}>
           <Package className="h-5 w-5 text-primary" />
           <span>{t.account.myPackages}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/packages')}>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/packages"))}>
           <Percent className="h-5 w-5 text-primary" />
           <span>{t.account.promotionPackages}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/help')}>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/help"))}>
           <HelpCircle className="h-5 w-5 text-primary" />
           <span>{t.account.help}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push('/settings')}>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/settings"))}>
           <Settings className="h-5 w-5 text-primary" />
           <span>{t.account.settings}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 py-3" onClick={switchLanguage}>
+          <Globe className="h-5 w-5 text-primary" />
+          <span>{languageToSwitchTo}</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="gap-2 py-3" onClick={handleSignOut}>
           <LogOut className="h-5 w-5 text-primary" />

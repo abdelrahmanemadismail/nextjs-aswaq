@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { useProfile } from "@/context/ProfileContext";
 import { useTranslation } from '@/hooks/use-translation';
+import { Languages } from "@/constants/enums";
 
 interface PackageCardProps {
   id: string;
@@ -31,7 +32,10 @@ export default function PackageCard({
 }: PackageCardProps) {
     const router = useRouter();
     const { profile } = useProfile();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+  
+  // Convert currency to Arabic if needed
+  const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
 
   return (
     <Card className={`bg-background/60 ${className}`}>
@@ -41,9 +45,9 @@ export default function PackageCard({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold mb-4">
-          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree? "" : currency}</span>
+          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree? "" : displayCurrency}</span>
         </div>
-        
+         
         <ul className="space-y-2">
           {features.map((feature, index) => (
             <li key={index} className="flex items-center">
@@ -54,16 +58,16 @@ export default function PackageCard({
         </ul>
       </CardContent>
       <CardFooter>
-        {isFree ?
+        {isFree ? 
          <Button disabled={!!profile} className="w-full" onClick={() => router.push('/auth/signup')}>
            {t.payments.getStarted}
          </Button>
          : 
-         <StripeCheckoutButton 
-           packageId={id} 
-           className="w-full" 
-           buttonText={t.payments.selectPackage} 
-         />
+          <StripeCheckoutButton
+            packageId={id}
+            className="w-full"
+            buttonText={t.payments.selectPackage}
+          />
          }
       </CardFooter>
     </Card>

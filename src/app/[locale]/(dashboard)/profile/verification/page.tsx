@@ -19,7 +19,7 @@ import { useTranslation } from '@/hooks/use-translation'
 export default function IDVerification() {
   const router = useRouter()
   const { profile, refreshProfile } = useProfile()
-  const { t } = useTranslation()
+  const { t, getLocalizedPath } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedId, setSelectedId] = useState<'id' | 'passport'>('id')
   const [documentNumber, setDocumentNumber] = useState('')
@@ -146,7 +146,7 @@ export default function IDVerification() {
 
   // Already verified users shouldnt access this page
   if (profile?.verification_status === 'verified') {
-    router.push('/')
+    router.push(getLocalizedPath('/'))
     return null
   }
 
@@ -173,7 +173,7 @@ export default function IDVerification() {
             />
             <Button 
               size="lg" 
-              onClick={() => router.push('/')}
+              onClick={() => router.push(getLocalizedPath('/'))}
             >
               {t.verification.pending.backToHome}
             </Button>

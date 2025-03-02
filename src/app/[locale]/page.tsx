@@ -1,6 +1,5 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import {
@@ -25,6 +24,25 @@ export default async function LandingPage({
 }: {
   params: Promise<{ locale: Locale }>
 }) {
+
+  const getLocalizedPath = (path: string) => {
+    // If the path already starts with the locale, return it as is
+    if (path.startsWith(`/${locale}/`) || path === `/${locale}`) {
+      return path;
+    }
+
+    // If path starts with another locale, replace it
+    const locales = ['ar', 'en'];
+    for (const loc of locales) {
+      if (path.startsWith(`/${loc}/`) || path === `/${loc}`) {
+        return path.replace(`/${loc}`, `/${locale}`);
+      }
+    }
+
+    // Otherwise, prepend the current locale
+    return path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
+  };
+
   const locale = (await params).locale;
   const t = await getTrans(locale)
   const categories = (await getCategories()).filter(category => category.display_in_hero)
@@ -147,7 +165,7 @@ export default async function LandingPage({
         </section>
 
         {/* Packages Section */}
-        <PackageList  />
+        <PackageList />
 
         {/* Statistics Section */}
         <section className="py-20 bg-muted/30">
@@ -242,7 +260,11 @@ export default async function LandingPage({
             <HeadphonesIcon className="h-12 w-12 mx-auto mb-4" />
             <h2 className="text-3xl font-bold mb-4">{t.homepage.support.title}</h2>
             <p className="text-muted-foreground mb-8">{t.homepage.support.subtitle}</p>
-            <Button size="lg">{t.common.contactSupport}</Button>
+            <Link
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-12 rounded-md px-8"
+              href={getLocalizedPath('/contact')}>
+              {t.common.contactSupport}
+            </Link>
           </div>
         </section>
       </main>

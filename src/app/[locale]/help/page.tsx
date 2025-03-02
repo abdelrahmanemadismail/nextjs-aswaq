@@ -119,7 +119,7 @@ export default async function HelpCenter() {
         <h2 className="text-2xl font-bold">{t.help.recommendedForYou}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((category) => (
-            <Link key={category.slug} href={`/help/categories/${category.slug}`}>
+            <Link key={category.slug} href={`/${locale}/help/categories/${category.slug}`}>
               <Card className="hover:bg-muted/50 transition-colors">
                 <CardContent className="p-6 flex gap-4">
                   <div className="p-2 bg-primary/10 rounded-lg h-fit">

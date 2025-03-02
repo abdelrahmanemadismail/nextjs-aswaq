@@ -15,6 +15,11 @@ export default async function UserPackagesPage() {
   const locale = url?.split('/')[3] as Locale
   const t = await getTrans(locale);
 
+  // Function to create localized paths
+  const getLocalizedPath = (path: string) => {
+    return `/${locale}${path}`;
+  };
+
   if (error) {
     return (
       <div className="container py-12">
@@ -40,7 +45,7 @@ export default async function UserPackagesPage() {
               {t.userPackages.noPackages.description}
             </p>
             <div className="flex justify-center">
-              <Link href="/packages" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+              <Link href={getLocalizedPath("/packages")} className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
                 {t.userPackages.noPackages.viewPackages}
               </Link>
             </div>
@@ -70,8 +75,8 @@ export default async function UserPackagesPage() {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle>{pkg.name}</CardTitle>
-                    <CardDescription>{pkg.description}</CardDescription>
+                    <CardTitle>{locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}</CardTitle>
+                    <CardDescription>{locale === 'ar' && pkg.description_ar ? pkg.description_ar : pkg.description}</CardDescription>
                   </div>
                   {userPackage.is_featured && (
                     <Badge className="bg-amber-500 hover:bg-amber-600">{t.userPackages.card.featured}</Badge>
@@ -114,12 +119,12 @@ export default async function UserPackagesPage() {
                     )}
                     <div className="grid grid-cols-2 text-sm">
                       <span className="text-muted-foreground">{t.userPackages.card.listingDuration}</span>
-                      <span className="font-medium">{pkg.duration_days} {t.userPackages.card.days}</span>
+                      <span className="font-medium">{pkg.duration_days} {t.userPackages.card.day}</span>
                     </div>
                     {pkg.bonus_duration_days > 0 && (
                       <div className="grid grid-cols-2 text-sm">
                         <span className="text-muted-foreground">{t.userPackages.card.bonusDuration}</span>
-                        <span className="font-medium">{userPackage.bonus_duration_days}</span>
+                        <span className="font-medium">{pkg.bonus_duration_days} {t.userPackages.card.days}</span>
                       </div>
                     )}
                   </div>
