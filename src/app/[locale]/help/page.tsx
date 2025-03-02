@@ -5,6 +5,9 @@ import { User, ListTodo, CreditCard, ImageIcon, ShieldCheck, FileText } from "lu
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
+import { headers } from 'next/headers';
+import { Locale } from '@/i18n.config';
+import getTrans from '@/utils/translation';
 
 export const metadata: Metadata = {
   title: 'Help Center - Aswaq',
@@ -18,81 +21,84 @@ interface HelpCategory {
   description: string
 }
 
-const categories: HelpCategory[] = [
-  {
-    icon: <User className="h-8 w-8 text-primary" />,
-    name: "Accounts",
-    slug: "accounts",
-    description: "Account management, updates, security & login/registration"
-  },
-  {
-    icon: <ListTodo className="h-8 w-8 text-primary" />,
-    name: "Listing services",
-    slug: "listing-services",
-    description: "Creating, managing & boosting listings including pricing rules & limits"
-  },
-  {
-    icon: <CreditCard className="h-8 w-8 text-primary" />,
-    name: "Payments & Purchases",
-    slug: "payments-purchases",
-    description: "Transactions, payments, credits & vouchers"
-  },
-  {
-    icon: <ImageIcon className="h-8 w-8 text-primary" />,
-    name: "Advertising",
-    slug: "advertising",
-    description: "Sliders, Banner & other services"
-  },
-  {
-    icon: <FileText className="h-8 w-8 text-primary" />,
-    name: "New paid listing model",
-    slug: "paid-listing",
-    description: "Features, benefits, paid listing visibility & more"
-  },
-  {
-    icon: <ShieldCheck className="h-8 w-8 text-primary" />,
-    name: "Safety & Security",
-    slug: "safety-security",
-    description: "Transactions & account protection, avoid scams, reporting issues"
-  }
-]
-
-const guides = [
-  {
-    title: "Finding your favourite stuff",
-    image: "/images/help/Guide.png",
-    href: "/help/categories/listing-services"
-  },
-  {
-    title: "Setting up your account",
-    image: "/images/help/Guide-2.png",
-    href: "/help/categories/accounts"
-  },
-  {
-    title: "Securing your account",
-    image: "/images/help/Guide-3.png",
-    href: "/help/categories/accounts"
-  },
-  {
-    title: "Selling stuff",
-    image: "/images/help/Guide-4.png",
-    href: "/help/categories/listing-services"
-  }
-]
-
 export default async function HelpCenter() {
-  const searchPlaceholder = "Hi Ahmed, how can we help?"
+
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
+  
+  const categories: HelpCategory[] = [
+    {
+      icon: <User className="h-8 w-8 text-primary" />,
+      name: t.help.categories.accounts.name,
+      slug: "accounts",
+      description: t.help.categories.accounts.description
+    },
+    {
+      icon: <ListTodo className="h-8 w-8 text-primary" />,
+      name: t.help.categories.listingServices.name,
+      slug: "listing-services",
+      description: t.help.categories.listingServices.description
+    },
+    {
+      icon: <CreditCard className="h-8 w-8 text-primary" />,
+      name: t.help.categories.paymentsAndPurchases.name,
+      slug: "payments-purchases",
+      description: t.help.categories.paymentsAndPurchases.description
+    },
+    {
+      icon: <ImageIcon className="h-8 w-8 text-primary" />,
+      name: t.help.categories.advertising.name,
+      slug: "advertising",
+      description: t.help.categories.advertising.description
+    },
+    {
+      icon: <FileText className="h-8 w-8 text-primary" />,
+      name: t.help.categories.paidListing.name,
+      slug: "paid-listing",
+      description: t.help.categories.paidListing.description
+    },
+    {
+      icon: <ShieldCheck className="h-8 w-8 text-primary" />,
+      name: t.help.categories.safetySecurity.name,
+      slug: "safety-security",
+      description: t.help.categories.safetySecurity.description
+    }
+  ]
+
+  const guides = [
+    {
+      title: t.help.findingFavoriteStuff,
+      image: "/images/help/Guide.png",
+      href: `/${locale}/help/categories/listing-services`
+    },
+    {
+      title: t.help.settingUpAccount,
+      image: "/images/help/Guide-2.png",
+      href: `/${locale}/help/categories/accounts`
+    },
+    {
+      title: t.help.securingAccount,
+      image: "/images/help/Guide-3.png",
+      href: `/${locale}/help/categories/accounts`
+    },
+    {
+      title: t.help.sellingStuff,
+      image: "/images/help/Guide-4.png",
+      href: `/${locale}/help/categories/listing-services`
+    }
+  ]
 
   return (
     <div className="container max-w-7xl py-6 space-y-12">
       {/* Search Section */}
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold text-center">{searchPlaceholder}</h1>
+        <h1 className="text-3xl font-bold text-center">{t.help.howCanWeHelp}</h1>
         <div className="max-w-2xl mx-auto">
           <div className="relative">
             <Input 
               type="search" 
-              placeholder="Search" 
+              placeholder={t.help.search}
               className="h-12 pl-4"
             />
             <Button
@@ -110,7 +116,7 @@ export default async function HelpCenter() {
 
       {/* Categories Section */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Recommended for you</h2>
+        <h2 className="text-2xl font-bold">{t.help.recommendedForYou}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((category) => (
             <Link key={category.slug} href={`/help/categories/${category.slug}`}>
@@ -133,9 +139,9 @@ export default async function HelpCenter() {
       {/* Guides Section */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Guides for getting started</h2>
+          <h2 className="text-2xl font-bold">{t.help.guidesForGettingStarted}</h2>
           <Button variant="link" asChild>
-            <Link href="/help/guides">Browse all Topics →</Link>
+            <Link href="/help/guides">{t.help.browseAllTopics}</Link>
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

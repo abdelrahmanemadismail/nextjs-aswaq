@@ -36,9 +36,11 @@ import {
 import ImageCropper from "@/components/ImageCropper";
 import DatePicker from "@/components/DatePicker";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { profile, isLoading, refreshProfile } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -68,14 +70,14 @@ export default function ProfilePage() {
       await refreshProfile();
       setIsEditing(false);
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: t.profile.updated,
+        description: t.profile.updatedDescription,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t.profile.updateError,
+        description: t.profile.updateErrorDescription,
         variant: "destructive",
       });
     } finally {
@@ -99,14 +101,14 @@ export default function ProfilePage() {
       setEditedProfile(res);
       await refreshProfile();
       toast({
-        title: "Avatar updated",
-        description: "Your profile picture has been updated successfully.",
+        title: t.profile.avatarUpdated,
+        description: t.profile.avatarUpdatedDescription,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to upload profile picture. Please try again.",
+        title: t.profile.avatarUpdateError,
+        description: t.profile.avatarUpdateErrorDescription,
         variant: "destructive",
       });
     }
@@ -142,10 +144,9 @@ export default function ProfilePage() {
     return (
         <Card>
           <CardHeader>
-            <CardTitle>Profile Not Found</CardTitle>
+            <CardTitle>{t.profile.notFound.title}</CardTitle>
             <CardDescription>
-              We couldn&apos;t find your profile information. Please try
-              refreshing the page.
+              {t.profile.notFound.description}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -158,9 +159,9 @@ export default function ProfilePage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>User Profile</CardTitle>
+              <CardTitle>{t.profile.title}</CardTitle>
               <CardDescription>
-                Manage your account profile information
+                {t.profile.description}
               </CardDescription>
             </div>
             {!isEditing ? (
@@ -176,7 +177,7 @@ export default function ProfilePage() {
                 }}
               >
                 <Edit2 className="mr-2 h-4 w-4" />
-                Edit
+                {t.profile.edit}
               </Button>
             ) : (
               <div className="flex gap-2">
@@ -186,7 +187,7 @@ export default function ProfilePage() {
                   disabled={isSaving}
                 >
                   <X className="mr-2 h-4 w-4" />
-                  Cancel
+                  {t.profile.cancel}
                 </Button>
                 <Button onClick={handleSave} disabled={isSaving}>
                   {isSaving ? (
@@ -194,7 +195,7 @@ export default function ProfilePage() {
                   ) : (
                     <Save className="mr-2 h-4 w-4" />
                   )}
-                  Save Changes
+                  {t.profile.saveChanges}
                 </Button>
               </div>
             )}
@@ -226,7 +227,7 @@ export default function ProfilePage() {
                     htmlFor="avatar-upload"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-3 py-1 rounded-full cursor-pointer"
                   >
-                    Change Photo
+                    {t.profile.changePhoto}
                   </label>
                 </div>
               )}
@@ -244,7 +245,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="full_name">
                   <User className="inline mr-2 h-4 w-4 text-primary" />
-                  Full Name
+                  {t.profile.fullName}
                 </Label>
                 <Input
                   id="full_name"
@@ -262,9 +263,9 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="email">
                   <Mail className="inline mr-2 h-4 w-4 text-primary" />
-                  Email
+                  {t.profile.email}
                   {isEditing &&
-                    <Button variant="link" onClick={() => {router.push("/auth/change-email")}}>Change Email</Button>
+                    <Button variant="link" onClick={() => {router.push("/auth/change-email")}}>{t.profile.changeEmail}</Button>
                   }
                 </Label>
                 <Input
@@ -279,9 +280,9 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="phone_number">
                   <Phone className="inline mr-2 h-4 w-4 text-primary" />
-                  Phone Number
+                  {t.profile.phoneNumber}
                   {isEditing &&
-                    <Button variant="link" onClick={() => {router.push("/auth/phone-verification")}}>Change Phone Number</Button>
+                    <Button variant="link" onClick={() => {router.push("/auth/phone-verification")}}>{t.profile.changePhoneNumber}</Button>
                   }
                 </Label>
                 <Input
@@ -297,7 +298,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="date_of_birth">
                   <CalendarIcon className="inline mr-2 h-4 w-4 text-primary" />
-                  Date of birth
+                  {t.profile.dateOfBirth}
                 </Label>
                 <DatePicker
                   id="date_of_birth"
@@ -313,7 +314,7 @@ export default function ProfilePage() {
                     }));
                   }}
                   readOnly={!isEditing}
-                  placeholder="Select birth date"
+                  placeholder={t.profile.selectBirthDate}
                   maxDate={new Date()}
                   displayFormat="PP"
                 />
@@ -324,7 +325,7 @@ export default function ProfilePage() {
             <div className="pt-4 border-t">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label>Verification Status</Label>
+                  <Label>{t.profile.verificationStatus}</Label>
                   <div>
                     <Badge
                       variant={
@@ -342,17 +343,16 @@ export default function ProfilePage() {
                 {profile.verification_status !== "verified" && (
                   <Button variant="primary_outline" onClick={() => {router.push("/profile/verification")}}>
                     <Shield className="mr-1 h-3 w-3" />
-                    Get Verified
+                    {t.profile.getVerified}
                   </Button>
                 )}
               </div>
               <div className="space-y-3 text-sm text-muted-foreground mt-6">
-                    <p>Why Verification matters:</p>
+                    <p>{t.profile.whyVerification}</p>
                     <ul className="list-decimal pl-4 space-y-2">
-                      <li>Verification assures buyers that they are dealing with a legitimate seller.</li>
-                      <li>Verified sellers can expect quicker sales due to increased buyer confidence.</li>
-                      <li>Higher prices can be achieved as buyers feel more secure in their transactions.</li>
-                      <li>Verification significantly reduces the risk of fraud in the marketplace.</li>
+                      {t.profile.verificationBenefits.map((benefit, index) => (
+                        <li key={index}>{benefit}</li>
+                      ))}
                     </ul>
                   </div>
             </div>

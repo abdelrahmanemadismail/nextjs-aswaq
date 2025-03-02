@@ -5,17 +5,14 @@ import { Button } from "@/components/ui/button"
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getFaqArticle } from '@/actions/help-actions'
 import PageComponents from '@/components/mdx/PageComponents'
+import { headers } from 'next/headers'
+import { Locale } from '@/i18n.config'
+import getTrans from '@/utils/translation'
 
-// interface ArticlePageProps {
-//   params: {
-//     slug: string
-//   }
-// }
 type tParams = Promise<{ slug: string }>;
 
-
 export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
-  const { slug }  = await props.params
+  const { slug } = await props.params
   const article = await getFaqArticle(slug)
 
   if (!article) {
@@ -31,7 +28,11 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
 }
 
 export default async function ArticlePage(props: { params: tParams }) {
-  const { slug }  = await props.params
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
+  
+  const { slug } = await props.params
   const article = await getFaqArticle(slug)
 
   if (!article) {
@@ -54,23 +55,23 @@ export default async function ArticlePage(props: { params: tParams }) {
           {/* Contact Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Need to get in touch?</CardTitle>
+              <CardTitle>{t.help.needToGetInTouch}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Lorem ipsum dolor sit amet consectetur. Vel orci nibh vitae blandit tortor vestibulum enim neque suspendisse. Neque malesuada purus commodo arcu ante facilisis orci.
+                {t.help.needToGetInTouchDesc}
               </p>
-              <Button className="w-full">Contact us</Button>
+              <Button className="w-full">{t.help.contactUs}</Button>
             </CardContent>
           </Card>
 
           {/* Was this helpful card */}
           <Card>
             <CardContent className="p-6 space-y-4">
-              <h3 className="font-semibold">Was this article helpful?</h3>
+              <h3 className="font-semibold">{t.help.wasArticleHelpful}</h3>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1">Yes</Button>
-                <Button variant="outline" className="flex-1">No</Button>
+                <Button variant="outline" className="flex-1">{t.common.yes}</Button>
+                <Button variant="outline" className="flex-1">{t.common.no}</Button>
               </div>
             </CardContent>
           </Card>

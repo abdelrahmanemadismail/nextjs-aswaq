@@ -4,36 +4,38 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function PaymentCancelledPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   
   return (
     <div className="max-w-2xl py-20 m-auto">
       <Card className="w-full">
         <CardHeader className="text-center">
-          <CardTitle>Payment Cancelled</CardTitle>
-          <CardDescription>Your package purchase was not completed</CardDescription>
+          <CardTitle>{t.payments.cancelled.title}</CardTitle>
+          <CardDescription>{t.payments.cancelled.subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center">
             <XCircle className="h-16 w-16 text-amber-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Payment Cancelled</h2>
+            <h2 className="text-2xl font-bold mb-2">{t.payments.cancelled.title}</h2>
             <p className="text-center text-muted-foreground mb-6">
-              You&apos;ve cancelled your payment process. No charges have been made.
+              {t.payments.cancelled.message}
             </p>
             <div className="flex gap-4">
               <Button onClick={() => router.push('/packages')}>
-                Return to Packages
+                {t.payments.cancelled.returnToPackages}
               </Button>
               <Button variant="outline" onClick={() => router.push('/')}>
-                Back to Home
+                {t.payments.cancelled.backToHome}
               </Button>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-center border-t pt-6 text-sm text-muted-foreground">
-          <p>Need help? Contact our support team.</p>
+          <p>{t.payments.cancelled.needHelp}</p>
         </CardFooter>
       </Card>
     </div>

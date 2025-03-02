@@ -6,12 +6,14 @@ import { verifyPayment } from '@/actions/payment-actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function PaymentSuccessPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -47,8 +49,8 @@ export default function PaymentSuccessPage() {
         return (
           <div className="flex flex-col items-center">
             <LoaderCircle className="h-16 w-16 text-primary animate-spin mb-4" />
-            <p className="text-lg">Processing your payment...</p>
-            <p className="text-sm text-muted-foreground">Please wait while we confirm your payment.</p>
+            <p className="text-lg">{t.payments.success.processing}</p>
+            <p className="text-sm text-muted-foreground">{t.payments.success.pleaseWait}</p>
           </div>
         );
         
@@ -56,16 +58,16 @@ export default function PaymentSuccessPage() {
         return (
           <div className="flex flex-col items-center">
             <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+            <h2 className="text-2xl font-bold mb-2">{t.payments.success.successTitle}</h2>
             <p className="text-center text-muted-foreground mb-6">
-              Thank you for your purchase. Your package has been activated.
+              {t.payments.success.successMessage}
             </p>
             <div className="flex gap-4">
               <Button onClick={() => router.push('/profile/packages')}>
-                View My Packages
+                {t.payments.success.viewPackages}
               </Button>
               <Button variant="outline" onClick={() => router.push('/')}>
-                Back to Home
+                {t.payments.success.backToHome}
               </Button>
             </div>
           </div>
@@ -75,19 +77,19 @@ export default function PaymentSuccessPage() {
         return (
           <div className="flex flex-col items-center">
             <XCircle className="h-16 w-16 text-destructive mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Payment Verification Failed</h2>
+            <h2 className="text-2xl font-bold mb-2">{t.payments.success.errorTitle}</h2>
             <p className="text-center text-muted-foreground mb-2">
-              We couldn&apos;t verify your payment.
+              {t.payments.success.errorMessage}
             </p>
             <p className="text-center text-sm text-destructive mb-6">
-              {errorMessage || 'Please try again or contact support.'}
+              {errorMessage || t.payments.success.errorDefault}
             </p>
             <div className="flex gap-4">
               <Button variant="destructive" onClick={() => router.push('/packages')}>
-                Try Again
+                {t.payments.success.tryAgain}
               </Button>
               <Button variant="outline" onClick={() => router.push('/help')}>
-                Contact Support
+                {t.payments.success.contactSupport}
               </Button>
             </div>
           </div>
@@ -99,14 +101,14 @@ export default function PaymentSuccessPage() {
     <div className="max-w-2xl py-20 m-auto">
       <Card className="w-full">
         <CardHeader className="text-center">
-          <CardTitle>Payment Confirmation</CardTitle>
-          <CardDescription>ASWAQ Online Package Purchase</CardDescription>
+          <CardTitle>{t.payments.success.title}</CardTitle>
+          <CardDescription>{t.payments.success.subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
           {renderContent()}
         </CardContent>
         <CardFooter className="flex justify-center border-t pt-6 text-sm text-muted-foreground">
-          <p>Transaction ID: {searchParams.get('session_id') || 'N/A'}</p>
+          <p>{t.payments.success.transactionId} {searchParams.get('session_id') || 'N/A'}</p>
         </CardFooter>
       </Card>
     </div>

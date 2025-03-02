@@ -144,7 +144,31 @@ const defaultTranslations = {
     selectPerfectPlan: '',
     freeTierPackages: '',
     durationBasedPackages: '',
-    bulkPackages: ''
+    bulkPackages: '',
+    success: {
+      title: '',
+      subtitle: '',
+      processing: '',
+      pleaseWait: '',
+      successTitle: '',
+      successMessage: '',
+      viewPackages: '',
+      backToHome: '',
+      errorTitle: '',
+      errorMessage: '',
+      errorDefault: '',
+      tryAgain: '',
+      contactSupport: '',
+      transactionId: ''
+    },
+    cancelled: {
+      title: '',
+      subtitle: '',
+      message: '',
+      returnToPackages: '',
+      backToHome: '',
+      needHelp: ''
+    }
   },
   listings: {
     km: '',
@@ -307,8 +331,201 @@ const defaultTranslations = {
       },
       returnHome: ''
     }
+  },
+  help: {
+    title: '',
+    howCanWeHelp: '',
+    search: '',
+    searchTopic: '',
+    recommendedForYou: '',
+    guidesForGettingStarted: '',
+    browseAllTopics: '',
+    findingFavoriteStuff: '',
+    settingUpAccount: '',
+    securingAccount: '',
+    sellingStuff: '',
+    needToGetInTouch: '',
+    contactUs: '',
+    needToGetInTouchDesc: '',
+    wasArticleHelpful: '',
+    categories: {
+      accounts: {
+        name: '',
+        description: ''
+      },
+      listingServices: {
+        name: '',
+        description: ''
+      },
+      paymentsAndPurchases: {
+        name: '',
+        description: ''
+      },
+      advertising: {
+        name: '',
+        description: ''
+      },
+      paidListing: {
+        name: '',
+        description: ''
+      },
+      safetySecurity: {
+        name: '',
+        description: ''
+      }
+    }
+  },
+  settings: {
+  title: '',
+  notifications: {
+    title: '',
+    updated: '',
+    savedPreferences: '',
+    generalProducts: {
+      title: '',
+      description: ''
+    },
+    adsInterested: {
+      title: '',
+      description: ''
+    },
+    userActions: {
+      title: '',
+      description: ''
+    },
+    accountInfo: {
+      title: '',
+      description: ''
+    },
+    promotions: {
+      title: '',
+      description: ''
+    }
+  },
+  email: {
+    title: '',
+    button: ''
+  },
+  password: {
+    title: '',
+    button: ''
+  },
+  phone: {
+    title: '',
+    button: ''
+  },
+  deleteAccount: {
+    title: '',
+    button: '',
+    confirmTitle: '',
+    confirmDescription: '',
+    cancel: '',
+    confirm: '',
+    success: '',
+    successDescription: '',
+    error: '',
+    errorDescription: ''
   }
-
+},
+profile: {
+  title: '',
+  description: '',
+  edit: '',
+  cancel: '',
+  saveChanges: '',
+  changePhoto: '',
+  fullName: '',
+  email: '',
+  changeEmail: '',
+  phoneNumber: '',
+  changePhoneNumber: '',
+  dateOfBirth: '',
+  selectBirthDate: '',
+  verificationStatus: '',
+  getVerified: '',
+  whyVerification: '',
+  verificationBenefits: [
+    '',
+    '',
+    '',
+    ''
+  ],
+  loading: {
+    title: '',
+    description: ''
+  },
+  notFound: {
+    title: '',
+    description: ''
+  },
+  updated: '',
+  updatedDescription: '',
+  updateError: '',
+  updateErrorDescription: '',
+  avatarUpdated: '',
+  avatarUpdatedDescription: '',
+  avatarUpdateError: '',
+  avatarUpdateErrorDescription: ''
+},
+verification: {
+  title: '',
+  subtitle: '',
+  emitatesId: '',
+  recommended: '',
+  passport: '',
+  documentNumber: '',
+  documentNumberPlaceholder: '',
+  expiryDate: '',
+  idPhotos: '',
+  frontId: '',
+  backId: '',
+  passportPhoto: '',
+  securityNote: '',
+  fraudPrevention: '',
+  continue: '',
+  submitting: '',
+  pending: {
+    title: '',
+    description: '',
+    backToHome: ''
+  },
+  validation: {
+    requiredField: '',
+    documentNumberRequired: '',
+    expiryDateRequired: '',
+    idImagesRequired: '',
+    passportImageRequired: '',
+    fileTooLarge: '',
+    fileSizeLimit: ''
+  },
+  error: {
+    title: '',
+    defaultMessage: ''
+  }
+},
+userPackages: {
+  title: '',
+  error: '',
+  noPackages: {
+    title: '',
+    description: '',
+    viewPackages: ''
+  },
+  card: {
+    featured: '',
+    listingsUsage: '',
+    used: '',
+    expires: '',
+    soon: '',
+    regularListings: '',
+    bonusListings: '',
+    listingDuration: '',
+    bonusDuration: '',
+    days: '',
+    purchased: '',
+    id: ''
+  }
+}
 };
 
 type TranslationType = typeof defaultTranslations;

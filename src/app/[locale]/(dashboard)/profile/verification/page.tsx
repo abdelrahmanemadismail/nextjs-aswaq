@@ -14,10 +14,12 @@ import { submitVerificationRequest } from '@/actions/verification-actions'
 import { useProfile } from '@/context/ProfileContext'
 import { toast } from '@/hooks/use-toast'
 import { Card, CardDescription, CardTitle, CardHeader, CardContent } from '@/components/ui/card'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function IDVerification() {
   const router = useRouter()
   const { profile, refreshProfile } = useProfile()
+  const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedId, setSelectedId] = useState<'id' | 'passport'>('id')
   const [documentNumber, setDocumentNumber] = useState('')
@@ -58,8 +60,8 @@ export default function IDVerification() {
   const validateForm = () => {
     if (!documentNumber) {
       toast({
-        title: "Required field missing",
-        description: "Please enter the document number",
+        title: t.verification.validation.requiredField,
+        description: t.verification.validation.documentNumberRequired,
         variant: "destructive",
       })
       return false
@@ -67,8 +69,8 @@ export default function IDVerification() {
 
     if (!documentExpiry) {
       toast({
-        title: "Required field missing",
-        description: "Please select document expiry date",
+        title: t.verification.validation.requiredField,
+        description: t.verification.validation.expiryDateRequired,
         variant: "destructive",
       })
       return false
@@ -76,8 +78,8 @@ export default function IDVerification() {
 
     if (selectedId === 'id' && (!frontImage || !backImage)) {
       toast({
-        title: "Required images missing",
-        description: "Please upload both front and back images of your ID",
+        title: t.verification.validation.requiredField,
+        description: t.verification.validation.idImagesRequired,
         variant: "destructive",
       })
       return false
@@ -85,8 +87,8 @@ export default function IDVerification() {
 
     if (selectedId === 'passport' && !passportImage) {
       toast({
-        title: "Required image missing",
-        description: "Please upload your passport image",
+        title: t.verification.validation.requiredField,
+        description: t.verification.validation.passportImageRequired,
         variant: "destructive",
       })
       return false
@@ -115,8 +117,8 @@ export default function IDVerification() {
       await refreshProfile()
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to submit verification request",
+        title: t.verification.error.title,
+        description: error instanceof Error ? error.message : t.verification.error.defaultMessage,
         variant: "destructive",
       })
     } finally {
@@ -132,8 +134,8 @@ export default function IDVerification() {
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "File too large",
-          description: "Please upload an image less than 5MB",
+          title: t.verification.validation.fileTooLarge,
+          description: t.verification.validation.fileSizeLimit,
           variant: "destructive",
         })
         return
@@ -155,10 +157,10 @@ export default function IDVerification() {
         <Card className="max-w-md mx-auto">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-xl font-semibold">
-            Verification In Progress
+              {t.verification.pending.title}
             </CardTitle>
             <CardDescription className="text-sm">
-            Your verification request is being reviewed. We&apos;ll notify you once it&apos;s complete.
+              {t.verification.pending.description}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 py-4 text-center">
@@ -173,7 +175,7 @@ export default function IDVerification() {
               size="lg" 
               onClick={() => router.push('/')}
             >
-              Back To Home
+              {t.verification.pending.backToHome}
             </Button>
           </CardContent>
         </Card>
@@ -186,8 +188,8 @@ export default function IDVerification() {
       <main className="container grid gap-8 py-8 md:grid-cols-2 md:items-start md:gap-12 lg:gap-16">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold">Select an ID type to add</h1>
-            <p className="text-gray-600">This will allow us to verify your identity</p>
+            <h1 className="text-2xl font-bold">{t.verification.title}</h1>
+            <p className="text-gray-600">{t.verification.subtitle}</p>
           </div>
 
           <RadioGroup 
@@ -200,9 +202,9 @@ export default function IDVerification() {
               className="flex cursor-pointer items-center justify-between rounded-xl border p-4"
             >
               <div className="font-medium flex items-center gap-2">
-                Emirates ID 
+                {t.verification.emitatesId}
                 <span className="px-2 py-0.5 text-xs bg-blue-100 text-primary rounded">
-                  Recommended
+                  {t.verification.recommended}
                 </span>
               </div>
               <RadioGroupItem value="id" id="id-radio" className="border-primary text-primary" />
@@ -211,7 +213,7 @@ export default function IDVerification() {
               htmlFor="passport-radio"
               className="flex cursor-pointer items-center justify-between rounded-xl border p-4"
             >
-              <div className="font-medium">Passport & Residence Visa</div>
+              <div className="font-medium">{t.verification.passport}</div>
               <RadioGroupItem 
                 value="passport" 
                 id="passport-radio" 
@@ -222,17 +224,17 @@ export default function IDVerification() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="document-number">Document Number</Label>
+              <Label htmlFor="document-number">{t.verification.documentNumber}</Label>
               <Input
                 id="document-number"
                 value={documentNumber}
                 onChange={(e) => setDocumentNumber(e.target.value)}
-                placeholder="Enter document number"
+                placeholder={t.verification.documentNumberPlaceholder}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="document-expiry">Document Expiry Date</Label>
+              <Label htmlFor="document-expiry">{t.verification.expiryDate}</Label>
               <DatePicker
                 id="document-expiry"
                 value={documentExpiry}
@@ -246,11 +248,11 @@ export default function IDVerification() {
             {selectedId === 'id' ? (
               <>
                 <h2 className="text-xl font-semibold text-center">
-                  Take Photos of your ID
+                  {t.verification.idPhotos}
                 </h2>
                 <div className="grid grid-cols-2 gap-4 max-w-[280px] mx-auto">
                   <div className="space-y-2">
-                    <p className="text-center text-sm">Front ID</p>
+                    <p className="text-center text-sm">{t.verification.frontId}</p>
                     <label 
                       htmlFor="front-id-photo" 
                       className="block aspect-square cursor-pointer rounded-xl border-2 p-2"
@@ -279,7 +281,7 @@ export default function IDVerification() {
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-center text-sm">Back ID</p>
+                    <p className="text-center text-sm">{t.verification.backId}</p>
                     <label 
                       htmlFor="back-id-photo" 
                       className="block aspect-square cursor-pointer rounded-xl border-2 p-2"
@@ -311,7 +313,7 @@ export default function IDVerification() {
             ) : (
               <>
                 <h2 className="text-xl font-semibold text-center">
-                  Take Passport Photo
+                  {t.verification.passportPhoto}
                 </h2>
                 <div className="max-w-[140px] mx-auto">
                   <label 
@@ -346,11 +348,10 @@ export default function IDVerification() {
 
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              ASWAQ verified is an exclusive service. Your data will be processed securely & will not be
-              disclosed to any third party.
+              {t.verification.securityNote}
             </p>
             <p className="text-sm text-gray-600">
-              This helps us prevent anyone from creating fake accounts using your details
+              {t.verification.fraudPrevention}
             </p>
           </div>
 
@@ -363,10 +364,10 @@ export default function IDVerification() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
+                {t.verification.submitting}
               </>
             ) : (
-              'Continue'
+              t.verification.continue
             )}
           </Button>
         </div>

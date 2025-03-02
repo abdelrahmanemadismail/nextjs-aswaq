@@ -134,7 +134,31 @@
     "selectPerfectPlan": "Select the perfect plan to start your journey with ASWAQ Online",
     "freeTierPackages": "Free Tier Packages",
     "durationBasedPackages": "Duration-Based Packages",
-    "bulkPackages": "Bulk Packages"
+    "bulkPackages": "Bulk Packages",
+    "success": {
+      "title": "Payment Confirmation",
+      "subtitle": "ASWAQ Online Package Purchase",
+      "processing": "Processing your payment...",
+      "pleaseWait": "Please wait while we confirm your payment.",
+      "successTitle": "Payment Successful!",
+      "successMessage": "Thank you for your purchase. Your package has been activated.",
+      "viewPackages": "View My Packages",
+      "backToHome": "Back to Home",
+      "errorTitle": "Payment Verification Failed",
+      "errorMessage": "We couldn't verify your payment.",
+      "errorDefault": "Please try again or contact support.",
+      "tryAgain": "Try Again",
+      "contactSupport": "Contact Support",
+      "transactionId": "Transaction ID:"
+    },
+    "cancelled": {
+      "title": "Payment Cancelled",
+      "subtitle": "Your package purchase was not completed",
+      "message": "You've cancelled your payment process. No charges have been made.",
+      "returnToPackages": "Return to Packages",
+      "backToHome": "Back to Home",
+      "needHelp": "Need help? Contact our support team."
+    }
   },
   "listings": {
     "km": "km",
@@ -297,5 +321,199 @@
       },
       "returnHome": "Return to Home"
     }
+  },
+  "help": {
+    "title": "Help Center",
+    "howCanWeHelp": "Hi, how can we help?",
+    "search": "Search",
+    "searchTopic": "Search for any topic",
+    "recommendedForYou": "Recommended for you",
+    "guidesForGettingStarted": "Guides for getting started",
+    "browseAllTopics": "Browse all Topics →",
+    "findingFavoriteStuff": "Finding your favourite stuff",
+    "settingUpAccount": "Setting up your account",
+    "securingAccount": "Securing your account",
+    "sellingStuff": "Selling stuff",
+    "needToGetInTouch": "Need to get in touch?",
+    "contactUs": "Contact us",
+    "needToGetInTouchDesc": "Lorem ipsum dolor sit amet consectetur. Vel orci nibh vitae blandit tortor vestibulum enim neque suspendisse. Neque malesuada purus commodo arcu ante facilisis orci.",
+    "wasArticleHelpful": "Was this article helpful?",
+    "categories": {
+      "accounts": {
+        "name": "Accounts",
+        "description": "Account management, updates, security & login/registration"
+      },
+      "listingServices": {
+        "name": "Listing services",
+        "description": "Creating, managing & boosting listings including pricing rules & limits"
+      },
+      "paymentsAndPurchases": {
+        "name": "Payments & Purchases",
+        "description": "Transactions, payments, credits & vouchers"
+      },
+      "advertising": {
+        "name": "Advertising",
+        "description": "Sliders, Banner & other services"
+      },
+      "paidListing": {
+        "name": "New paid listing model",
+        "description": "Features, benefits, paid listing visibility & more"
+      },
+      "safetySecurity": {
+        "name": "Safety & Security",
+        "description": "Transactions & account protection, avoid scams, reporting issues"
+      }
+    }
+  },
+  "settings": {
+  "title": "Settings",
+  "notifications": {
+    "title": "Notification Settings",
+    "updated": "Settings updated",
+    "savedPreferences": "Your notification preferences have been saved.",
+    "generalProducts": {
+      "title": "General information about products and services",
+      "description": "Receive updates about new products and services on Aswaaq"
+    },
+    "adsInterested": {
+      "title": "Informations about Ads I'm interested in",
+      "description": "Get notified about new ads matching your interests"
+    },
+    "userActions": {
+      "title": "Actions from other users on my account",
+      "description": "Receive notifications about messages, likes, and other interactions"
+    },
+    "accountInfo": {
+      "title": "General informations and hints about my account",
+      "description": "Stay updated about your account status and tips"
+    },
+    "promotions": {
+      "title": "Promotions and Ads from OpenSooq",
+      "description": "Receive promotional content and special offers"
+    }
+  },
+  "email": {
+    "title": "Change Email",
+    "button": "Change Email"
+  },
+  "password": {
+    "title": "Change Password",
+    "button": "Change Password"
+  },
+  "phone": {
+    "title": "Change Phone Number",
+    "button": "Change Phone Number"
+  },
+  "deleteAccount": {
+    "title": "Delete Your Account",
+    "button": "Delete your account",
+    "confirmTitle": "Are you absolutely sure?",
+    "confirmDescription": "This action cannot be undone. This will permanently delete your account and remove all your data from our servers.",
+    "cancel": "Cancel",
+    "confirm": "Delete Account",
+    "success": "Account deleted",
+    "successDescription": "Your account has been successfully deleted.",
+    "error": "Error",
+    "errorDescription": "Failed to delete account. Please try again."
   }
+},
+"profile": {
+  "title": "User Profile",
+  "description": "Manage your account profile information",
+  "edit": "Edit",
+  "cancel": "Cancel",
+  "saveChanges": "Save Changes",
+  "changePhoto": "Change Photo",
+  "fullName": "Full Name",
+  "email": "Email",
+  "changeEmail": "Change Email",
+  "phoneNumber": "Phone Number",
+  "changePhoneNumber": "Change Phone Number",
+  "dateOfBirth": "Date of birth",
+  "selectBirthDate": "Select birth date",
+  "verificationStatus": "Verification Status",
+  "getVerified": "Get Verified",
+  "whyVerification": "Why Verification matters:",
+  "verificationBenefits": [
+    "Verification assures buyers that they are dealing with a legitimate seller.",
+    "Verified sellers can expect quicker sales due to increased buyer confidence.",
+    "Higher prices can be achieved as buyers feel more secure in their transactions.",
+    "Verification significantly reduces the risk of fraud in the marketplace."
+  ],
+  "loading": {
+    "title": "Loading profile information...",
+    "description": "Please wait while we load your profile."
+  },
+  "notFound": {
+    "title": "Profile Not Found",
+    "description": "We couldn't find your profile information. Please try refreshing the page."
+  },
+  "updated": "Profile updated",
+  "updatedDescription": "Your profile has been updated successfully.",
+  "updateError": "Error",
+  "updateErrorDescription": "Failed to update profile. Please try again.",
+  "avatarUpdated": "Avatar updated",
+  "avatarUpdatedDescription": "Your profile picture has been updated successfully.",
+  "avatarUpdateError": "Error",
+  "avatarUpdateErrorDescription": "Failed to upload profile picture. Please try again."
+},
+"verification": {
+  "title": "Select an ID type to add",
+  "subtitle": "This will allow us to verify your identity",
+  "emitatesId": "Emirates ID",
+  "recommended": "Recommended",
+  "passport": "Passport & Residence Visa",
+  "documentNumber": "Document Number",
+  "documentNumberPlaceholder": "Enter document number",
+  "expiryDate": "Document Expiry Date",
+  "idPhotos": "Take Photos of your ID",
+  "frontId": "Front ID",
+  "backId": "Back ID",
+  "passportPhoto": "Take Passport Photo",
+  "securityNote": "ASWAQ verified is an exclusive service. Your data will be processed securely & will not be disclosed to any third party.",
+  "fraudPrevention": "This helps us prevent anyone from creating fake accounts using your details",
+  "continue": "Continue",
+  "submitting": "Submitting...",
+  "pending": {
+    "title": "Verification In Progress",
+    "description": "Your verification request is being reviewed. We'll notify you once it's complete.",
+    "backToHome": "Back To Home"
+  },
+  "validation": {
+    "requiredField": "Required field missing",
+    "documentNumberRequired": "Please enter the document number",
+    "expiryDateRequired": "Please select document expiry date",
+    "idImagesRequired": "Please upload both front and back images of your ID",
+    "passportImageRequired": "Please upload your passport image",
+    "fileTooLarge": "File too large",
+    "fileSizeLimit": "Please upload an image less than 5MB"
+  },
+  "error": {
+    "title": "Error",
+    "defaultMessage": "Failed to submit verification request"
+  }
+},
+"userPackages": {
+  "title": "My Packages",
+  "error": "Error loading packages:",
+  "noPackages": {
+    "title": "No Active Packages",
+    "description": "You don't have any active packages. Purchase a package to start listing items.",
+    "viewPackages": "View Available Packages"
+  },
+  "card": {
+    "featured": "Featured",
+    "listingsUsage": "Listings Usage",
+    "used": "used",
+    "expires": "Expires",
+    "soon": "(soon)",
+    "regularListings": "Regular listings:",
+    "bonusListings": "Bonus listings:",
+    "listingDuration": "Listing duration:",
+    "bonusDuration": "Bonus duration:",
+    "days": "days",
+    "purchased": "Purchased",
+    "id": "ID:"
+  }
+}
 }

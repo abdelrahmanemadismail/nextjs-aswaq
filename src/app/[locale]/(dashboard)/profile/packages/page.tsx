@@ -5,17 +5,23 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Package } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
+import { headers } from 'next/headers';
+import { Locale } from '@/i18n.config';
+import getTrans from '@/utils/translation';
 
 export default async function UserPackagesPage() {
   const { packages, error } = await getUserPackages();
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
 
   if (error) {
     return (
       <div className="container py-12">
-        <h1 className="text-3xl font-bold mb-6">My Packages</h1>
+        <h1 className="text-3xl font-bold mb-6">{t.userPackages.title}</h1>
         <Card>
           <CardContent className="py-8">
-            <p className="text-destructive">Error loading packages: {error}</p>
+            <p className="text-destructive">{t.userPackages.error} {error}</p>
           </CardContent>
         </Card>
       </div>
@@ -25,17 +31,17 @@ export default async function UserPackagesPage() {
   if (!packages || packages.length === 0) {
     return (
       <div className="container py-12">
-        <h1 className="text-3xl font-bold mb-6">My Packages</h1>
+        <h1 className="text-3xl font-bold mb-6">{t.userPackages.title}</h1>
         <Card>
           <CardContent className="py-12 text-center">
             <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">No Active Packages</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t.userPackages.noPackages.title}</h2>
             <p className="text-muted-foreground mb-6">
-              You don&apos;t have any active packages. Purchase a package to start listing items.
+              {t.userPackages.noPackages.description}
             </p>
             <div className="flex justify-center">
               <Link href="/packages" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
-                View Available Packages
+                {t.userPackages.noPackages.viewPackages}
               </Link>
             </div>
           </CardContent>
@@ -46,7 +52,7 @@ export default async function UserPackagesPage() {
 
   return (
     <div className="container py-12">
-      <h1 className="text-3xl font-bold mb-6">My Packages</h1>
+      <h1 className="text-3xl font-bold mb-6">{t.userPackages.title}</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {packages.map((userPackage) => {
           const pkg = userPackage.package;
@@ -68,7 +74,7 @@ export default async function UserPackagesPage() {
                     <CardDescription>{pkg.description}</CardDescription>
                   </div>
                   {userPackage.is_featured && (
-                    <Badge className="bg-amber-500 hover:bg-amber-600">Featured</Badge>
+                    <Badge className="bg-amber-500 hover:bg-amber-600">{t.userPackages.card.featured}</Badge>
                   )}
                 </div>
               </CardHeader>
@@ -77,9 +83,9 @@ export default async function UserPackagesPage() {
                   {/* Listings usage */}
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Listings Usage</span>
+                      <span>{t.userPackages.card.listingsUsage}</span>
                       <span>
-                        {totalListings - remainingListings} / {totalListings} used
+                        {totalListings - remainingListings} / {totalListings} {t.userPackages.card.used}
                       </span>
                     </div>
                     <Progress value={usedListingsPercent} className="h-2" />
@@ -89,30 +95,30 @@ export default async function UserPackagesPage() {
                   <div className="flex items-center space-x-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className={isExpiringSoon ? 'text-amber-600' : ''}>
-                      Expires {format(expiryDate, 'MMM d, yyyy')}
-                      {isExpiringSoon && ' (soon)'}
+                      {t.userPackages.card.expires} {format(expiryDate, 'MMM d, yyyy')}
+                      {isExpiringSoon && ` ${t.userPackages.card.soon}`}
                     </span>
                   </div>
                   
                   {/* Remaining details */}
                   <div className="border rounded-md p-3 bg-muted/30 space-y-2">
                     <div className="grid grid-cols-2 text-sm">
-                      <span className="text-muted-foreground">Regular listings:</span>
+                      <span className="text-muted-foreground">{t.userPackages.card.regularListings}</span>
                       <span className="font-medium">{userPackage.listings_remaining}</span>
                     </div>
                     {pkg.bonus_listing_count > 0 && (
                       <div className="grid grid-cols-2 text-sm">
-                        <span className="text-muted-foreground">Bonus listings:</span>
+                        <span className="text-muted-foreground">{t.userPackages.card.bonusListings}</span>
                         <span className="font-medium">{userPackage.bonus_listings_remaining}</span>
                       </div>
                     )}
                     <div className="grid grid-cols-2 text-sm">
-                      <span className="text-muted-foreground">Listing duration:</span>
-                      <span className="font-medium">{pkg.duration_days} days</span>
+                      <span className="text-muted-foreground">{t.userPackages.card.listingDuration}</span>
+                      <span className="font-medium">{pkg.duration_days} {t.userPackages.card.days}</span>
                     </div>
                     {pkg.bonus_duration_days > 0 && (
                       <div className="grid grid-cols-2 text-sm">
-                        <span className="text-muted-foreground">Bonus duration:</span>
+                        <span className="text-muted-foreground">{t.userPackages.card.bonusDuration}</span>
                         <span className="font-medium">{userPackage.bonus_duration_days}</span>
                       </div>
                     )}
@@ -121,8 +127,8 @@ export default async function UserPackagesPage() {
               </CardContent>
               <CardFooter className="bg-muted/30 border-t text-xs text-muted-foreground pt-5">
                 <div className="w-full flex justify-between">
-                  <span>Purchased {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
-                  <span>ID: {userPackage.id.split('-')[0]}</span>
+                  <span>{t.userPackages.card.purchased} {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
+                  <span>{t.userPackages.card.id} {userPackage.id.split('-')[0]}</span>
                 </div>
               </CardFooter>
             </Card>

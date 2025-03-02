@@ -5,16 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getFaqsByCategory } from '@/actions/help-actions'
+import { headers } from 'next/headers'
+import { Locale } from '@/i18n.config'
+import getTrans from '@/utils/translation'
 
-// interface CategoryPageProps {
-//   params: {
-//     slug: string
-//   }
-// }
 type tParams = Promise<{ slug: string }>;
 
 export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
-  const { slug }  = await props.params
+  const { slug } = await props.params
 
   const category = await getFaqsByCategory(slug)
   
@@ -31,7 +29,11 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
 }
 
 export default async function CategoryPage(props: { params: tParams }) {
-  const { slug }  = await props.params
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
+  
+  const { slug } = await props.params
 
   const category = await getFaqsByCategory(slug)
 
@@ -53,7 +55,7 @@ export default async function CategoryPage(props: { params: tParams }) {
           <div className="relative">
             <Input 
               type="search" 
-              placeholder="Search for any topic" 
+              placeholder={t.help.searchTopic}
               className="h-12 pl-4"
             />
             <Button
@@ -72,7 +74,7 @@ export default async function CategoryPage(props: { params: tParams }) {
             {category.articles.map((article) => (
               <Link 
                 key={article.id} 
-                href={`/help/articles/${article.slug}`}
+                href={`/${locale}/help/articles/${article.slug}`}
                 className="block"
               >
                 <Card className="hover:bg-muted/50 transition-colors">
@@ -91,13 +93,13 @@ export default async function CategoryPage(props: { params: tParams }) {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Need to get in touch?</CardTitle>
+              <CardTitle>{t.help.needToGetInTouch}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Lorem ipsum dolor sit amet consectetur. Vel orci nibh vitae blandit tortor vestibulum enim neque suspendisse. Neque malesuada purus commodo arcu ante facilisis orci.
+                {t.help.needToGetInTouchDesc}
               </p>
-              <Button className="w-full">Contact us</Button>
+              <Button className="w-full">{t.help.contactUs}</Button>
             </CardContent>
           </Card>
         </div>

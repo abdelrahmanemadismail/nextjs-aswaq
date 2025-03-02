@@ -19,9 +19,11 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/actions/auth-actions";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [notificationSettings, setNotificationSettings] = useState({
     generalProducts: true,
     adsInterested: true,
@@ -40,8 +42,8 @@ export default function SettingsPage() {
 
     // Show toast notification
     toast({
-      title: "Settings updated",
-      description: "Your notification preferences have been saved.",
+      title: t.settings.notifications.updated,
+      description: t.settings.notifications.savedPreferences,
     });
   };
 
@@ -50,14 +52,14 @@ export default function SettingsPage() {
       await signOut();
       router.push("/auth/login");
       toast({
-        title: "Account deleted",
-        description: "Your account has been successfully deleted.",
+        title: t.settings.deleteAccount.success,
+        description: t.settings.deleteAccount.successDescription,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete account. Please try again.",
+        title: t.settings.deleteAccount.error,
+        description: t.settings.deleteAccount.errorDescription,
         variant: "destructive",
       });
     }
@@ -68,7 +70,7 @@ export default function SettingsPage() {
       {/* Notification Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Notification Settings</CardTitle>
+          <CardTitle>{t.settings.notifications.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* General Products */}
@@ -77,9 +79,9 @@ export default function SettingsPage() {
               htmlFor="general-products"
               className="flex flex-col space-y-1"
             >
-              <span>General information about products and services</span>
+              <span>{t.settings.notifications.generalProducts.title}</span>
               <span className="text-sm text-muted-foreground">
-                Receive updates about new products and services on Aswaaq
+                {t.settings.notifications.generalProducts.description}
               </span>
             </Label>
             <Switch
@@ -94,9 +96,9 @@ export default function SettingsPage() {
           {/* Ads Interested */}
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="ads-interested" className="flex flex-col space-y-1">
-              <span>Informations about Ads I&apos;m interested in</span>
+              <span>{t.settings.notifications.adsInterested.title}</span>
               <span className="text-sm text-muted-foreground">
-                Get notified about new ads matching your interests
+                {t.settings.notifications.adsInterested.description}
               </span>
             </Label>
             <Switch
@@ -109,10 +111,9 @@ export default function SettingsPage() {
           {/* User Actions */}
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="user-actions" className="flex flex-col space-y-1">
-              <span>Actions from other users on my account</span>
+              <span>{t.settings.notifications.userActions.title}</span>
               <span className="text-sm text-muted-foreground">
-                Receive notifications about messages, likes, and other
-                interactions
+                {t.settings.notifications.userActions.description}
               </span>
             </Label>
             <Switch
@@ -125,9 +126,9 @@ export default function SettingsPage() {
           {/* Account Info */}
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="account-info" className="flex flex-col space-y-1">
-              <span>General informations and hints about my account</span>
+              <span>{t.settings.notifications.accountInfo.title}</span>
               <span className="text-sm text-muted-foreground">
-                Stay updated about your account status and tips
+                {t.settings.notifications.accountInfo.description}
               </span>
             </Label>
             <Switch
@@ -140,9 +141,9 @@ export default function SettingsPage() {
           {/* Promotions */}
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="promotions" className="flex flex-col space-y-1">
-              <span>Promotions and Ads from OpenSooq</span>
+              <span>{t.settings.notifications.promotions.title}</span>
               <span className="text-sm text-muted-foreground">
-                Receive promotional content and special offers
+                {t.settings.notifications.promotions.description}
               </span>
             </Label>
             <Switch
@@ -157,37 +158,37 @@ export default function SettingsPage() {
       {/* change email */}
       <Card className="flex items-center justify-between">
         <CardHeader>
-          <CardTitle>Change Email</CardTitle>
+          <CardTitle>{t.settings.email.title}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/change-email")}}>Change Email</Button>
+          <Button variant="primary_outline" onClick={() => {router.push("/auth/change-email")}}>{t.settings.email.button}</Button>
         </CardContent>
       </Card>
 
       {/* Change Password */}
       <Card className="flex items-center justify-between">
         <CardHeader>
-          <CardTitle>Change Password</CardTitle>
+          <CardTitle>{t.settings.password.title}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/reset-password")}}>Change Password</Button>
+          <Button variant="primary_outline" onClick={() => {router.push("/auth/reset-password")}}>{t.settings.password.button}</Button>
         </CardContent>
       </Card>
 
       {/* change phone number */}
       <Card className="flex items-center justify-between">
         <CardHeader>
-          <CardTitle>Change Phone Number</CardTitle>
+          <CardTitle>{t.settings.phone.title}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
-          <Button variant="primary_outline" onClick={() => {router.push("/auth/phone-verification")}}>Change Phone Number</Button>
+          <Button variant="primary_outline" onClick={() => {router.push("/auth/phone-verification")}}>{t.settings.phone.button}</Button>
         </CardContent>
       </Card>
 
       {/* Delete Account */}
       <Card className="flex items-center justify-between">
         <CardHeader>
-          <CardTitle>Delete Your Account</CardTitle>
+          <CardTitle>{t.settings.deleteAccount.title}</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <AlertDialog>
@@ -196,24 +197,23 @@ export default function SettingsPage() {
                 variant="outline"
                 className="text-destructive hover:text-destructive"
               >
-                Delete your account
+                {t.settings.deleteAccount.button}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>{t.settings.deleteAccount.confirmTitle}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove all your data from our servers.
+                  {t.settings.deleteAccount.confirmDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t.settings.deleteAccount.cancel}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDeleteAccount}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  Delete Account
+                  {t.settings.deleteAccount.confirm}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
