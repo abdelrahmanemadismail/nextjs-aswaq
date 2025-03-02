@@ -77,40 +77,46 @@ export default function Header() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 md:gap-4 justify-end">
-              {/* Notifications */}
-              {profile && <div className="relative">
+              {/* Notifications - Hidden on mobile */}
+              {profile && (
+                <div className="relative hidden md:block">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden md:flex"
+                    onClick={toggleNotifications}
+                  >
+                    <Bell className="scale-125" />
+                  </Button>
+                  {showNotifications && (
+                    <div className="absolute w-max top-full right-0 z-50">
+                      <NotificationsPanel
+                        notifications={notifications}
+                        unreadCount={6}
+                        onClose={() => setShowNotifications(false)}
+                        onClearAll={() => console.log("clear all")}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Language Switcher - Hidden on mobile */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
+
+              {/* Messages - Hidden on mobile */}
+              {profile && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex"
-                  onClick={toggleNotifications}
+                  className="hidden md:flex text-primary hover:text-primary"
+                  onClick={() => navigateTo("/chat")}
                 >
-                  <Bell className="scale-125" />
+                  <Messages className="scale-150" />
                 </Button>
-                {showNotifications && (
-                <div className="absolute w-max top-full right-0 z-50">
-                  <NotificationsPanel
-                    notifications={notifications}
-                    unreadCount={6}
-                    onClose={() => setShowNotifications(false)}
-                    onClearAll={() => console.log("clear all")}
-                  />
-                </div>
               )}
-              </div>}
-
-              {/* Language Switcher */}
-              <LanguageSwitcher/>
-
-              {/* Messages */}
-              {profile && <Button
-                variant="ghost"
-                size="icon"
-                className="hidden md:flex text-primary hover:text-primary"
-                onClick={() => navigateTo("/chat")}
-              >
-                <Messages className="scale-150" />
-              </Button>}
 
               {/* User Menu if logged in */}
               {profile && <UserMenu />}
@@ -142,7 +148,7 @@ export default function Header() {
               </Button>
 
               {/* Mobile Menu */}
-              {!profile && (<Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden">
                     <Menu className="h-5 w-5" />
@@ -158,6 +164,7 @@ export default function Header() {
                       <SearchInput />
                     </div>
                     <div className="flex flex-col gap-2">
+                      {!profile ? (
                         <Button 
                           variant="primary_outline" 
                           onClick={() => {
@@ -167,11 +174,44 @@ export default function Header() {
                         >
                           {t.auth.login}
                         </Button>
+                      ) : (
+                        <>
+                          {/* Mobile menu notifications */}
+                          <Button 
+                            variant="ghost" 
+                            className="justify-start gap-2"
+                            onClick={() => {
+                              toggleNotifications();
+                              setIsOpen(false);
+                            }}
+                          >
+                            <Bell className="h-5 w-5" />
+                            {t.common.notifications || "Notifications"}
+                          </Button>
+                          
+                          {/* Mobile menu messages */}
+                          <Button 
+                            variant="ghost" 
+                            className="justify-start gap-2"
+                            onClick={() => {
+                              navigateTo("/chat");
+                              setIsOpen(false);
+                            }}
+                          >
+                            <Messages className="h-5 w-5" />
+                            {t.common.messages || "Messages"}
+                          </Button>
+                        </>
+                      )}
+                      
+                      {/* Mobile menu language switcher */}
+                      <div className="px-2 py-2">
                         <LanguageSwitcher />
+                      </div>
                     </div>
                   </div>
                 </SheetContent>
-              </Sheet>)}
+              </Sheet>
             </div>
           </div>
         </nav>

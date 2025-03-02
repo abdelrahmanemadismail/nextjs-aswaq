@@ -1,5 +1,6 @@
 {
   "common": {
+    "home": "Home",
     "language": "English",
     "search": "Search",
     "searchPlaceholder": "Search for products...",
@@ -25,7 +26,24 @@
     "processing": "Processing...",
     "aswaqOnline": "Aswaq Online",
     "success": "Success",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "you": "You",
+    "read": "Read",
+    "delivered": "Delivered",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "attachImage": "Attach image",
+    "noMessages": "No messages yet",
+    "searchConversations": "Search conversations",
+    "noConversations": "No conversations yet",
+    "selectConversation": "Select a conversation to start chatting",
+    "conversationNotFound": "Conversation not found",
+    "participantNotFound": "Participant not found",
+    "initialMessage": "Hi, I'm interested in this item.",
+    "startingChat": "Starting Chat...",
+    "chatWithSeller": "Chat with Seller",
+    "notifications": "Notifications",
+    "messages": "Messages"
   },
   "auth": {
     "login": "Login",
@@ -214,5 +232,70 @@
   "images": {
     "cropProfilePicture": "Crop Profile Picture",
     "errorCropping": "Error cropping image:"
+  },
+  "about": {
+    "heroTitle": "Seamless connections between buyers and sellers",
+    "storyTitle": "How we came out?",
+    "buildingTitle": "Building the Dream",
+    "buildingContent": "Abdul gathered a dedicated team of developers, marketers, and logistics experts. They worked hard to turn his vision into reality, aiming to make the digital marketplace accessible not only in affluent cities but also in remote towns. Their mission was to combine the rich cultural heritage of the Middle East with modern technology, crafting a unique e-commerce experience that was both local and globally competitive.",
+    "logoAlt": "ASWAQ Logo",
+    "coverageTitle": "ASWAQ in the Middle East and North Africa.",
+    "features": {
+      "customerTrust": {
+        "title": "Customer Trust",
+        "content": "Ensuring secure transactions, protecting user data, and providing reliable customer service."
+      },
+      "userExperience": {
+        "title": "User Experience",
+        "content": "Offering a seamless, intuitive, and enjoyable shopping experience, from browsing to checkout."
+      },
+      "culturalRelevance": {
+        "title": "Cultural Relevance",
+        "content": "Understanding and incorporating local customs, preferences, and languages to resonate with the target audience."
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have questions or feedback? We'd love to hear from you.",
+    "getInTouch": {
+      "title": "Get in Touch",
+      "description": "Our team is here to help with any questions you might have about using Aswaq Online. Whether you need assistance with your account, listings, or have feedback to share, we're just a message away."
+    },
+    "emailUs": "Email Us",
+    "form": {
+      "title": "Send Us a Message",
+      "description": "Fill out the form below and we'll get back to you as soon as possible.",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Enter your last name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter your phone number (optional)",
+      "subject": "Subject",
+      "subjectPlaceholder": "What is this regarding?",
+      "message": "Message",
+      "messagePlaceholder": "Please provide details about your inquiry...",
+      "send": "Send Message",
+      "sending": "Sending..."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Find quick answers to common questions",
+      "visitHelpCenter": "Visit Help Center"
+    },
+    "thankYou": {
+      "title": "Thank You for Contacting Us!",
+      "subtitle": "We've received your message and will respond to your inquiry as soon as possible.",
+      "nextSteps": {
+        "title": "What happens next?",
+        "review": "Our team will review your message",
+        "respond": "We'll respond within 24-48 hours (excluding weekends)",
+        "reply": "You'll receive a reply at the email address you provided"
+      },
+      "returnHome": "Return to Home"
+    }
   }
 }

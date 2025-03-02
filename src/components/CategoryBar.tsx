@@ -38,8 +38,6 @@ const CategoryBar = async () => {
         icon: cat.icon,
         display_in_header: cat.display_in_header
       }));
-      console.log(headerCategories)
-      console.log(locale)
       
     if (headerCategories.length > 0) {
       categories = headerCategories;

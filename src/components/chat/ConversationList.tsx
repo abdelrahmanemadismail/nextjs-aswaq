@@ -9,6 +9,7 @@ import { useChatStore } from "@/lib/stores/use-chat-store"
 import { Conversation } from "@/types/chat"
 import { formatDistanceToNow } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface ConversationListProps {
   selectedConversationId: string | null
@@ -20,6 +21,7 @@ export function ConversationList({
   onSelectConversation,
 }: ConversationListProps) {
   const { conversations, fetchConversations, isLoadingConversations } = useChatStore()
+  const { t } = useTranslation()
 
   useEffect(() => {
     fetchConversations()
@@ -50,8 +52,8 @@ export function ConversationList({
         
         <div className="flex-1 text-left">
           <div className="flex justify-between items-start">
-            <span className="font-medium">{participant.full_name}</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="font-medium truncate max-w-[120px] md:max-w-full">{participant.full_name}</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap ml-1">
               {formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: true })}
             </span>
           </div>
@@ -101,7 +103,7 @@ export function ConversationList({
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search conversations" 
+            placeholder={t.common.searchConversations || "Search conversations"}
             className="pl-8"
           />
         </div>
@@ -111,7 +113,7 @@ export function ConversationList({
       <div className="flex-1 overflow-y-auto">
         {conversations.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">
-            No conversations yet
+            {t.common.noConversations || "No conversations yet"}
           </div>
         ) : (
           conversations.map(renderConversation)

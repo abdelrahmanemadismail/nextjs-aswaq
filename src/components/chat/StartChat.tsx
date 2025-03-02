@@ -1,4 +1,3 @@
-// components/chat/StartChat.tsx
 "use client"
 
 import { useState } from "react"
@@ -6,17 +5,29 @@ import { useRouter } from "next/navigation"
 import { MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/utils/supabase/client"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface StartChatProps {
   listingId: string
   sellerId: string
   className?: string
+  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive"
+  size?: "default" | "sm" | "lg" | "icon"
+  fullWidth?: boolean
 }
 
-export function StartChat({ listingId, sellerId, className }: StartChatProps) {
+export function StartChat({ 
+  listingId, 
+  sellerId, 
+  className,
+  variant = "default",
+  size = "default",
+  fullWidth = false
+}: StartChatProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
+  const { t } = useTranslation()
 
   const startConversation = async () => {
     try {
@@ -29,8 +40,8 @@ export function StartChat({ listingId, sellerId, className }: StartChatProps) {
         return
       }
 
-          // Don't allow seller to chat with themselves
-        if (user.id === sellerId) {
+      // Don't allow seller to chat with themselves
+      if (user.id === sellerId) {
         return
       }
 
@@ -67,7 +78,7 @@ export function StartChat({ listingId, sellerId, className }: StartChatProps) {
         .insert({
           conversation_id: newConversation.id,
           sender_id: user.id,
-          content: "Hi, I'm interested in this item.",
+          content: t.common.initialMessage || "Hi, I'm interested in this item.",
           is_system_message: false
         })
 
@@ -85,10 +96,23 @@ export function StartChat({ listingId, sellerId, className }: StartChatProps) {
     <Button
       onClick={startConversation}
       disabled={isLoading}
-      className={className}
+      className={cn(
+        className,
+        fullWidth && "w-full"
+      )}
+      variant={variant}
+      size={size}
     >
-      <MessageCircle className="mr-2 h-4 w-4" />
-      {isLoading ? 'Starting Chat...' : 'Chat with Seller'}
+      <MessageCircle className={cn("h-4 w-4", size !== "icon" && "mr-2")} />
+      {size !== "icon" && (isLoading ? 
+        (t.common.startingChat || 'Starting Chat...') : 
+        (t.common.chatWithSeller || 'Chat with Seller')
+      )}
     </Button>
   )
+}
+
+// Helper function to conditionally join class names
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ')
 }

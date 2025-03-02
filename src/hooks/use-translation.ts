@@ -10,6 +10,7 @@ import { Languages } from '@/constants/enums';
 // Create a default translation object with empty strings
 const defaultTranslations = {
   common: {
+    home: '',
     language: '',
     search: '',
     searchPlaceholder: '',
@@ -35,7 +36,24 @@ const defaultTranslations = {
     processing: '',
     aswaqOnline: '',
     success: '',
-    somethingWentWrong: ''
+    somethingWentWrong: '',
+    you: '',
+    read: '',
+    delivered: '',
+    typeMessage: '',
+    send: '',
+    attachImage: '',
+    noMessages: '',
+    searchConversations: '',
+    noConversations: '',
+    selectConversation: '',
+    conversationNotFound: '',
+    participantNotFound: '',
+    initialMessage: '',
+    startingChat: '',
+    chatWithSeller: '',
+    notifications: '',
+    messages: ''
   },
   auth: {
     login: '',
@@ -190,6 +208,22 @@ const defaultTranslations = {
     faq: {
       title: '',
       subtitle: '',
+      createListing: {
+        question: '',
+        answer: ''
+      },
+      listingDuration: {
+        question: '',
+        answer: ''
+      },
+      featuredListing: {
+        question: '',
+        answer: ''
+      },
+      verifiedSeller: {
+        question: '',
+        answer: ''
+      }
     },
     support: {
       title: '',
@@ -208,7 +242,73 @@ const defaultTranslations = {
   images: {
     cropProfilePicture: '',
     errorCropping: ''
+  },
+  about: {
+    heroTitle: '',
+    storyTitle: '',
+    buildingTitle: '',
+    buildingContent: '',
+    logoAlt: '',
+    coverageTitle: '',
+    features: {
+      customerTrust: {
+        title: '',
+        content: ''
+      },
+      userExperience: {
+        title: '',
+        content: ''
+      },
+      culturalRelevance: {
+        title: '',
+        content: ''
+      }
+    }
+  },
+  contact: {
+    title: '',
+    subtitle: '',
+    getInTouch: {
+      title: '',
+      description: ''
+    },
+    emailUs: '',
+    form: {
+      title: '',
+      description: '',
+      firstName: '',
+      firstNamePlaceholder: '',
+      lastName: '',
+      lastNamePlaceholder: '',
+      email: '',
+      emailPlaceholder: '',
+      phone: '',
+      phonePlaceholder: '',
+      subject: '',
+      subjectPlaceholder: '',
+      message: '',
+      messagePlaceholder: '',
+      send: '',
+      sending: ''
+    },
+    faq: {
+      title: '',
+      subtitle: '',
+      visitHelpCenter: ''
+    },
+    thankYou: {
+      title: '',
+      subtitle: '',
+      nextSteps: {
+        title: '',
+        review: '',
+        respond: '',
+        reply: ''
+      },
+      returnHome: ''
+    }
   }
+
 };
 
 type TranslationType = typeof defaultTranslations;
