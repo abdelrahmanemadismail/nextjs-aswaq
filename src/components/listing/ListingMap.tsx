@@ -30,7 +30,6 @@ interface ListingMapProps {
 }
 
 export function ListingMap({ location, location_ar, latitude, longitude, title, title_ar }: ListingMapProps) {
-
   const { locale } = useTranslation()
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(
     latitude && longitude ? { lat: latitude, lng: longitude } : null
@@ -46,6 +45,7 @@ export function ListingMap({ location, location_ar, latitude, longitude, title, 
     if (typeof window !== 'undefined') {
       setIsClient(true)
 
+      // Fix Leaflet icon paths
       import('leaflet').then((L) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -54,12 +54,12 @@ export function ListingMap({ location, location_ar, latitude, longitude, title, 
           iconUrl: '/leaflet/marker-icon.png',
           shadowUrl: '/leaflet/marker-shadow.png',
         })
-      });
+      })
     }
   }, [])
 
   useEffect(() => {
-    if (!coordinates) {
+    if (!coordinates && localizedLocation) {
       // Only geocode if we don't have coordinates
       const geocodeLocation = async () => {
         try {
@@ -92,19 +92,22 @@ export function ListingMap({ location, location_ar, latitude, longitude, title, 
   }
 
   return (
-    <div className="h-[300px] w-full rounded-lg overflow-hidden">
-      <MapContainer
-        center={[coordinates.lat, coordinates.lng]}
-        zoom={15}
-        className="h-full w-full"
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={[coordinates.lat, coordinates.lng]} />
-      </MapContainer>
-    </div>
+    <Card className="mt-8 relative overflow-hidden">
+      <div className="h-[300px] w-full" style={{ position: 'relative', zIndex: 1 }}>
+        <MapContainer
+          center={[coordinates.lat, coordinates.lng]}
+          zoom={15}
+          className="h-full w-full"
+          scrollWheelZoom={false}
+          style={{ zIndex: 1 }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={[coordinates.lat, coordinates.lng]} />
+        </MapContainer>
+      </div>
+    </Card>
   )
 }
