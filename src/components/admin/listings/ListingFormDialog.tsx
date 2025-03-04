@@ -49,7 +49,7 @@ export function ListingFormDialog({
       title: listing?.title,
       description: listing?.description,
       price: listing?.price,
-      location: listing?.location,
+      address: listing?.address,
       condition: listing?.condition,
       status: listing?.status,
       is_featured: listing?.is_featured,

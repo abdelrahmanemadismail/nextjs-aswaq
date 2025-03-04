@@ -6,7 +6,6 @@ import { createClient } from '@/utils/supabase/server'
 
 export async function getListing(slug: string): Promise<DisplayListing> {
     const supabase = await createClient()
-    const now = new Date().toISOString()
     
     // Get listing with active package listing
     const { data, error } = await supabase
@@ -55,6 +54,7 @@ export async function getListing(slug: string): Promise<DisplayListing> {
     }
     
     // Remove package_listings from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { package_listings, ...listing } = data
     
     return listing as DisplayListing
@@ -85,7 +85,6 @@ export async function getListings({
   const limit = 20
   const start = (page - 1) * limit
   const end = start + limit - 1
-  const now = new Date().toISOString()
 
   // Build query with active package check
   let query = supabase
@@ -228,6 +227,7 @@ export async function getListings({
   
   // Remove package_listings from each result
   const listings = results.map(item => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { package_listings, ...listing } = item
     return listing
   })
@@ -240,7 +240,6 @@ export async function getListings({
 
 export async function getSimilarListings(categoryId: string, currentListingId: string) {
   const supabase = await createClient()
-  const now = new Date().toISOString()
 
   const { data: results } = await supabase
     .from('listings')
@@ -282,6 +281,7 @@ export async function getSimilarListings(categoryId: string, currentListingId: s
 
   // Remove package_listings from results
   const listings = results?.map(item => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { package_listings, ...listing } = item
     return listing
   }) || []

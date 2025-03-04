@@ -149,7 +149,7 @@ export function ReviewStep() {
                 <Clock className="mr-1 h-3 w-3" />
                 <span>
                   {packageInfo.package?.duration_days} {t.userPackages.card.days}
-                  {formData.package_details.is_bonus_listing && packageInfo?.package?.bonus_duration_days! > 0 && (
+                  {formData.package_details.is_bonus_listing && (packageInfo?.package?.bonus_duration_days ?? 0) > 0 && (
                     <> + {packageInfo?.package?.bonus_duration_days} {t.userPackages.card.days}</>
                   )}
                 </span>

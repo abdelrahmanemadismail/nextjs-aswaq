@@ -28,7 +28,7 @@ import { useTranslation } from "@/hooks/use-translation";
 export function UserMenu() {
   const { profile, refreshProfile } = useProfile();
   const router = useRouter();
-  const { t, getLocalizedPath, locale, switchLanguage } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   
   const handleSignOut = async () => {
     try {

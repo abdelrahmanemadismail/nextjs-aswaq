@@ -30,7 +30,8 @@ interface ListingMapProps {
 }
 
 export function ListingMap({ location, location_ar, latitude, longitude, title, title_ar }: ListingMapProps) {
-  const { t, locale } = useTranslation()
+
+  const { locale } = useTranslation()
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(
     latitude && longitude ? { lat: latitude, lng: longitude } : null
   )
@@ -38,6 +39,7 @@ export function ListingMap({ location, location_ar, latitude, longitude, title, 
 
   // Choose localized content
   const localizedLocation = locale === 'ar' && location_ar ? location_ar : location
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const localizedTitle = locale === 'ar' && title_ar ? title_ar : title
 
   useEffect(() => {

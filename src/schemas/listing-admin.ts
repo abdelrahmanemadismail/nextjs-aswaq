@@ -1,6 +1,6 @@
 // schemas/listing-admin.ts
 import { z } from 'zod'
-import { ListingCondition, ContactMethod } from '@/types/listing'
+
 
 // Schema for updating a listing in the admin panel
 export const updateListingSchema = z.object({

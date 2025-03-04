@@ -23,7 +23,7 @@ export function PackageSelectionStep() {
   const [packages, setPackages] = useState<UserPackage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { setValue, watch, formState } = useFormContext<ListingFormData>()
   const selectedPackageId = watch('package_details.user_package_id')
   const isBonus = watch('package_details.is_bonus_listing')
@@ -214,16 +214,16 @@ export function PackageSelectionStep() {
                             <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
                               <div 
                                 className={`h-full ${hasRegularListings ? 'bg-primary' : 'bg-destructive'}`}
-                                style={{ width: `${Math.max((1 - pkg.listings_remaining / pkg.package?.listing_count!) * 100, 0)}%` }}
+                                style={{ width: `${Math.max((1 - pkg.listings_remaining / (pkg.package?.listing_count ?? 1)) * 100, 0)}%` }}
                               />
                             </div>
                             <span className="ml-2 text-sm">
-                              {pkg.listings_remaining} / {pkg.package?.listing_count}
+                              {pkg.listings_remaining} / {pkg.package?.listing_count ?? 0}
                             </span>
                           </div>
                         </div>
                         
-                        {pkg.package?.bonus_listing_count! > 0 && (
+                        {(pkg.package?.bonus_listing_count ?? 0) > 0 && (
                           <div>
                             <span className="text-sm font-medium flex items-center">
                               {t.userPackages.card.bonusListings}
@@ -233,11 +233,11 @@ export function PackageSelectionStep() {
                               <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full ${hasBonusListings ? 'bg-amber-500' : 'bg-destructive'}`}
-                                  style={{ width: `${Math.max((1 - pkg.bonus_listings_remaining / pkg.package?.bonus_listing_count!) * 100, 0)}%` }}
+                                  style={{ width: `${Math.max((1 - pkg.bonus_listings_remaining / (pkg.package?.bonus_listing_count ?? 1)) * 100, 0)}%` }}
                                 />
                               </div>
                               <span className="ml-2 text-sm">
-                                {pkg.bonus_listings_remaining} / {pkg.package?.bonus_listing_count}
+                                {pkg.bonus_listings_remaining} / {pkg.package?.bonus_listing_count ?? 0}
                               </span>
                             </div>
                           </div>
@@ -247,7 +247,7 @@ export function PackageSelectionStep() {
                       <div className="mt-4 text-sm text-muted-foreground">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>{t.userPackages.card.listingDuration} {pkg.package?.duration_days} {t.userPackages.card.days}</div>
-                          {pkg.package?.bonus_duration_days! > 0 && (
+                          {(pkg.package?.bonus_duration_days ?? 0) > 0 && (
                             <div>{t.userPackages.card.bonusDuration} {pkg.package?.bonus_duration_days} {t.userPackages.card.days}</div>
                           )}
                         </div>

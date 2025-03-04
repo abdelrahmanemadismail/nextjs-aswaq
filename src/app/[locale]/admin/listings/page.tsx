@@ -118,9 +118,29 @@ export default function ListingsPage() {
 
     try {
       setFormDialog(prev => ({ ...prev, isSubmitting: true }))
-      console.log("update listing")
-      const response = await updateListing(formDialog.listing.id, data)
-      console.log(response)
+      
+      // Transform null values to undefined in both vehicle_details and property_details
+      const transformedData = {
+        ...data,
+        vehicle_details: data.vehicle_details ? {
+          ...data.vehicle_details,
+          color: data.vehicle_details.color ?? undefined,
+          version: data.vehicle_details.version ?? undefined,
+          mileage: data.vehicle_details.mileage ?? undefined,
+          specs: data.vehicle_details.specs ?? undefined,
+          color_ar: data.vehicle_details.color_ar ?? undefined,
+          specs_ar: data.vehicle_details.specs_ar ?? undefined
+        } : undefined,
+        property_details: data.property_details ? {
+          ...data.property_details,
+          bedrooms: data.property_details.bedrooms ?? undefined,
+          bathrooms: data.property_details.bathrooms ?? undefined,
+          square_footage: data.property_details.square_footage ?? undefined,
+          community_ar: data.property_details.community_ar ?? undefined
+        } : undefined
+      }
+      
+      const response = await updateListing(formDialog.listing.id, transformedData)
       if (response.error) {
         throw new Error(response.error)
       }
