@@ -114,7 +114,7 @@ export default async function ListingsPage({ searchParams, params }: PageProps) 
     condition: listing.condition,
     condition_ar: listing.condition_ar,
     contact_methods: listing.contact_methods || ['phone', 'chat', 'whatsapp'],
-    phone_number: listing.phone_number || listing.seller_phone_number || '+971501234567', // Add phone number with fallback
+    phone_number: listing.user.phone_number || undefined, // Add phone number with fallback
     vehicle_details: {
       mileage: typeof listing.mileage === 'string'
         ? parseInt(listing.mileage.replace(/[^\d]/g, ''))

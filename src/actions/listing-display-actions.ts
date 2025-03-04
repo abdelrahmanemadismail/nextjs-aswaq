@@ -17,7 +17,8 @@ export async function getListing(slug: string): Promise<DisplayListing> {
           full_name,
           avatar_url,
           verification_status,
-          join_date
+          join_date,
+          phone_number
         ),
         category:categories!category_id (
           id,
@@ -94,7 +95,8 @@ export async function getListings({
       user:profiles!user_id (
         id,
         full_name,
-        avatar_url
+        avatar_url,
+        phone_number
       ),
       category:categories!category_id (
         id,
@@ -247,7 +249,8 @@ export async function getSimilarListings(categoryId: string, currentListingId: s
       *,
       user:profiles!user_id (
         full_name,
-        avatar_url
+        avatar_url,
+        phone_number
       ),
       category:categories!category_id (
         id,

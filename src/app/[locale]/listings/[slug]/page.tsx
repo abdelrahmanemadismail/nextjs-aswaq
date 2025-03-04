@@ -2,12 +2,10 @@
 import { getListing, getSimilarListings, incrementViewCount } from '@/actions/listing-display-actions'
 import { SimilarListings } from '@/components/listing/SimilarListings'
 import { Metadata } from 'next'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import BreadcrumbNav from '@/components/BreadcrumbNav'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { MessageCircle, Phone, Share2, Flag } from 'lucide-react'
 import { ListingMap } from '@/components/listing/ListingMap'
 import { ListingDescription } from '@/components/listing/ListingDescription'
 import { ImageGallery } from '@/components/listing/ImageGallery'
@@ -15,6 +13,8 @@ import { PropertyDetails } from '@/components/listing/PropertyDetails'
 import { VehicleDetails } from '@/components/listing/VehicleDetails'
 import { formatDistance } from 'date-fns'
 import { Languages } from '@/constants/enums'
+import { ListingActionButtons } from "@/components/listing/ListingActionButtons"
+import { ListingMobileTopActions } from "@/components/listing/ListingMobileTopActions"
 
 type tParams = Promise<{ slug: string; locale: string }>;
 
@@ -51,6 +51,9 @@ export default async function ListingPage(props: { params: tParams }) {
   const dict = await import(`@/dictionaries/${locale}.json`).then(module => module.default)
   const t = dict
 
+  // Get localized content
+  const listingTitle = isArabic && listing.title_ar ? listing.title_ar : listing.title
+
   return (
     <main className="container px-4 md:px-6 py-6 m-auto">
       <div className="lg:hidden">
@@ -60,14 +63,20 @@ export default async function ListingPage(props: { params: tParams }) {
       {/* Mobile Price and Actions Bar (Fixed at top on scroll) */}
       <div className="sticky top-0 z-10 flex items-center justify-between bg-background/80 backdrop-blur-sm py-3 -mx-4 px-4 md:px-6 lg:hidden border-b">
         <div className="text-xl font-bold">{listing.price} AED</div>
-        <div className="flex gap-2">
-          <Button size="sm">
-            <Phone className="h-4 w-4" />
-          </Button>
-          <Button size="sm" variant="outline">
-            <MessageCircle className="h-4 w-4" />
-          </Button>
-        </div>
+        <ListingMobileTopActions
+          listingId={listing.id}
+          sellerId={listing.user.id}
+          phoneNumber={listing.user.phone_number}
+          contactMethods={listing.contact_methods}
+          listingTitle={listingTitle}
+          translations={{
+            phoneNotAvailable: t.listings.phoneNotAvailable,
+            callSeller: t.listings.callSeller,
+            whatsappNotAvailable: t.listings.whatsappNotAvailable,
+            messageOnWhatsapp: t.listings.messageOnWhatsapp,
+            whatsappMessage: t.listings.whatsappMessage
+          }}
+        />
       </div>
 
       <div className="hidden lg:block mt-6">
@@ -86,14 +95,6 @@ export default async function ListingPage(props: { params: tParams }) {
             <div className="flex justify-between items-center">
               <div className="text-sm text-muted-foreground">
                 {isArabic && listing.address_ar ? listing.address_ar : listing.address} • {formatDistance(new Date(listing.created_at), new Date(), { addSuffix: true })}
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="ghost">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="ghost">
-                  <Flag className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           </div>
@@ -151,15 +152,23 @@ export default async function ListingPage(props: { params: tParams }) {
         <div className="hidden lg:block space-y-4">
           <div className="text-3xl font-bold">{listing.price} AED</div>
 
-          <div className="flex flex-col gap-2">
-            <Button className="w-full">
-              <Phone className="mr-2 h-4 w-4" />
-              {t.listings.actionButtons.phoneNumber}
-            </Button>
-            <Button variant="outline" className="w-full">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              {t.listings.actionButtons.chat}
-            </Button>
+          <div className="mt-6 space-y-3">
+            <ListingActionButtons
+              listingId={listing.id}
+              sellerId={listing.user.id}
+              phoneNumber={listing.user.phone_number}
+              contactMethods={listing.contact_methods}
+              listingTitle={listingTitle}
+              translations={{
+                phoneNotAvailable: t.listings.phoneNotAvailable,
+                callSeller: t.listings.callSeller,
+                call: t.listings.actionButtons.phoneNumber,
+                whatsappNotAvailable: t.listings.whatsappNotAvailable,
+                messageOnWhatsapp: t.listings.messageOnWhatsapp,
+                whatsapp: t.listings.actionButtons.whatsapp || "WhatsApp",
+                whatsappMessage: t.listings.whatsappMessage
+              }}
+            />
           </div>
 
           <Card>
@@ -239,26 +248,32 @@ export default async function ListingPage(props: { params: tParams }) {
         </Card>
       </div>
 
-      {/* Mobile Action Buttons (Fixed at bottom) */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 bg-background p-4 border-t lg:hidden">
-        <div className="flex gap-2">
-          <Button className="flex-1">
-            <Phone className="mr-2 h-4 w-4" />
-            {t.listings.actionButtons.call}
-          </Button>
-          <Button variant="outline" className="flex-1">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            {t.listings.actionButtons.chat}
-          </Button>
-        </div>
-      </div>
-
       {/* Similar Listings */}
       <div className="mt-10 mb-20 lg:mb-10">
         <SimilarListings 
           listings={similarListings} 
           categoryName={listing.category.name} 
           categoryName_ar={listing.category.name_ar} 
+        />
+      </div>
+      
+      {/* Mobile Action Buttons (Fixed at bottom) */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 bg-background p-4 border-t lg:hidden">
+        <ListingActionButtons
+          listingId={listing.id}
+          sellerId={listing.user.id}
+          phoneNumber={listing.user.phone_number}
+          contactMethods={listing.contact_methods}
+          listingTitle={listingTitle}
+          translations={{
+            phoneNotAvailable: t.listings.phoneNotAvailable,
+            callSeller: t.listings.callSeller,
+            call: t.listings.actionButtons.call,
+            whatsappNotAvailable: t.listings.whatsappNotAvailable,
+            messageOnWhatsapp: t.listings.messageOnWhatsapp,
+            whatsapp: t.listings.actionButtons.whatsapp || "WhatsApp",
+            whatsappMessage: t.listings.whatsappMessage
+          }}
         />
       </div>
     </main>

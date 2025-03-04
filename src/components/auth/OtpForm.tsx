@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { phoneLogin, verifyPhone } from "@/actions/auth-actions";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface OtpFormProps {
     phone: string;
@@ -14,6 +15,7 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
     phone,
     onVerificationComplete,
   }) => {
+    const { t } = useTranslation();
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [loading, setLoading] = useState<boolean>(false);
     const [countdown, setCountdown] = useState(60);
@@ -97,14 +99,14 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
         
         if (error) {
           toast({
-            title: 'Error resending OTP',
-            description: 'Please try again',
+            title: t.auth.otp.errorResendingOtp,
+            description: t.auth.otp.pleaseTryAgain,
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'OTP sent',
-            description: 'Please check your phone for the new code',
+            title: t.auth.otp.otpSent,
+            description: t.auth.otp.checkPhoneForCode,
           });
           setIsResendActive(false);
           setCountdown(60);
@@ -116,8 +118,8 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast({
-          title: 'Error',
-          description: 'Something went wrong. Please try again.',
+          title: t.common.error,
+          description: t.common.somethingWentWrong,
           variant: 'destructive',
         });
       } finally {
@@ -142,23 +144,23 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
         console.log(data);
         if (!error) {
           toast({
-            title: 'OTP verification successful',
-            description: 'You are now logged in',
+            title: t.auth.otp.verificationSuccessful,
+            description: t.auth.otp.nowLoggedIn,
           });
           onVerificationComplete();
         } else {
           console.log(error);
           toast({
-            title: 'OTP verification failed',
-            description: 'Please try again1',
+            title: t.auth.otp.verificationFailed,
+            description: t.auth.otp.pleaseTryAgain,
             variant: 'destructive',
           });
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast({
-          title: 'OTP verification failed',
-          description: 'Please try again2',
+          title: t.auth.otp.verificationFailed,
+          description: t.auth.otp.pleaseTryAgain,
           variant: 'destructive',
         });
       } finally {
@@ -170,11 +172,13 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
     return (
       <div className="space-y-6">
         <div className="space-y-2">
-      <p className="text-sm text-muted-foreground text-center">
-      Enter the code we sent over SMS{phone ? ` to ${maskPhoneNumber(phone)}` : ''}
-    </p>
-    </div>
-    <form onSubmit={handleSubmit} className="space-y-6">
+          <p className="text-sm text-muted-foreground text-center">
+            {phone 
+              ? t.auth.otp.enterCodeSentToPhone.replace('{phone}', maskPhoneNumber(phone))
+              : t.auth.otp.enterCodeSent}
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex justify-center gap-2">
             {otp.map((digit, index) => (
               <Input
@@ -199,12 +203,12 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
             disabled={loading || otp.some(digit => !digit)}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Continue
+            {t.auth.otp.continue}
           </Button>
   
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              Didn&apos;t receive a code?
+              {t.auth.otp.didntReceiveCode}
             </p>
             <Button
               variant="link"
@@ -212,7 +216,9 @@ export const OtpVerificationForm: React.FC<OtpFormProps> = ({
               onClick={handleResend}
               disabled={!isResendActive || loading}
             >
-              {isResendActive ? 'Send again' : `Resend code in ${countdown}s`}
+              {isResendActive 
+                ? t.auth.otp.sendAgain 
+                : t.auth.otp.resendCodeIn.replace('{seconds}', countdown.toString())}
             </Button>
           </div>
         </form>

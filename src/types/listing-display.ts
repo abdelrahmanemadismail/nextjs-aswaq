@@ -27,6 +27,7 @@ export interface DisplayListing {
     avatar_url: string | null;
     verification_status: 'unverified' | 'pending' | 'verified';
     join_date: string;
+    phone_number: string | null;
   };
   category: {
     id: string;

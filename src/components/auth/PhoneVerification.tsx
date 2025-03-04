@@ -19,10 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { addPhoneToUser, phoneLogin } from "@/actions/auth-actions";
-import { OtpVerificationForm } from "@/components/auth/OtpForm";
+import { updateUserPhoneNumber } from "@/actions/profile-actions";
 import AuthCard from "@/components/auth/AuthCard";
 import { useProfile } from "@/context/ProfileContext";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface Country {
   code: string;
@@ -31,11 +31,10 @@ interface Country {
 }
 
 const PhoneVerification: React.FC = () => {
+  const { t, getLocalizedPath } = useTranslation();
   const [phone, setPhone] = useState<string>("");
   const { refreshProfile } = useProfile();
-  const [formattedPhone, setFormattedPhone] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [showOtpForm, setShowOtpForm] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<Country>({
     code: "AE",
     name: "United Arab Emirates",
@@ -63,8 +62,8 @@ const PhoneVerification: React.FC = () => {
 
     if (!parsedNumber?.isValid()) {
       toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid phone number",
+        title: t.profile.phoneVerification.invalidPhone,
+        description: t.profile.phoneVerification.enterValidPhone,
         variant: "destructive",
       });
       setLoading(false);
@@ -73,43 +72,31 @@ const PhoneVerification: React.FC = () => {
 
     try {
       const formattedNumber = parsedNumber.formatInternational();
-      setFormattedPhone(formattedNumber);
-      console.log(formattedPhone);
-      const response = await addPhoneToUser({ phone: formattedNumber });
-      await refreshProfile()
-      const { error } = JSON.parse(response);
+      
+      // Update the phone number in the profiles table
+      await updateUserPhoneNumber(formattedNumber);
+      
+      // Refresh the profile to get the updated phone number
+      await refreshProfile();
+      
+      toast({
+        title: t.profile.phoneVerification.phoneUpdated,
+        description: t.profile.phoneVerification.phoneUpdateSuccess,
+      });
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Could not update phone number",
-          variant: "destructive",
-        });
-      } else {
-        const phoneLoginResponse = await phoneLogin({ phone: formattedNumber });
-        const { error: loginError } = JSON.parse(phoneLoginResponse);
+      // Get the redirectedFrom parameter from the URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectTo = searchParams.get("redirectedFrom") || getLocalizedPath("/profile");
 
-        if (loginError) {
-          //   console.error('OTP error:', loginError);
-          toast({
-            title: "Error",
-            description: "Could not send verification code",
-            variant: "destructive",
-          });
-        } else {
-          setShowOtpForm(true);
-          toast({
-            title: "Code sent",
-            description: "Check your WhatsApp for the verification code",
-          });
-        }
-      }
+      // Redirect to the original destination or dashboard
+      setTimeout(() => {
+        router.push(redirectTo);
+      }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      //   console.error('Submission error:', error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: t.common.error,
+        description: t.common.somethingWentWrong,
         variant: "destructive",
       });
     } finally {
@@ -122,116 +109,89 @@ const PhoneVerification: React.FC = () => {
     setPhone(value);
   };
 
-  const handleVerificationComplete = () => {
-    toast({
-      title: "Verified successfully!",
-      description: "Phone number verified successfully!",
-    });
-    // Get the redirectedFrom parameter from the URL
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectTo = searchParams.get("redirectedFrom") || "/dashboard";
-
-    // Redirect to the original destination or dashboard
-    setTimeout(() => {
-      router.push(redirectTo);
-    }, 500);
-  };
   return (
-    <AuthCard
-      title={
-        !showOtpForm
-          ? "Enter your phone number to receive a verification code"
-          : "Enter the verification code sent to your phone"
-      }
-    >
-      {!showOtpForm ? (
-        <form onSubmit={handlePhoneSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label
-              htmlFor="phone"
-              className="text-sm font-medium text-gray-700"
+    <AuthCard title={t.profile.phoneVerification.updatePhoneNumber}>
+      <form onSubmit={handlePhoneSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label
+            htmlFor="phone"
+            className="text-sm font-medium text-gray-700"
+          >
+            {t.profile.phoneVerification.phoneNumber}
+          </Label>
+          <div className="flex">
+            <Select
+              defaultValue={selectedCountry.code}
+              onValueChange={(value) => {
+                const country = countries.find((c) => c.code === value);
+                if (country) setSelectedCountry(country);
+              }}
+              disabled={loading}
             >
-              Phone number
-            </Label>
-            <div className="flex">
-              <Select
-                defaultValue={selectedCountry.code}
-                onValueChange={(value) => {
-                  const country = countries.find((c) => c.code === value);
-                  if (country) setSelectedCountry(country);
-                }}
-                disabled={loading}
-              >
-                <SelectTrigger className="w-[100px] rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10">
-                  <SelectValue>
-                    <div className="flex">
+              <SelectTrigger className="w-[100px] rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10">
+                <SelectValue>
+                  <div className="flex">
+                    <Image
+                      src={`https://flag.vercel.app/m/${selectedCountry.code}.svg`}
+                      alt={selectedCountry.name}
+                      width={24}
+                      height={16}
+                      onError={(e) => {
+                        e.currentTarget.src = "/images/flags/default.svg";
+                      }}
+                    />
+                    +{selectedCountry.dialCode}
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="w-[300px] p-0">
+                {countries.map((country) => (
+                  <SelectItem
+                    key={country.code}
+                    value={country.code}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
                       <Image
-                        src={`https://flag.vercel.app/m/${selectedCountry.code}.svg`}
-                        alt={selectedCountry.name}
+                        src={`https://flag.vercel.app/m/${country.code}.svg`}
+                        alt={country.name}
                         width={24}
                         height={16}
                         onError={(e) => {
                           e.currentTarget.src = "/images/flags/default.svg";
                         }}
                       />
-                      +{selectedCountry.dialCode}
+                      <span>{country.name}</span>
+                      <span className="ml-auto text-gray-500">
+                        +{country.dialCode}
+                      </span>
                     </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="w-[300px] p-0">
-                  {countries.map((country) => (
-                    <SelectItem
-                      key={country.code}
-                      value={country.code}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src={`https://flag.vercel.app/m/${country.code}.svg`}
-                          alt={country.name}
-                          width={24}
-                          height={16}
-                          onError={(e) => {
-                            e.currentTarget.src = "/images/flags/default.svg";
-                          }}
-                        />
-                        <span>{country.name}</span>
-                        <span className="ml-auto text-gray-500">
-                          +{country.dialCode}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={handlePhoneChange}
-                disabled={loading}
-                className="flex-1 rounded-l-none border-l-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10"
-                placeholder="Enter phone number"
-              />
-            </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={handlePhoneChange}
+              disabled={loading}
+              className="flex-1 rounded-l-none border-l-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10"
+              placeholder={t.profile.phoneVerification.enterPhonePlaceholder}
+            />
           </div>
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                Sending code...
-              </>
-            ) : (
-              "Continue"
-            )}
-          </Button>
-        </form>
-      ) : (
-        <OtpVerificationForm
-          phone={formattedPhone}
-          onVerificationComplete={handleVerificationComplete}
-        />
-      )}
+        </div>
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              {t.profile.phoneVerification.updating}
+            </>
+          ) : (
+            t.profile.phoneVerification.updateButton
+          )}
+        </Button>
+      </form>
     </AuthCard>
   );
 };

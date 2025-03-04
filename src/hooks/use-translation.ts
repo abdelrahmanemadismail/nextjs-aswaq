@@ -109,7 +109,22 @@ const defaultTranslations = {
     registrationError: '',
     accountCreationError: '',
     accountCreated: '',
-    verificationEmailSent: ''
+    verificationEmailSent: '',
+    otp: {
+      enterCodeSent: '',
+      enterCodeSentToPhone: '',
+      continue: '',
+      didntReceiveCode: '',
+      sendAgain: '',
+      resendCodeIn: '',
+      errorResendingOtp: '',
+      pleaseTryAgain: '',
+      otpSent: '',
+      checkPhoneForCode: '',
+      verificationSuccessful: '',
+      nowLoggedIn: '',
+      verificationFailed: ''
+    }
   },
   account: {
     profile: '',
@@ -631,7 +646,18 @@ profile: {
   avatarUpdated: '',
   avatarUpdatedDescription: '',
   avatarUpdateError: '',
-  avatarUpdateErrorDescription: ''
+  avatarUpdateErrorDescription: '',
+  phoneVerification: {
+    updatePhoneNumber: '',
+    phoneNumber: '',
+    enterPhonePlaceholder: '',
+    updating: '',
+    updateButton: '',
+    invalidPhone: '',
+    enterValidPhone: '',
+    phoneUpdated: '',
+    phoneUpdateSuccess: ''
+  }
 },
 verification: {
   title: '',

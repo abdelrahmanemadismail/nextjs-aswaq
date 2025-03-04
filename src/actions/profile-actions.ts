@@ -15,11 +15,36 @@ export async function getUserProfile() {
       .eq('id', user.id)
       .single()
     if (error) throw error
-    profile.phone_number = `+${user.phone}`
     profile.email = user.email
     return profile as UserProfile
   }
-
+  export async function updateUserPhoneNumber(phoneNumber: string) {
+    const supabase = await createClient()
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+  
+    // Ensure phone number is in correct format (add + if not present)
+    const formattedPhoneNumber = phoneNumber.startsWith('+') 
+      ? phoneNumber 
+      : `+${phoneNumber}`
+  
+    // Update phone number directly in profiles table
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ phone_number: formattedPhoneNumber })
+      .eq('id', user.id)
+      .select()
+      .single()
+  
+    if (error) throw error
+    
+    // Add the email to the returned profile to maintain consistency with getUserProfile
+    return {
+      ...data,
+      email: user.email
+    } as UserProfile
+  }
 export async function updateUserProfile(profile: Partial<UserProfile>) {
   const supabase = await createClient()
   

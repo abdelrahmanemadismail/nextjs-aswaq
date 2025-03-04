@@ -99,7 +99,22 @@
     "registrationError": "خطأ في التسجيل",
     "accountCreationError": "تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى.",
     "accountCreated": "تم إنشاء الحساب",
-    "verificationEmailSent": "تحقق من بريدك الإلكتروني للحصول على رابط التحقق"
+    "verificationEmailSent": "تحقق من بريدك الإلكتروني للحصول على رابط التحقق",
+    "otp": {
+      "enterCodeSent": "أدخل الرمز الذي أرسلناه عبر الرسائل القصيرة",
+      "enterCodeSentToPhone": "أدخل الرمز الذي أرسلناه عبر الرسائل القصيرة إلى {phone}",
+      "continue": "متابعة",
+      "didntReceiveCode": "لم تستلم الرمز؟",
+      "sendAgain": "إرسال مرة أخرى",
+      "resendCodeIn": "إعادة إرسال الرمز خلال {seconds} ثانية",
+      "errorResendingOtp": "خطأ في إعادة إرسال الرمز",
+      "pleaseTryAgain": "يرجى المحاولة مرة أخرى",
+      "otpSent": "تم إرسال الرمز",
+      "checkPhoneForCode": "يرجى التحقق من هاتفك للحصول على الرمز الجديد",
+      "verificationSuccessful": "تم التحقق من الرمز بنجاح",
+      "nowLoggedIn": "أنت الآن مسجل الدخول",
+      "verificationFailed": "فشل التحقق من الرمز"
+    }
   },
   "account": {
     "profile": "الملف الشخصي",
@@ -621,7 +636,18 @@
   "avatarUpdated": "تم تحديث الصورة الرمزية",
   "avatarUpdatedDescription": "تم تحديث صورة ملفك الشخصي بنجاح.",
   "avatarUpdateError": "خطأ",
-  "avatarUpdateErrorDescription": "فشل تحميل صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+  "avatarUpdateErrorDescription": "فشل تحميل صورة الملف الشخصي. يرجى المحاولة مرة أخرى.",
+  "phoneVerification": {
+    "updatePhoneNumber": "تحديث رقم هاتفك",
+    "phoneNumber": "رقم الهاتف",
+    "enterPhonePlaceholder": "أدخل رقم الهاتف",
+    "updating": "جاري التحديث...",
+    "updateButton": "تحديث رقم الهاتف",
+    "invalidPhone": "رقم هاتف غير صالح",
+    "enterValidPhone": "الرجاء إدخال رقم هاتف صالح",
+    "phoneUpdated": "تم تحديث رقم الهاتف",
+    "phoneUpdateSuccess": "تم تحديث رقم هاتفك بنجاح"
+  }
 },
 "verification": {
   "title": "اختر نوع الهوية لإضافتها",

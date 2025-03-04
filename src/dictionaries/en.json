@@ -99,7 +99,22 @@
     "registrationError": "Registration error",
     "accountCreationError": "Could not create account. Please try again.",
     "accountCreated": "Account created",
-    "verificationEmailSent": "Check your email for a verification link"
+    "verificationEmailSent": "Check your email for a verification link",
+    "otp": {
+      "enterCodeSent": "Enter the code we sent over SMS",
+      "enterCodeSentToPhone": "Enter the code we sent over SMS to {phone}",
+      "continue": "Continue",
+      "didntReceiveCode": "Didn't receive a code?",
+      "sendAgain": "Send again",
+      "resendCodeIn": "Resend code in {seconds}s",
+      "errorResendingOtp": "Error resending OTP",
+      "pleaseTryAgain": "Please try again",
+      "otpSent": "OTP sent",
+      "checkPhoneForCode": "Please check your phone for the new code",
+      "verificationSuccessful": "OTP verification successful",
+      "nowLoggedIn": "You are now logged in",
+      "verificationFailed": "OTP verification failed"
+    }
   },
   "account": {
     "profile": "Profile",
@@ -621,7 +636,18 @@
   "avatarUpdated": "Avatar updated",
   "avatarUpdatedDescription": "Your profile picture has been updated successfully.",
   "avatarUpdateError": "Error",
-  "avatarUpdateErrorDescription": "Failed to upload profile picture. Please try again."
+  "avatarUpdateErrorDescription": "Failed to upload profile picture. Please try again.",
+  "phoneVerification": {
+    "updatePhoneNumber": "Update your phone number",
+    "phoneNumber": "Phone number",
+    "enterPhonePlaceholder": "Enter phone number",
+    "updating": "Updating...",
+    "updateButton": "Update Phone Number",
+    "invalidPhone": "Invalid phone number",
+    "enterValidPhone": "Please enter a valid phone number",
+    "phoneUpdated": "Phone number updated",
+    "phoneUpdateSuccess": "Your phone number has been successfully updated"
+  }
 },
 "verification": {
   "title": "Select an ID type to add",
