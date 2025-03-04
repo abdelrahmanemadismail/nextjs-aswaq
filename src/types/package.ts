@@ -3,6 +3,7 @@ export interface Package {
     stripe_product_id: string;
     stripe_price_id: string;
     name: string;
+    name_ar: string;
     description: string | null;
     price: number;
     package_type: 'free_tier' | 'duration' | 'bulk';

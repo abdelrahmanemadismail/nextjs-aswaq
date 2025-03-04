@@ -18,14 +18,12 @@ import {
   HelpCircle,
   Settings,
   LogOut,
-  Globe,
 } from "lucide-react";
 import { signOut } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { useProfile } from "@/context/ProfileContext";
 import { useTranslation } from "@/hooks/use-translation";
-import { Languages } from "@/constants/enums";
 
 export function UserMenu() {
   const { profile, refreshProfile } = useProfile();
@@ -50,9 +48,6 @@ export function UserMenu() {
       });
     }
   };
-  
-  // Get the opposite language label to display
-  const languageToSwitchTo = locale === Languages.ARABIC ? 'English' : 'العربية';
   
   return (
     <DropdownMenu>
@@ -99,10 +94,7 @@ export function UserMenu() {
           <Settings className="h-5 w-5 text-primary" />
           <span>{t.account.settings}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3" onClick={switchLanguage}>
-          <Globe className="h-5 w-5 text-primary" />
-          <span>{languageToSwitchTo}</span>
-        </DropdownMenuItem>
+
         <DropdownMenuItem className="gap-2 py-3" onClick={handleSignOut}>
           <LogOut className="h-5 w-5 text-primary" />
           <span>{t.account.logout}</span>

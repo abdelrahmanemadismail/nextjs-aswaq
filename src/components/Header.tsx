@@ -7,7 +7,7 @@ import SearchInput from "@/components/SearchInput";
 import { Menu } from "lucide-react";
 import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
-import NotificationsPanel from "@/components/NotificationsPanel";
+// import NotificationsPanel from "@/components/NotificationsPanel";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { headers } from "next/headers";
 import { i18n, Locale } from "@/i18n.config";
@@ -63,16 +63,16 @@ export default async function Header() {
             </Link>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-2xl">
+            <div className="flex-1 max-w-2xl hidden md:flex">
               <SearchInput />
             </div>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 md:gap-4 justify-end">
               {/* Notifications */}
-              {profile && (
+              {/* {profile && (
                 <NotificationsPanel />
-              )}
+              )} */}
 
               {/* Language Switcher */}
               <div>
@@ -136,15 +136,20 @@ export default async function Header() {
                       </div>
                       <div className="flex flex-col gap-2">
                         <Link href={getLocalizedPath("/auth/login", locale)}>
-                          <Button variant="primary_outline">
+                          <Button variant="primary_outline" className="w-full">
                             {t.auth.login}
+                          </Button>
+                        </Link>
+                        <Link href={getLocalizedPath("/auth/signup", locale)}>
+                          <Button variant="primary_outline" className="w-full">
+                            {t.auth.signup}
                           </Button>
                         </Link>
                         
                         {/* Mobile menu language switcher */}
-                        <div className="px-2 py-2">
+                        {/* <div className="px-2 py-2">
                           <LanguageSwitcher />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </SheetContent>

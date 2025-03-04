@@ -66,7 +66,7 @@ export default function FullWidthListingCard({
   // Get localized content
   const isArabic = locale === Languages.ARABIC;
   const listingTitle = isArabic && listing.title_ar ? listing.title_ar : listing.title;
-  const listingAddress = isArabic && listing.address_ar ? listing.address_ar : listing.address;
+  const listingAddress = listing.address;
   const listingCondition = isArabic && listing.condition_ar ? listing.condition_ar : listing.condition;
 
   // Format vehicle details for display
@@ -144,8 +144,8 @@ export default function FullWidthListingCard({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs md:text-sm text-muted-foreground">
-              <span className="truncate max-w-[200px]">{listingAddress}</span>
+            <div className="flex flex-col gap-2 mt-2 text-xs md:text-sm text-muted-foreground">
+              <span className="">{listingAddress}</span>
               <span>{formatDistance(new Date(listing.created_at), new Date(), { addSuffix: true })}</span>
             </div>
           </Link>

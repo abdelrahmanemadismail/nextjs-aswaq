@@ -1,5 +1,5 @@
 // types/listing-admin.ts
-import { ListingStatus, ListingCondition, PaymentTerms, VehicleSubCategory, PropertyType } from './listing'
+import { ContactMethod, ListingCondition, ListingStatus, PaymentTerms, PropertyType, VehicleSubCategory } from './listing'
 
 export interface AdminListing {
     id: string
@@ -12,14 +12,21 @@ export interface AdminListing {
     category_id: string
     category: {
         name: string
+        name_ar?: string
         slug: string
     }
     title: string
+    title_ar?: string
     description: string
+    description_ar?: string
     price: number
+    address: string
+    address_ar?: string
     location: string
     condition: ListingCondition
+    condition_ar: 'جديد' | 'مستعمل'
     status: ListingStatus
+    contact_methods: ContactMethod[]
     is_featured: boolean
     is_active: boolean
     views_count: number
@@ -30,10 +37,12 @@ export interface AdminListing {
         brand: string
         model: string
         color: string | null
+        color_ar?: string | null
         version: string | null
         year: number
         mileage: number | null
         specs: string | null
+        specs_ar?: string | null
         sub_category: VehicleSubCategory
         payment_terms: PaymentTerms
     }
@@ -43,6 +52,7 @@ export interface AdminListing {
         bathrooms: number | null
         square_footage: number | null
         community: string
+        community_ar?: string | null
         furnished: boolean
         payment_terms: PaymentTerms
     }

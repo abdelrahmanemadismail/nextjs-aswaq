@@ -7,7 +7,7 @@ import { useLanguageStore } from '@/lib/stores/languageStore'
 import { i18n, LanguageType } from '@/i18n.config'
 import { Button } from "./ui/button";
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({className}:{className?:string}) {
   const router = useRouter()
   const pathname = usePathname()
   const { setLanguage } = useLanguageStore()
@@ -47,11 +47,11 @@ export default function LanguageSwitcher() {
   return (
     <Button
       variant="ghost"
-      className="justify-center gap-2 text-primary"
+      className={`justify-center gap-2 text-primary ${className}`}
       onClick={switchLanguage}
     >
       <Globe className="h-4 w-4" />
-      {pathname.startsWith(`/${Languages.ARABIC}`) ? 'English' : 'العربية'}
+      <span className="hidden md:flex">{pathname.startsWith(`/${Languages.ARABIC}`) ? 'English' : 'العربية'}</span>
     </Button>
   );
 }

@@ -57,7 +57,7 @@ export function CategoryStep() {
         categories={categories}
         onCategorySelect={handleCategorySelect}
         selectedCategory={selectedCategory}
-        error={errors.category?.message}
+        error={errors.category?.message || errors.category?.main_category?.message}
       />
     </div>
   )

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import dynamic from 'next/dynamic'
 import 'leaflet/dist/leaflet.css'
+import { useTranslation } from '@/hooks/use-translation'
 
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
@@ -21,16 +22,23 @@ const Marker = dynamic(
 
 interface ListingMapProps {
   location: string
+  location_ar?: string
   latitude?: number | null
   longitude?: number | null
   title: string
+  title_ar?: string
 }
 
-export function ListingMap({ location, latitude, longitude }: ListingMapProps) {
+export function ListingMap({ location, location_ar, latitude, longitude, title, title_ar }: ListingMapProps) {
+  const { t, locale } = useTranslation()
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(
     latitude && longitude ? { lat: latitude, lng: longitude } : null
   )
   const [isClient, setIsClient] = useState(false)
+
+  // Choose localized content
+  const localizedLocation = locale === 'ar' && location_ar ? location_ar : location
+  const localizedTitle = locale === 'ar' && title_ar ? title_ar : title
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -53,7 +61,7 @@ export function ListingMap({ location, latitude, longitude }: ListingMapProps) {
       // Only geocode if we don't have coordinates
       const geocodeLocation = async () => {
         try {
-          const params = new URLSearchParams({ q: `${location}, UAE` })
+          const params = new URLSearchParams({ q: `${localizedLocation}, UAE` })
           const response = await fetch(`/api/geocode?${params}`)
           const data = await response.json()
 
@@ -71,7 +79,7 @@ export function ListingMap({ location, latitude, longitude }: ListingMapProps) {
 
       geocodeLocation()
     }
-  }, [location, coordinates])
+  }, [localizedLocation, coordinates])
 
   if (!coordinates || !isClient) {
     return (

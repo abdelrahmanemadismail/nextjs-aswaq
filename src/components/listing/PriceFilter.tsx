@@ -2,15 +2,17 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useEffect } from 'react'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface PriceFilterProps {
   title?: string
   currency?: string
 }
 
-export function PriceFilter({ title = "Price", currency = "AED" }: PriceFilterProps) {
+export function PriceFilter({ title, currency = "AED" }: PriceFilterProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t, getLocalizedPath } = useTranslation()
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '')
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '')
 
@@ -39,12 +41,12 @@ export function PriceFilter({ title = "Price", currency = "AED" }: PriceFilterPr
     }
     params.set('page', '1')
     
-    router.push(`/listings?${params.toString()}`)
-  }, [searchParams, router])
+    router.push(getLocalizedPath(`/listings?${params.toString()}`))
+  }, [searchParams, router, getLocalizedPath])
 
   return (
     <div className="mb-6">
-      <h3 className="font-semibold mb-3">{title} ({currency})</h3>
+      <h3 className="font-semibold mb-3">{title || t.listings.filters.price} ({currency})</h3>
       <div className="flex gap-2">
         <input 
           type="number" 
@@ -63,4 +65,4 @@ export function PriceFilter({ title = "Price", currency = "AED" }: PriceFilterPr
       </div>
     </div>
   )
-} 
+}

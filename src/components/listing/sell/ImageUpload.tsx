@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { X, Upload } from "lucide-react"
 import Image from "next/image"
 import { Button } from '@/components/ui/button'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface ImageUploadProps {
   images: File[]
@@ -23,6 +24,8 @@ export function ImageUpload({
   maxFiles = 30,
   error 
 }: ImageUploadProps) {
+  const { t } = useTranslation()
+  
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const remainingSlots = maxFiles - images.length
     const newFiles = acceptedFiles.slice(0, remainingSlots)
@@ -61,16 +64,16 @@ export function ImageUpload({
         <div className="flex flex-col items-center gap-2">
           <Upload className="h-8 w-8 text-muted-foreground" />
           {isDragActive ? (
-            <p>Drop the images here ...</p>
+            <p>{t.listings.photos.dropHere}</p>
           ) : (
             <>
-              <p>Drag & drop images here, or click to select files</p>
+              <p>{t.listings.photos.dragAndDrop}</p>
               <p className="text-sm text-muted-foreground">
-                Maximum {maxFiles} images, up to 5MB each.
-                Supported formats: JPG, PNG, WebP
+                {t.listings.photos.maxImages.replace('{maxFiles}', maxFiles.toString())}
+                {t.listings.photos.supportedFormats}
               </p>
               <p className="text-sm text-muted-foreground">
-                {images.length} of {maxFiles} images uploaded
+                {t.listings.photos.uploadedCount.replace('{current}', images.length.toString()).replace('{max}', maxFiles.toString())}
               </p>
             </>
           )}
@@ -86,7 +89,7 @@ export function ImageUpload({
               <div className="aspect-square relative">
                 <Image
                   src={URL.createObjectURL(file)}
-                  alt={`Upload ${index + 1}`}
+                  alt={t.listings.photos.uploadAlt.replace('{index}', (index + 1).toString())}
                   fill
                   className="object-cover rounded-lg"
                 />
@@ -99,6 +102,7 @@ export function ImageUpload({
                   e.stopPropagation()
                   removeImage(index)
                 }}
+                aria-label={t.listings.photos.removeImage}
               >
                 <X className="h-4 w-4" />
               </Button>

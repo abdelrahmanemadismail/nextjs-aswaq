@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface PaginationProps {
   totalPages: number
@@ -12,11 +13,12 @@ interface PaginationProps {
 export function Pagination({ totalPages, currentPage }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { getLocalizedPath } = useTranslation()
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", page.toString())
-    router.push(`/listings?${params.toString()}`)
+    router.push(getLocalizedPath(`/listings?${params.toString()}`))
   }
 
   return (

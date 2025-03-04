@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/dialog'
 import { Map, CheckCircle } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useTranslation } from '@/hooks/use-translation'
 
 // Dynamically import the Map component to avoid SSR issues
-const MapComponent = dynamic(() => import('./Map'), {
+const MapComponent = dynamic(() => import('../Map'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[400px] rounded-lg border bg-muted animate-pulse" />
@@ -37,6 +38,8 @@ interface LocationPickerProps {
 }
 
 export default function LocationPicker({ onSelectLocation, initialLocation }: LocationPickerProps) {
+  const { t } = useTranslation()
+  
   const [selectedLocation, setSelectedLocation] = useState<{
     formatted_address: string
     coordinates: {
@@ -68,14 +71,14 @@ export default function LocationPicker({ onSelectLocation, initialLocation }: Lo
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <Map className="mr-2 h-4 w-4" />
-          Choose on Map
+          {t.listings.location.chooseOnMap}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Choose Location</DialogTitle>
+          <DialogTitle>{t.listings.location.chooseLocation}</DialogTitle>
           <DialogDescription>
-            Search for a location or click on the map to select
+            {t.listings.location.searchOrClick}
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4">
@@ -91,7 +94,7 @@ export default function LocationPicker({ onSelectLocation, initialLocation }: Lo
             className="w-full sm:w-auto"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            Confirm Location
+            {t.listings.location.confirmLocation}
           </Button>
         </DialogFooter>
       </DialogContent>

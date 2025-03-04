@@ -6,8 +6,11 @@ import { useFormContext } from 'react-hook-form'
 import { ListingFormData } from '@/types/listing'
 import { ImageUpload } from '../ImageUpload'
 import { Card, CardContent } from '@/components/ui/card'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function ImageStep() {
+  const { t } = useTranslation()
+  
   const {
     setValue,
     formState: { errors },
@@ -38,13 +41,13 @@ export function ImageStep() {
       </Card>
 
       <div className="bg-muted/50 rounded-lg p-4">
-        <h3 className="font-medium mb-2">Tips for great photos:</h3>
+        <h3 className="font-medium mb-2">{t.listings.photos.tipsHeading}</h3>
         <ul className="text-sm text-muted-foreground space-y-2">
-          <li>• Use the landscape mode for cover picture</li>
-          <li>• Choose well-lit areas for clear images</li>
-          <li>• Avoid crowded places to minimize distractions</li>
-          <li>• Ensure the background is appropriate and relevant</li>
-          <li>• Add multiple angles of your item</li>
+          <li>• {t.listings.photos.tipLandscape}</li>
+          <li>• {t.listings.photos.tipLighting}</li>
+          <li>• {t.listings.photos.tipBackground}</li>
+          <li>• {t.listings.photos.tipAppropriate}</li>
+          <li>• {t.listings.photos.tipMultipleAngles}</li>
         </ul>
       </div>
     </div>

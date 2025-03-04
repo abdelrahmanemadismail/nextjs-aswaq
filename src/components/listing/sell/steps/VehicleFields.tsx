@@ -12,8 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function VehicleFields() {
+  const { t } = useTranslation()
   const { register, setValue, watch } = useFormContext<ListingFormData>()
 
   const currentYear = new Date().getFullYear()
@@ -22,25 +24,25 @@ export function VehicleFields() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Vehicle Details</CardTitle>
+        <CardTitle>{t.listings.vehicles.title}</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField name="vehicle_details.brand" label="Brand">
+          <FormField name="vehicle_details.brand" label={t.listings.vehicles.brand}>
             <Input
-              placeholder="Enter brand"
+              placeholder={t.listings.vehicles.brandPlaceholder}
               {...register('vehicle_details.brand')}
             />
           </FormField>
 
-          <FormField name="vehicle_details.model" label="Model">
+          <FormField name="vehicle_details.model" label={t.listings.vehicles.model}>
             <Input
-              placeholder="Enter model"
+              placeholder={t.listings.vehicles.modelPlaceholder}
               {...register('vehicle_details.model')}
             />
           </FormField>
 
-          <FormField name="vehicle_details.year" label="Year">
+          <FormField name="vehicle_details.year" label={t.listings.vehicles.year}>
             <Select
               onValueChange={(value) => {
                 setValue('vehicle_details.year', parseInt(value), {
@@ -50,7 +52,7 @@ export function VehicleFields() {
               value={watch('vehicle_details.year')?.toString()}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select year" />
+                <SelectValue placeholder={t.listings.vehicles.yearPlaceholder} />
               </SelectTrigger>
               <SelectContent>
                 {years.map((year) => (
@@ -62,22 +64,22 @@ export function VehicleFields() {
             </Select>
           </FormField>
 
-          <FormField name="vehicle_details.mileage" label="Mileage">
+          <FormField name="vehicle_details.mileage" label={t.listings.vehicles.mileage}>
             <Input
               type="number"
-              placeholder="Enter mileage"
+              placeholder={t.listings.vehicles.mileagePlaceholder}
               {...register('vehicle_details.mileage', { valueAsNumber: true })}
             />
           </FormField>
 
-          <FormField name="vehicle_details.color" label="Color">
+          <FormField name="vehicle_details.color" label={t.listings.vehicles.color}>
             <Input
-              placeholder="Enter color"
+              placeholder={t.listings.vehicles.colorPlaceholder}
               {...register('vehicle_details.color')}
             />
           </FormField>
 
-          <FormField name="vehicle_details.payment_terms" label="Payment Terms">
+          <FormField name="vehicle_details.payment_terms" label={t.listings.common.paymentTerms}>
             <Select
               onValueChange={(value: 'rent' | 'sale') => {
                 setValue('vehicle_details.payment_terms', value, {
@@ -87,11 +89,11 @@ export function VehicleFields() {
               value={watch('vehicle_details.payment_terms')}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select payment terms" />
+                <SelectValue placeholder={t.listings.common.selectPaymentTerms} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sale">For Sale</SelectItem>
-                <SelectItem value="rent">For Rent</SelectItem>
+                <SelectItem value="sale">{t.listings.common.forSale}</SelectItem>
+                <SelectItem value="rent">{t.listings.common.forRent}</SelectItem>
               </SelectContent>
             </Select>
           </FormField>

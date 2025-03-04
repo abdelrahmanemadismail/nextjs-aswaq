@@ -1,4 +1,4 @@
-// components/listing/LocationSelector.tsx
+// components/listing/steps/LocationSelector.tsx
 'use client'
 
 import { useEffect } from 'react'
@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select"
 import { Label } from '@/components/ui/label'
 import { Location } from '@/types/location'
+import { useTranslation } from '@/hooks/use-translation'
+import { Languages } from '@/constants/enums'
 
 interface LocationSelectorProps {
   onLocationSelect: (location: Location) => void;
@@ -20,6 +22,8 @@ interface LocationSelectorProps {
 }
 
 export function LocationSelector({ onLocationSelect, error, selectedLocationId }: LocationSelectorProps) {
+  const { t, locale } = useTranslation()
+  
   const {
     countries,
     cities,
@@ -65,19 +69,19 @@ export function LocationSelector({ onLocationSelect, error, selectedLocationId }
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Country</Label>
+        <Label>{t.listings.location.country}</Label>
         <Select
           value={selectedCountry || ''}
           onValueChange={handleCountryChange}
           disabled={isLoadingCountries}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select country" />
+            <SelectValue placeholder={t.listings.location.selectCountry} />
           </SelectTrigger>
           <SelectContent>
             {countries.map((country) => (
               <SelectItem key={country.id} value={country.id}>
-                {country.name}
+                {locale === Languages.ARABIC && country.name_ar ? country.name_ar : country.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -86,19 +90,19 @@ export function LocationSelector({ onLocationSelect, error, selectedLocationId }
 
       {selectedCountry && (
         <div className="space-y-2">
-          <Label>City</Label>
+          <Label>{t.listings.location.city}</Label>
           <Select
             value={selectedCity || ''}
             onValueChange={handleCityChange}
             disabled={isLoadingCities}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select city" />
+              <SelectValue placeholder={t.listings.location.selectCity} />
             </SelectTrigger>
             <SelectContent>
               {cities[selectedCountry]?.map((city) => (
                 <SelectItem key={city.id} value={city.id}>
-                  {city.name}
+                  {locale === Languages.ARABIC && city.name_ar ? city.name_ar : city.name}
                 </SelectItem>
               ))}
             </SelectContent>

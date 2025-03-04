@@ -12,14 +12,20 @@ import {
   type ListingResponse 
 } from '@/types/listing-admin'
 import { revalidatePath } from 'next/cache'
-import { updateListingSchema } from '@/schemas/listing-admin'
+import { 
+  // updateListingSchema, 
+  // updateVehicleDetailsSchema,
+  // updatePropertyDetailsSchema,
+  fullUpdateListingSchema
+} from '@/schemas/listing-admin'
 
 // Get listings with pagination and filters
 export async function getAdminListings(
   page = 1,
   limit = 10,
   filters?: ListingFilters,
-  sort?: ListingSort
+  sort?: ListingSort,
+  locale: string = 'en'
 ): Promise<ListingResponse> {
   noStore()
   const supabase = await createClient()
@@ -27,6 +33,7 @@ export async function getAdminListings(
   try {
     const start = (page - 1) * limit
     const end = start + limit - 1
+    const isArabic = locale === 'ar'
 
     // Build base query
     let query = supabase
@@ -35,10 +42,12 @@ export async function getAdminListings(
         *,
         user:profiles!user_id (
           full_name,
+          email,
           avatar_url
         ),
         category:categories!category_id (
           name,
+          name_ar,
           slug
         ),
         vehicle_details (*),
@@ -54,6 +63,8 @@ export async function getAdminListings(
           query = query.eq('is_active', true)
         } else if (filters.status === 'inactive') {
           query = query.eq('is_active', false)
+        } else if (filters.status === 'reported') {
+          query = query.eq('status', 'reported')
         }
       }
 
@@ -80,8 +91,14 @@ export async function getAdminListings(
         query = query.eq('condition', filters.condition)
       }
 
+      // Enhanced search to include Arabic content
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+        query = query.or(
+          `title.ilike.%${filters.search}%,` +
+          `description.ilike.%${filters.search}%,` +
+          `title_ar.ilike.%${filters.search}%,` +
+          `description_ar.ilike.%${filters.search}%`
+        )
       }
     }
 
@@ -102,8 +119,24 @@ export async function getAdminListings(
 
     if (error) throw error
 
+    // Format the results
+    const formattedData = data.map(listing => {
+      return {
+        ...listing,
+        // If we're in Arabic mode and the Arabic field exists, use it
+        title: isArabic && listing.title_ar ? listing.title_ar : listing.title,
+        description: isArabic && listing.description_ar ? listing.description_ar : listing.description,
+        address: isArabic && listing.address_ar ? listing.address_ar : listing.address,
+        category: {
+          ...listing.category,
+          name: isArabic && listing.category.name_ar ? listing.category.name_ar : listing.category.name,
+        },
+        // Keep all fields for admin purposes
+      } as AdminListing;
+    });
+
     return {
-      data: data as AdminListing[],
+      data: formattedData,
       count: count ?? undefined,
     }
   } catch (error) {
@@ -165,27 +198,88 @@ export async function getListingStats(): Promise<ListingStats> {
 // Update listing
 export async function updateListing(
   id: string,
-  data: z.infer<typeof updateListingSchema>
+  data: z.infer<typeof fullUpdateListingSchema>
 ): Promise<ListingResponse> {
   const supabase = await createClient()
   
   try {
-    const validated = updateListingSchema.parse(data)
-
+    // Validate all the data first
+    const validated = fullUpdateListingSchema.parse(data)
+    
+    // Extract the vehicle and property details if they exist
+    const { vehicle_details, property_details, ...listingData } = validated
+    
+    // First update the main listing
     const { data: listing, error } = await supabase
       .from('listings')
-      .update(validated)
+      .update(listingData)
       .eq('id', id)
       .select()
       .single()
 
     if (error) throw error
 
+    // If vehicle details are provided, update them
+    if (vehicle_details && Object.keys(vehicle_details).length > 0) {
+      const { error: vehicleError } = await supabase
+        .from('vehicle_details')
+        .update(vehicle_details)
+        .eq('listing_id', id)
+      
+      if (vehicleError) throw vehicleError
+    }
+
+    // If property details are provided, update them
+    if (property_details && Object.keys(property_details).length > 0) {
+      const { error: propertyError } = await supabase
+        .from('property_details')
+        .update(property_details)
+        .eq('listing_id', id)
+      
+      if (propertyError) throw propertyError
+    }
+
     revalidatePath('/admin/listings')
     return { data: listing as AdminListing }
   } catch (error) {
     console.error('Error updating listing:', error)
     return { error: 'Failed to update listing' }
+  }
+}
+
+// Get full listing details for editing
+export async function getAdminListing(id: string): Promise<ListingResponse> {
+  noStore()
+  const supabase = await createClient()
+  
+  try {
+    const { data: listing, error } = await supabase
+      .from('listings')
+      .select(`
+        *,
+        user:profiles!user_id (
+          full_name,
+          email,
+          avatar_url
+        ),
+        category:categories!category_id (
+          id,
+          name,
+          name_ar,
+          slug
+        ),
+        vehicle_details (*),
+        property_details (*)
+      `)
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+
+    return { data: listing as AdminListing }
+  } catch (error) {
+    console.error('Error fetching listing:', error)
+    return { error: 'Failed to fetch listing' }
   }
 }
 

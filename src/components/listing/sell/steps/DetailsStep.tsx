@@ -20,8 +20,11 @@ import { VehicleFields } from './VehicleFields'
 import { PropertyFields } from './PropertyFields'
 import { LocationSelector } from './LocationSelector'
 import LocationPicker from '../LocationPicker'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function DetailsStep() {
+  const { t } = useTranslation()
+  
   const {
     register,
     watch,
@@ -91,12 +94,12 @@ export function DetailsStep() {
             {/* Title Field */}
             <div className="space-y-2">
               <Label htmlFor="title" className="flex items-center">
-                Title
+                {t.listings.form.title}
                 {titleError && <span className="ml-2 text-destructive text-sm">*</span>}
               </Label>
               <Input
                 id="title"
-                placeholder="Enter a descriptive title"
+                placeholder={t.listings.form.titlePlaceholder}
                 {...register('details.title')}
                 className={titleError ? "border-destructive" : ""}
               />
@@ -105,15 +108,28 @@ export function DetailsStep() {
               )}
             </div>
 
+            {/* Title Arabic Field (optional) */}
+            <div className="space-y-2">
+              <Label htmlFor="title_ar" className="flex items-center">
+                {t.listings.form.titleArabic}
+              </Label>
+              <Input
+                id="title_ar"
+                placeholder={t.listings.form.titleArabicPlaceholder}
+                {...register('details.title_ar')}
+                dir="rtl"
+              />
+            </div>
+
             {/* Description Field */}
             <div className="space-y-2">
               <Label htmlFor="description" className="flex items-center">
-                Description
+                {t.listings.form.description}
                 {descriptionError && <span className="ml-2 text-destructive text-sm">*</span>}
               </Label>
               <Textarea
                 id="description"
-                placeholder="Describe your item in detail"
+                placeholder={t.listings.form.descriptionPlaceholder}
                 className={`min-h-[120px] ${descriptionError ? "border-destructive" : ""}`}
                 {...register('details.description')}
               />
@@ -122,18 +138,32 @@ export function DetailsStep() {
               )}
             </div>
 
+            {/* Description Arabic Field (optional) */}
+            <div className="space-y-2">
+              <Label htmlFor="description_ar" className="flex items-center">
+                {t.listings.form.descriptionArabic}
+              </Label>
+              <Textarea
+                id="description_ar"
+                placeholder={t.listings.form.descriptionArabicPlaceholder}
+                className="min-h-[120px]"
+                {...register('details.description_ar')}
+                dir="rtl"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Price Field */}
               <div className="space-y-2">
                 <Label htmlFor="price" className="flex items-center">
-                  Price
+                  {t.listings.form.price}
                   {priceError && <span className="ml-2 text-destructive text-sm">*</span>}
                 </Label>
                 <div className="relative">
                   <Input
                     id="price"
                     type="number"
-                    placeholder="Enter price"
+                    placeholder={t.listings.form.pricePlaceholder}
                     {...register('details.price', { valueAsNumber: true })}
                     className={`pl-16 ${priceError ? "border-destructive" : ""}`}
                   />
@@ -149,13 +179,13 @@ export function DetailsStep() {
               {/* Location Field */}
               <div className="space-y-2">
                 <Label htmlFor="address" className="flex items-center">
-                  Location
+                  {t.listings.location.location}
                   {addressError && <span className="ml-2 text-destructive text-sm">*</span>}
                 </Label>
                 <div className="space-y-2">
                   <Input
                     id="address"
-                    placeholder="Enter location"
+                    placeholder={t.listings.location.locationPlaceholder}
                     {...register('details.address')}
                     readOnly
                     className={addressError ? "border-destructive" : ""}
@@ -171,10 +201,23 @@ export function DetailsStep() {
               </div>
             </div>
             
+            {/* Address Arabic Field (optional) */}
+            <div className="space-y-2">
+              <Label htmlFor="address_ar" className="flex items-center">
+                {t.listings.location.locationArabic}
+              </Label>
+              <Input
+                id="address_ar"
+                placeholder={t.listings.location.locationArabicPlaceholder}
+                {...register('details.address_ar')}
+                dir="rtl"
+              />
+            </div>
+            
             {/* City/Area Field */}
             <div className="space-y-2">
               <Label htmlFor="location_id" className="flex items-center">
-                City/Area
+                {t.listings.location.cityArea}
                 {locationIdError && <span className="ml-2 text-destructive text-sm">*</span>}
               </Label>
               <LocationSelector
@@ -190,7 +233,7 @@ export function DetailsStep() {
             {/* Condition Field */}
             <div className="space-y-2">
               <Label htmlFor="condition" className="flex items-center">
-                Condition
+                {t.listings.form.condition}
                 {conditionError && <span className="ml-2 text-destructive text-sm">*</span>}
               </Label>
               <Select
@@ -198,11 +241,11 @@ export function DetailsStep() {
                 defaultValue={watch('details.condition')}
               >
                 <SelectTrigger id="condition" className={conditionError ? "border-destructive" : ""}>
-                  <SelectValue placeholder="Select condition" />
+                  <SelectValue placeholder={t.listings.form.selectCondition} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="used">Used</SelectItem>
+                  <SelectItem value="new">{t.listings.form.conditionNew}</SelectItem>
+                  <SelectItem value="used">{t.listings.form.conditionUsed}</SelectItem>
                 </SelectContent>
               </Select>
               {conditionError && (
@@ -217,34 +260,38 @@ export function DetailsStep() {
                 checked={watch('details.is_negotiable')}
                 onCheckedChange={handleCheckboxChange}
               />
-              <Label htmlFor="is_negotiable">Price is negotiable</Label>
+              <Label htmlFor="is_negotiable">{t.listings.form.negotiable}</Label>
             </div>
 
             {/* Contact Methods */}
             <div className="space-y-2">
               <Label htmlFor="contact_methods" className="flex items-center">
-                Contact Methods
+                {t.listings.form.contactMethods}
                 {contactMethodError && <span className="ml-2 text-destructive text-sm">*</span>}
               </Label>
               <div className={`flex flex-wrap gap-4 ${contactMethodError ? "p-2 border border-destructive rounded-md bg-destructive/10" : ""}`}>
-                {['phone', 'chat', 'whatsapp'].map((method) => (
-                  <div key={method} className="flex items-center space-x-2">
+                {[
+                  { value: 'phone', label: t.listings.form.contactPhone },
+                  { value: 'chat', label: t.listings.form.contactChat },
+                  { value: 'whatsapp', label: t.listings.form.contactWhatsapp }
+                ].map(({ value, label }) => (
+                  <div key={value} className="flex items-center space-x-2">
                     <Checkbox
-                      id={method}
-                      checked={watch('details.contact_method').includes(method as 'phone' | 'chat' | 'whatsapp')}
+                      id={value}
+                      checked={watch('details.contact_method').includes(value as 'phone' | 'chat' | 'whatsapp')}
                       onCheckedChange={(checked) => {
                         const currentMethods = watch('details.contact_method')
                         setValue(
                           'details.contact_method',
                           checked
-                            ? [...currentMethods, method as 'phone' | 'chat' | 'whatsapp']
-                            : currentMethods.filter((m) => m !== method),
+                            ? [...currentMethods, value as 'phone' | 'chat' | 'whatsapp']
+                            : currentMethods.filter((m) => m !== value),
                           { shouldValidate: true }
                         )
                       }}
                     />
-                    <Label htmlFor={method} className="capitalize">
-                      {method}
+                    <Label htmlFor={value}>
+                      {label}
                     </Label>
                   </div>
                 ))}

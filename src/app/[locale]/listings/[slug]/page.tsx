@@ -14,31 +14,42 @@ import { ImageGallery } from '@/components/listing/ImageGallery'
 import { PropertyDetails } from '@/components/listing/PropertyDetails'
 import { VehicleDetails } from '@/components/listing/VehicleDetails'
 import { formatDistance } from 'date-fns'
+import { Languages } from '@/constants/enums'
 
-type tParams = Promise<{ slug: string }>;
+type tParams = Promise<{ slug: string; locale: string }>;
 
 export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
-  const { slug } = await props.params
+  const { slug, locale } = await props.params
 
   const listing = await getListing(slug)
+  const isArabic = locale === Languages.ARABIC
+
+  // Use localized content for title and description
+  const title = isArabic && listing.title_ar ? listing.title_ar : listing.title
+  const description = isArabic && listing.description_ar ? listing.description_ar : listing.description
 
   return {
-    title: `${listing.title} | Aswaq`,
-    description: listing.description.slice(0, 160),
+    title: `${title} | Aswaq`,
+    description: description.slice(0, 160),
     openGraph: {
-      title: listing.title,
-      description: listing.description.slice(0, 160),
+      title,
+      description: description.slice(0, 160),
       images: [listing.images[0]],
     },
   }
 }
 
 export default async function ListingPage(props: { params: tParams }) {
-  const { slug } = await props.params
+  const { slug, locale } = await props.params
+  const isArabic = locale === Languages.ARABIC
 
   const listing = await getListing(slug)
   await incrementViewCount(listing.id)
   const similarListings = await getSimilarListings(listing.category.id, listing.id)
+  
+  // Get translations
+  const dict = await import(`@/dictionaries/${locale}.json`).then(module => module.default)
+  const t = dict
 
   return (
     <main className="container px-4 md:px-6 py-6 m-auto">
@@ -71,10 +82,10 @@ export default async function ListingPage(props: { params: tParams }) {
           
           {/* Mobile-only title and price section */}
           <div className="lg:hidden space-y-2">
-            <h1 className="text-2xl font-bold">{listing.title}</h1>
+            <h1 className="text-2xl font-bold">{isArabic && listing.title_ar ? listing.title_ar : listing.title}</h1>
             <div className="flex justify-between items-center">
               <div className="text-sm text-muted-foreground">
-                {listing.address} • {formatDistance(new Date(listing.created_at), new Date(), { addSuffix: true })}
+                {isArabic && listing.address_ar ? listing.address_ar : listing.address} • {formatDistance(new Date(listing.created_at), new Date(), { addSuffix: true })}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="ghost">
@@ -97,7 +108,7 @@ export default async function ListingPage(props: { params: tParams }) {
                 </Avatar>
                 <div>
                   <CardTitle className="text-base">{listing.user.full_name}</CardTitle>
-                  <CardDescription className="text-xs">Member since {formatDistance(new Date(listing.user.join_date), new Date(), { addSuffix: true })}</CardDescription>
+                  <CardDescription className="text-xs">{t.profile.memberSince} {formatDistance(new Date(listing.user.join_date), new Date(), { addSuffix: true })}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -118,16 +129,21 @@ export default async function ListingPage(props: { params: tParams }) {
           <div className="hidden lg:block">
             <ListingDescription 
               title={listing.title} 
+              title_ar={listing.title_ar}
               location={listing.address} 
+              location_ar={listing.address_ar}
               timestamp={listing.created_at} 
               description={listing.description} 
+              description_ar={listing.description_ar}
             />
           </div>
           
           {/* Mobile version of description without title */}
           <div className="lg:hidden">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
-            <div className="text-sm whitespace-pre-line">{listing.description}</div>
+            <h2 className="text-xl font-semibold mb-4">{t.listings.description}</h2>
+            <div className="text-sm whitespace-pre-line">
+              {isArabic && listing.description_ar ? listing.description_ar : listing.description}
+            </div>
           </div>
         </div>
 
@@ -138,11 +154,11 @@ export default async function ListingPage(props: { params: tParams }) {
           <div className="flex flex-col gap-2">
             <Button className="w-full">
               <Phone className="mr-2 h-4 w-4" />
-              Phone Number
+              {t.listings.actionButtons.phoneNumber}
             </Button>
             <Button variant="outline" className="w-full">
               <MessageCircle className="mr-2 h-4 w-4" />
-              Chat
+              {t.listings.actionButtons.chat}
             </Button>
           </div>
 
@@ -155,37 +171,36 @@ export default async function ListingPage(props: { params: tParams }) {
                 </Avatar>
                 <div>
                   <CardTitle>{listing.user.full_name}</CardTitle>
-                  <CardDescription>Member since {formatDistance(new Date(listing.user.join_date), new Date(), { addSuffix: true })}</CardDescription>
+                  <CardDescription>{t.profile.memberSince} {formatDistance(new Date(listing.user.join_date), new Date(), { addSuffix: true })}</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              {/* <Button variant="link" className="p-0">View Profile →</Button> */}
-            </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Location</CardTitle>
+              <CardTitle>{t.listings.map.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <ListingMap
                 location={listing.address}
+                location_ar={listing.address_ar}
                 latitude={listing.latitude}
                 longitude={listing.longitude}
                 title={listing.title}
+                title_ar={listing.title_ar}
               />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>General Tips</CardTitle>
+              <CardTitle>{t.listings.generalTips.title}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2">
-              <p>• Only meet in public places</p>
-              <p>• Never pay or transfer data in advance</p>
-              <p>• Inspect the product properly before purchasing</p>
+              <p>{t.listings.generalTips.publicPlaces}</p>
+              <p>{t.listings.generalTips.advancePayment}</p>
+              <p>{t.listings.generalTips.inspectProduct}</p>
             </CardContent>
           </Card>
         </div>
@@ -195,14 +210,16 @@ export default async function ListingPage(props: { params: tParams }) {
       <div className="mt-6 lg:hidden">
         <Card>
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">Location</CardTitle>
+            <CardTitle className="text-base">{t.listings.map.title}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-2">
             <ListingMap
               location={listing.address}
+              location_ar={listing.address_ar}
               latitude={listing.latitude}
               longitude={listing.longitude}
               title={listing.title}
+              title_ar={listing.title_ar}
             />
           </CardContent>
         </Card>
@@ -212,12 +229,12 @@ export default async function ListingPage(props: { params: tParams }) {
       <div className="mt-6 lg:hidden">
         <Card>
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">General Tips</CardTitle>
+            <CardTitle className="text-base">{t.listings.generalTips.title}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-2 text-sm space-y-2">
-            <p>• Only meet in public places</p>
-            <p>• Never pay or transfer data in advance</p>
-            <p>• Inspect the product properly before purchasing</p>
+            <p>{t.listings.generalTips.publicPlaces}</p>
+            <p>{t.listings.generalTips.advancePayment}</p>
+            <p>{t.listings.generalTips.inspectProduct}</p>
           </CardContent>
         </Card>
       </div>
@@ -227,18 +244,22 @@ export default async function ListingPage(props: { params: tParams }) {
         <div className="flex gap-2">
           <Button className="flex-1">
             <Phone className="mr-2 h-4 w-4" />
-            Call
+            {t.listings.actionButtons.call}
           </Button>
           <Button variant="outline" className="flex-1">
             <MessageCircle className="mr-2 h-4 w-4" />
-            Chat
+            {t.listings.actionButtons.chat}
           </Button>
         </div>
       </div>
 
       {/* Similar Listings */}
       <div className="mt-10 mb-20 lg:mb-10">
-        <SimilarListings listings={similarListings} categoryName={listing.category.name} />
+        <SimilarListings 
+          listings={similarListings} 
+          categoryName={listing.category.name} 
+          categoryName_ar={listing.category.name_ar} 
+        />
       </div>
     </main>
   )
