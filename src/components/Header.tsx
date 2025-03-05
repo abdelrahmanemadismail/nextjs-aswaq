@@ -113,7 +113,7 @@ export default async function Header() {
               <Link 
                 href={profile ? getLocalizedPath("/sell", locale) : getLocalizedPath("/auth/signup", locale)}
               >
-                <Button size="lg" onClick={() => sendGTMEvent({ event: 'buttonClicked', value: 'Sell' })}>
+                <Button size="lg">
                   {t.common.sell}
                 </Button>
               </Link>
