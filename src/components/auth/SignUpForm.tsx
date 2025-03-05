@@ -15,6 +15,7 @@ import AuthCard from "@/components/auth/AuthCard";
 import EmailConfirmation from "@/components/auth/EmailConfirmation";
 import { useTranslation } from '@/hooks/use-translation';
 import PhoneInput, { PhoneInputRef } from '@/components/PhoneInput';
+import { sendGTMEvent } from "@next/third-parties/google";
 
 interface Country {
   code: string;
@@ -195,6 +196,7 @@ const SignupForm = () => {
         });
       } else {
         // Instead of redirecting, show the confirmation screen
+        sendGTMEvent({ event: 'buttonClicked', value: 'Created Account' })
         setIsSignupComplete(true);
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

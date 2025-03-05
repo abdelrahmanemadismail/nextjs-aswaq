@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 
 export async function getListing(slug: string): Promise<DisplayListing> {
     const supabase = await createClient()
+    const now = new Date().toISOString()
     
     // Get listing with active package listing
     const { data, error } = await supabase
@@ -47,7 +48,7 @@ export async function getListing(slug: string): Promise<DisplayListing> {
       .eq('slug', slug)
       .eq('is_active', true)
       .eq('status', 'active')
-      .gt('package_listings.remaining_days', 0)
+      .gte('package_listings.expires_at', now)
       .single()
   
     if (error || !data) {
@@ -86,6 +87,7 @@ export async function getListings({
   const limit = 20
   const start = (page - 1) * limit
   const end = start + limit - 1
+  const now = new Date().toISOString()
 
   // Build query with active package check
   let query = supabase
@@ -122,7 +124,7 @@ export async function getListings({
     `)
     .eq('is_active', true)
     .eq('status', 'active')
-    .gt('package_listings.remaining_days', 0)
+    .gte('package_listings.expires_at', now)
 
   // Apply filters
   if (category) {
@@ -242,6 +244,7 @@ export async function getListings({
 
 export async function getSimilarListings(categoryId: string, currentListingId: string) {
   const supabase = await createClient()
+  const now = new Date().toISOString()
 
   const { data: results } = await supabase
     .from('listings')
@@ -277,7 +280,7 @@ export async function getSimilarListings(categoryId: string, currentListingId: s
     .neq('id', currentListingId)
     .eq('is_active', true)
     .eq('status', 'active')
-    .gt('package_listings.remaining_days', 0)
+    .gte('package_listings.expires_at', now)
     .order('is_featured', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(3)

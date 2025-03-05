@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { LoaderCircle } from 'lucide-react';
 import { Locale } from "@/i18n.config";
 import { Directions, Languages } from "@/constants/enums";
+import { GoogleTagManager } from '@next/third-parties/google'
 
 export async function generateStaticParams() {
   return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
@@ -51,6 +52,7 @@ export default async function RootLayout({
       lang={locale}
       dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
     >
+      <GoogleTagManager gtmId={process.env.gtmId||"GTM-XYZ"} />
       <body className={locale === Languages.ARABIC ? cairo.className : lato.className}>
         <div className="h-screen w-screen">
           <ProfileProvider>

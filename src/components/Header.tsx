@@ -13,6 +13,7 @@ import { headers } from "next/headers";
 import { i18n, Locale } from "@/i18n.config";
 import { createClient } from "@/utils/supabase/server";
 import getTrans from "@/utils/translation";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 // Function to get a localized path
 function getLocalizedPath(path: string, locale: string) {
@@ -112,7 +113,7 @@ export default async function Header() {
               <Link 
                 href={profile ? getLocalizedPath("/sell", locale) : getLocalizedPath("/auth/signup", locale)}
               >
-                <Button size="lg">
+                <Button size="lg" onClick={() => sendGTMEvent({ event: 'buttonClicked', value: 'Sell' })}>
                   {t.common.sell}
                 </Button>
               </Link>
