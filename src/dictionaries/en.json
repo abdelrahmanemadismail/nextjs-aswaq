@@ -93,6 +93,8 @@
     "createAswaqAccount": "Create your ASWAQ account",
     "fullName": "Full Name",
     "enterFullName": "Enter your full name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Enter your phone number",
     "creatingAccount": "Creating account...",
     "createAccount": "Create account",
     "haveAccount": "Already have an account?",
@@ -100,6 +102,7 @@
     "accountCreationError": "Could not create account. Please try again.",
     "accountCreated": "Account created",
     "verificationEmailSent": "Check your email for a verification link",
+    "enterValidPhone": "Please enter a valid phone number",
     "otp": {
       "enterCodeSent": "Enter the code we sent over SMS",
       "enterCodeSentToPhone": "Enter the code we sent over SMS to {phone}",

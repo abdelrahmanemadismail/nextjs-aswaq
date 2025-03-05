@@ -93,6 +93,8 @@
     "createAswaqAccount": "إنشاء حسابك في أسواق",
     "fullName": "الاسم الكامل",
     "enterFullName": "أدخل اسمك الكامل",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "أدخل رقم هاتفك",
     "creatingAccount": "جاري إنشاء الحساب...",
     "createAccount": "إنشاء حساب",
     "haveAccount": "هل لديك حساب بالفعل؟",
@@ -100,6 +102,7 @@
     "accountCreationError": "تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى.",
     "accountCreated": "تم إنشاء الحساب",
     "verificationEmailSent": "تحقق من بريدك الإلكتروني للحصول على رابط التحقق",
+    "enterValidPhone": "الرجاء إدخال رقم هاتف صالح",
     "otp": {
       "enterCodeSent": "أدخل الرمز الذي أرسلناه عبر الرسائل القصيرة",
       "enterCodeSentToPhone": "أدخل الرمز الذي أرسلناه عبر الرسائل القصيرة إلى {phone}",

@@ -103,6 +103,8 @@ const defaultTranslations = {
     createAswaqAccount: '',
     fullName: '',
     enterFullName: '',
+    phone: '',
+    phonePlaceholder: '',
     creatingAccount: '',
     createAccount: '',
     haveAccount: '',
@@ -110,6 +112,7 @@ const defaultTranslations = {
     accountCreationError: '',
     accountCreated: '',
     verificationEmailSent: '',
+    enterValidPhone: '',
     otp: {
       enterCodeSent: '',
       enterCodeSentToPhone: '',

@@ -29,7 +29,7 @@ export async function googleLogin() {
 }
 
 
-export async function signUpWithEmailPassword({ email, password, fullName }: { email: string; password: string, fullName: string }) {
+export async function signUpWithEmailPassword({ email, phoneNumber, password, fullName }: { email: string; phoneNumber:string; password: string, fullName: string }) {
   const supabase = await createClient()
   const res = await supabase.auth.signUp({
     email: email,
@@ -37,6 +37,7 @@ export async function signUpWithEmailPassword({ email, password, fullName }: { e
     options: {
       data: {
         full_name: fullName,
+        phone_number: phoneNumber,
       },
     },
   })
