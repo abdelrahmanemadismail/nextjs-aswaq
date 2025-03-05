@@ -297,6 +297,7 @@ const SignupForm = () => {
             placeholder={t.profile.phoneVerification?.enterPhonePlaceholder}
             disabled={isLoading}
             error={errors.phoneNumber}
+            selectedCountry={selectedCountry}
           />
           {touched.phoneNumber && errors.phoneNumber && (
             <Alert variant="destructive" className="py-2 border-none">

@@ -22,7 +22,6 @@ const PhoneVerification: React.FC = () => {
   const [phone, setPhone] = useState<string>("");
   const { refreshProfile } = useProfile();
   const [loading, setLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedCountry, setSelectedCountry] = useState<Country>({
     code: "AE",
     name: "United Arab Emirates",
@@ -104,6 +103,7 @@ const PhoneVerification: React.FC = () => {
             onChange={handlePhoneChange}
             onCountryChange={handleCountryChange}
             defaultCountry="AE"
+            selectedCountry={selectedCountry}
             placeholder={t.profile.phoneVerification?.enterPhonePlaceholder || "Enter your phone number"}
             disabled={loading}
           />

@@ -33,6 +33,7 @@ export interface PhoneInputProps {
   className?: string;
   id?: string;
   dir?: "ltr" | "rtl";
+  selectedCountry?: Country;
 }
 
 export interface PhoneInputRef {
@@ -53,15 +54,18 @@ const PhoneInput = React.forwardRef<PhoneInputRef, PhoneInputProps>(
       className = "",
       id = "phone",
       dir = "ltr",
+      selectedCountry: propSelectedCountry,
     },
     ref
   ) => {
     const isRTL = dir === "rtl";
-    const [selectedCountry, setSelectedCountry] = useState<Country>({
+    const [internalSelectedCountry, setInternalSelectedCountry] = useState<Country>({
       code: defaultCountry,
       name: "United Arab Emirates",
       dialCode: "971",
     });
+
+    const selectedCountry = propSelectedCountry || internalSelectedCountry;
 
     const countries: Country[] = React.useMemo(() => {
       const countryCodes = getCountries() || [];
@@ -76,12 +80,14 @@ const PhoneInput = React.forwardRef<PhoneInputRef, PhoneInputProps>(
 
     // Initialize selected country on component mount
     useEffect(() => {
-      const country = countries.find((c) => c.code === defaultCountry);
-      if (country) {
-        setSelectedCountry(country);
-        if (onCountryChange) onCountryChange(country);
+      if (!propSelectedCountry) {
+        const country = countries.find((c) => c.code === defaultCountry);
+        if (country) {
+          setInternalSelectedCountry(country);
+          if (onCountryChange) onCountryChange(country);
+        }
       }
-    }, [countries, defaultCountry, onCountryChange]);
+    }, [countries, defaultCountry, onCountryChange, propSelectedCountry]);
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const cleanValue = e.target.value.replace(/[^\d]/g, "");
@@ -91,7 +97,9 @@ const PhoneInput = React.forwardRef<PhoneInputRef, PhoneInputProps>(
     const handleCountryChange = (code: string) => {
       const country = countries.find((c) => c.code === code);
       if (country) {
-        setSelectedCountry(country);
+        if (!propSelectedCountry) {
+          setInternalSelectedCountry(country);
+        }
         if (onCountryChange) onCountryChange(country);
       }
     };
@@ -126,7 +134,7 @@ const PhoneInput = React.forwardRef<PhoneInputRef, PhoneInputProps>(
     return (
       <div className={`flex ${className}`} dir={dir}>
         <Select
-          defaultValue={selectedCountry.code}
+          value={selectedCountry.code}
           onValueChange={handleCountryChange}
           disabled={disabled}
         >
