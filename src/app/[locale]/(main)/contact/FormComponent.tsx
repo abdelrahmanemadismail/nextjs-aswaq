@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
 
 export function ContactForm() {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -26,6 +26,8 @@ export function ContactForm() {
 
     try {
       const formData = new FormData(event.currentTarget)
+
+      formData.append('locale', locale)
       
       // Submit the form
       const result = await submitContactForm(formData)
