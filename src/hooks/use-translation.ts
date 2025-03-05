@@ -124,7 +124,10 @@ const defaultTranslations = {
       verificationSuccessful: '',
       nowLoggedIn: '',
       verificationFailed: ''
-    }
+    },
+    didntReceiveEmail: '',
+    resendVerificationEmail: '',
+    resendInSeconds: ''
   },
   account: {
     profile: '',

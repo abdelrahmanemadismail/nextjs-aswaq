@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { changeEmail } from '@/actions/auth-actions';
 import AuthCard from '@/components/auth/AuthCard';
 import { toast } from '@/hooks/use-toast';
+import EmailConfirmation from "@/components/auth/EmailConfirmation";
 import { useTranslation } from '@/hooks/use-translation';
 
 const emailSchema = z.object({
@@ -19,7 +20,7 @@ const emailSchema = z.object({
 type EmailFormData = z.infer<typeof emailSchema>;
 
 function ChangeEmailForm() {
-  const { t } = useTranslation();
+  const { t, getLocalizedPath } = useTranslation();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<EmailFormData>({
@@ -28,6 +29,7 @@ function ChangeEmailForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof EmailFormData, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof EmailFormData, boolean>>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -113,7 +115,7 @@ function ChangeEmailForm() {
           title: t.common.success,
           description: t.auth.emailChangeSuccess,
         });
-        router.push('/auth/login');
+        setIsComplete(true);
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -126,11 +128,23 @@ function ChangeEmailForm() {
       setIsLoading(false);
     }
   };
-
+  const handleBackToLogin = () => {
+    router.push(getLocalizedPath("/auth/login"));
+  };
   if (!mounted) {
     return null;
   }
-
+  if (isComplete) {
+    return (
+      <AuthCard title={t.auth.resendVerificationEmail}>
+        <EmailConfirmation 
+          email={formData.email}
+          type='email_change'
+          onBackToLogin={handleBackToLogin} 
+        />
+      </AuthCard>
+    );
+  }
   return (
     <AuthCard title={t.auth.changeEmailAddress}>
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -114,7 +114,10 @@
       "verificationSuccessful": "تم التحقق من الرمز بنجاح",
       "nowLoggedIn": "أنت الآن مسجل الدخول",
       "verificationFailed": "فشل التحقق من الرمز"
-    }
+    },
+    "didntReceiveEmail": "لم تستلم البريد الإلكتروني؟",
+    "resendVerificationEmail": "إعادة إرسال بريد التحقق",
+    "resendInSeconds": "إعادة الإرسال خلال {seconds} ثانية"
   },
   "account": {
     "profile": "الملف الشخصي",

@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { signUpWithEmailPassword } from "@/actions/auth-actions";
 import GoogleButton from "@/components/auth/GoogleButton";
 import AuthCard from "@/components/auth/AuthCard";
+import EmailConfirmation from "@/components/auth/EmailConfirmation";
 import { useTranslation } from '@/hooks/use-translation';
 
 const signupSchema = z.object({
@@ -50,6 +51,7 @@ const SignupForm = () => {
     Partial<Record<keyof SignupFormData, boolean>>
   >({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignupComplete, setIsSignupComplete] = useState(false);
   const router = useRouter();
 
   const validateField = (field: keyof SignupFormData, value: string) => {
@@ -124,11 +126,8 @@ const SignupForm = () => {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: t.auth.accountCreated,
-          description: t.auth.verificationEmailSent,
-        });
-        router.push(getLocalizedPath("/"));
+        // Instead of redirecting, show the confirmation screen
+        setIsSignupComplete(true);
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -141,6 +140,22 @@ const SignupForm = () => {
       setIsLoading(false);
     }
   };
+
+  const handleBackToLogin = () => {
+    router.push(getLocalizedPath("/auth/login"));
+  };
+
+  if (isSignupComplete) {
+    return (
+      <AuthCard title={t.auth.accountCreated}>
+        <EmailConfirmation 
+          email={formData.email}
+          type='signup'
+          onBackToLogin={handleBackToLogin} 
+        />
+      </AuthCard>
+    );
+  }
 
   return (
     <AuthCard title={t.auth.createAswaqAccount}>
@@ -238,7 +253,7 @@ const SignupForm = () => {
         <Button
           variant="link"
           className="px-1 font-semibold"
-          onClick={() => router.push(getLocalizedPath("/auth/login"))}
+          onClick={handleBackToLogin}
         >
           {t.auth.signIn}
         </Button>

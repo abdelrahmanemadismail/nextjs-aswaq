@@ -114,7 +114,10 @@
       "verificationSuccessful": "OTP verification successful",
       "nowLoggedIn": "You are now logged in",
       "verificationFailed": "OTP verification failed"
-    }
+    },
+    "didntReceiveEmail": "Didn't receive the email?",
+    "resendVerificationEmail": "Resend verification email",
+    "resendInSeconds": "Resend in {seconds}s"
   },
   "account": {
     "profile": "Profile",
