@@ -1,8 +1,7 @@
 "use client"
 
-import { useFormContext } from 'react-hook-form'
-import { ListingFormData } from '@/types/listing'
-import { FormField } from '../form/FormField'
+import React from 'react'
+import { useListingFormStore } from '@/hooks/use-listing-form-store'
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -15,10 +14,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from "@/components/ui/switch"
 import { Label } from '@/components/ui/label'
 import { useTranslation } from '@/hooks/use-translation'
+// import { PropertyDetails } from '@/types/listing'
 
 export function PropertyFields() {
   const { t } = useTranslation()
-  const { register, setValue, watch } = useFormContext<ListingFormData>()
+  const { formData, updateFormField } = useListingFormStore()
+  
+  const propertyDetails = {
+    property_type: 'apartment' as const,
+    payment_terms: 'sale' as const,
+    bedrooms: null,
+    bathrooms: null,
+    square_footage: null,
+    community: '',
+    community_ar: null,
+    furnished: false,
+    ...formData.property_details
+  } as const
+  
+  // Update a specific field in the property_details object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updatePropertyField = (field: string, value: any) => {
+    updateFormField('property_details', {
+      ...propertyDetails,
+      [field]: value
+    })
+  }
 
   return (
     <Card>
@@ -27,16 +48,15 @@ export function PropertyFields() {
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField name="property_details.property_type" label={t.listings.properties.propertyType}>
+          <div className="space-y-2">
+            <Label htmlFor="property_type">{t.listings.properties.propertyType}</Label>
             <Select
+              value={propertyDetails.property_type || ''}
               onValueChange={(value: 'apartment' | 'villa' | 'commercial') => {
-                setValue('property_details.property_type', value, {
-                  shouldValidate: true,
-                })
+                updatePropertyField('property_type', value)
               }}
-              value={watch('property_details.property_type')}
             >
-              <SelectTrigger>
+              <SelectTrigger id="property_type">
                 <SelectValue placeholder={t.listings.properties.selectPropertyType} />
               </SelectTrigger>
               <SelectContent>
@@ -45,18 +65,17 @@ export function PropertyFields() {
                 <SelectItem value="commercial">{t.listings.properties.commercial}</SelectItem>
               </SelectContent>
             </Select>
-          </FormField>
+          </div>
 
-          <FormField name="property_details.payment_terms" label={t.listings.common.paymentTerms}>
+          <div className="space-y-2">
+            <Label htmlFor="payment_terms">{t.listings.common.paymentTerms}</Label>
             <Select
+              value={propertyDetails.payment_terms || 'sale'}
               onValueChange={(value: 'rent' | 'sale') => {
-                setValue('property_details.payment_terms', value, {
-                  shouldValidate: true,
-                })
+                updatePropertyField('payment_terms', value)
               }}
-              value={watch('property_details.payment_terms')}
             >
-              <SelectTrigger>
+              <SelectTrigger id="payment_terms">
                 <SelectValue placeholder={t.listings.common.selectPaymentTerms} />
               </SelectTrigger>
               <SelectContent>
@@ -64,48 +83,58 @@ export function PropertyFields() {
                 <SelectItem value="rent">{t.listings.common.forRent}</SelectItem>
               </SelectContent>
             </Select>
-          </FormField>
+          </div>
 
-          <FormField name="property_details.bedrooms" label={t.listings.properties.bedrooms}>
+          <div className="space-y-2">
+            <Label htmlFor="bedrooms">{t.listings.properties.bedrooms}</Label>
             <Input
+              id="bedrooms"
               type="number"
               placeholder={t.listings.properties.bedroomsPlaceholder}
-              {...register('property_details.bedrooms', { valueAsNumber: true })}
+              value={propertyDetails.bedrooms || ''}
+              onChange={(e) => updatePropertyField('bedrooms', parseInt(e.target.value) || null)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="property_details.bathrooms" label={t.listings.properties.bathrooms}>
+          <div className="space-y-2">
+            <Label htmlFor="bathrooms">{t.listings.properties.bathrooms}</Label>
             <Input
+              id="bathrooms"
               type="number"
               placeholder={t.listings.properties.bathroomsPlaceholder}
-              {...register('property_details.bathrooms', { valueAsNumber: true })}
+              value={propertyDetails.bathrooms || ''}
+              onChange={(e) => updatePropertyField('bathrooms', parseInt(e.target.value) || null)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="property_details.square_footage" label={t.listings.properties.squareFootage}>
+          <div className="space-y-2">
+            <Label htmlFor="square_footage">{t.listings.properties.squareFootage}</Label>
             <Input
+              id="square_footage"
               type="number"
               placeholder={t.listings.properties.squareFootagePlaceholder}
-              {...register('property_details.square_footage', { valueAsNumber: true })}
+              value={propertyDetails.square_footage || ''}
+              onChange={(e) => updatePropertyField('square_footage', parseInt(e.target.value) || null)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="property_details.community" label={t.listings.properties.community}>
+          <div className="space-y-2">
+            <Label htmlFor="community">{t.listings.properties.community}</Label>
             <Input
+              id="community"
               placeholder={t.listings.properties.communityPlaceholder}
-              {...register('property_details.community')}
+              value={propertyDetails.community || ''}
+              onChange={(e) => updatePropertyField('community', e.target.value)}
             />
-          </FormField>
+          </div>
 
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="furnished">{t.listings.properties.furnished}</Label>
             <Switch
               id="furnished"
-              checked={watch('property_details.furnished')}
+              checked={propertyDetails.furnished || false}
               onCheckedChange={(checked) => {
-                setValue('property_details.furnished', checked, {
-                  shouldValidate: true,
-                })
+                updatePropertyField('furnished', checked)
               }}
             />
           </div>

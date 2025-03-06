@@ -1,5 +1,7 @@
 // components/listing/PropertyDetails.tsx
-import { useTranslation } from "@/hooks/use-translation"
+import { Locale } from "@/i18n.config";
+import getTrans from "@/utils/translation";
+import { headers } from "next/headers";
 
 interface PropertyDetailsProps {
   details: {
@@ -14,8 +16,10 @@ interface PropertyDetailsProps {
   }
 }
 
-export function PropertyDetails({ details }: PropertyDetailsProps) {
-  const { t, locale } = useTranslation()
+export async function PropertyDetails({ details }: PropertyDetailsProps) {
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
   
   // Get localized content
   const localizedCommunity = locale === 'ar' && details.community_ar ? details.community_ar : details.community

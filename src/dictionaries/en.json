@@ -20,7 +20,7 @@
     "no": "No",
     "sell": "Sell",
     "toggleMenu": "Toggle menu",
-    "aswaqMenu": "ASWAQ Menu",
+    "aswaqMenu": "ASWAQ.ONLINE Menu",
     "error": "Error",
     "unexpectedError": "An unexpected error occurred",
     "processing": "Processing...",
@@ -471,7 +471,7 @@
     "subtitle": "Have questions or feedback? We'd love to hear from you.",
     "getInTouch": {
       "title": "Get in Touch",
-      "description": "Our team is here to help with any questions you might have about using Aswaq Online. Whether you need assistance with your account, listings, or have feedback to share, we're just a message away."
+      "description": "Our team is here to help with any questions you might have about using Aswaq.online. Whether you need assistance with your account, listings, or have feedback to share, we're just a message away."
     },
     "emailUs": "Email Us",
     "form": {

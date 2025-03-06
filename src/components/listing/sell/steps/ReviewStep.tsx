@@ -298,7 +298,7 @@ export function ReviewStep() {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-2xl text-primary">
-                {formatPrice(formData.details.price)}
+                {formatPrice(Number(formData.details.price))}
                 {formData.details.is_negotiable && (
                   <Badge variant="secondary" className="ml-2">
                     {t.listings.form.negotiable}

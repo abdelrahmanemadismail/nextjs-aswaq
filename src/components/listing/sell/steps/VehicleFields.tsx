@@ -1,8 +1,7 @@
 "use client"
 
-import { useFormContext } from 'react-hook-form'
-import { ListingFormData } from '@/types/listing'
-import { FormField } from '../form/FormField'
+import React from 'react'
+import { useListingFormStore } from '@/hooks/use-listing-form-store'
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -13,10 +12,36 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslation } from '@/hooks/use-translation'
+import { Label } from '@/components/ui/label'
+// import { VehicleDetails } from '@/types/listing'
 
 export function VehicleFields() {
   const { t } = useTranslation()
-  const { register, setValue, watch } = useFormContext<ListingFormData>()
+  const { formData, updateFormField } = useListingFormStore()
+  
+  const vehicleDetails = {
+    brand: '',
+    model: '',
+    year: new Date().getFullYear(),
+    color: null,
+    color_ar: null,
+    version: null,
+    mileage: null,
+    specs: null,
+    specs_ar: null,
+    sub_category: 'car' as const,
+    payment_terms: 'sale' as const,
+    ...formData.vehicle_details
+  } as const
+  
+  // Update a specific field in the vehicle_details object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateVehicleField = (field: string, value: any) => {
+    updateFormField('vehicle_details', {
+      ...vehicleDetails,
+      [field]: value
+    })
+  }
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i)
@@ -28,30 +53,33 @@ export function VehicleFields() {
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField name="vehicle_details.brand" label={t.listings.vehicles.brand}>
+          <div className="space-y-2">
+            <Label htmlFor="brand">{t.listings.vehicles.brand}</Label>
             <Input
+              id="brand"
               placeholder={t.listings.vehicles.brandPlaceholder}
-              {...register('vehicle_details.brand')}
+              value={vehicleDetails.brand || ''}
+              onChange={(e) => updateVehicleField('brand', e.target.value)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="vehicle_details.model" label={t.listings.vehicles.model}>
+          <div className="space-y-2">
+            <Label htmlFor="model">{t.listings.vehicles.model}</Label>
             <Input
+              id="model"
               placeholder={t.listings.vehicles.modelPlaceholder}
-              {...register('vehicle_details.model')}
+              value={vehicleDetails.model || ''}
+              onChange={(e) => updateVehicleField('model', e.target.value)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="vehicle_details.year" label={t.listings.vehicles.year}>
+          <div className="space-y-2">
+            <Label htmlFor="year">{t.listings.vehicles.year}</Label>
             <Select
-              onValueChange={(value) => {
-                setValue('vehicle_details.year', parseInt(value), {
-                  shouldValidate: true,
-                })
-              }}
-              value={watch('vehicle_details.year')?.toString()}
+              value={vehicleDetails.year?.toString() || ''}
+              onValueChange={(value) => updateVehicleField('year', parseInt(value))}
             >
-              <SelectTrigger>
+              <SelectTrigger id="year">
                 <SelectValue placeholder={t.listings.vehicles.yearPlaceholder} />
               </SelectTrigger>
               <SelectContent>
@@ -62,33 +90,36 @@ export function VehicleFields() {
                 ))}
               </SelectContent>
             </Select>
-          </FormField>
+          </div>
 
-          <FormField name="vehicle_details.mileage" label={t.listings.vehicles.mileage}>
+          <div className="space-y-2">
+            <Label htmlFor="mileage">{t.listings.vehicles.mileage}</Label>
             <Input
+              id="mileage"
               type="number"
               placeholder={t.listings.vehicles.mileagePlaceholder}
-              {...register('vehicle_details.mileage', { valueAsNumber: true })}
+              value={vehicleDetails.mileage || ''}
+              onChange={(e) => updateVehicleField('mileage', parseInt(e.target.value) || 0)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="vehicle_details.color" label={t.listings.vehicles.color}>
+          <div className="space-y-2">
+            <Label htmlFor="color">{t.listings.vehicles.color}</Label>
             <Input
+              id="color"
               placeholder={t.listings.vehicles.colorPlaceholder}
-              {...register('vehicle_details.color')}
+              value={vehicleDetails.color || ''}
+              onChange={(e) => updateVehicleField('color', e.target.value)}
             />
-          </FormField>
+          </div>
 
-          <FormField name="vehicle_details.payment_terms" label={t.listings.common.paymentTerms}>
+          <div className="space-y-2">
+            <Label htmlFor="payment_terms">{t.listings.common.paymentTerms}</Label>
             <Select
-              onValueChange={(value: 'rent' | 'sale') => {
-                setValue('vehicle_details.payment_terms', value, {
-                  shouldValidate: true,
-                })
-              }}
-              value={watch('vehicle_details.payment_terms')}
+              value={vehicleDetails.payment_terms || 'sale'}
+              onValueChange={(value: 'rent' | 'sale') => updateVehicleField('payment_terms', value)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="payment_terms">
                 <SelectValue placeholder={t.listings.common.selectPaymentTerms} />
               </SelectTrigger>
               <SelectContent>
@@ -96,7 +127,7 @@ export function VehicleFields() {
                 <SelectItem value="rent">{t.listings.common.forRent}</SelectItem>
               </SelectContent>
             </Select>
-          </FormField>
+          </div>
         </div>
       </CardContent>
     </Card>

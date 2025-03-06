@@ -1,5 +1,8 @@
 // components/listing/VehicleDetails.tsx
-import { useTranslation } from "@/hooks/use-translation"
+
+import { Locale } from "@/i18n.config";
+import getTrans from "@/utils/translation";
+import { headers } from "next/headers";
 
 interface VehicleDetailsProps {
   details: {
@@ -16,8 +19,10 @@ interface VehicleDetailsProps {
   }
 }
 
-export function VehicleDetails({ details }: VehicleDetailsProps) {
-  const { t, locale } = useTranslation()
+export async function VehicleDetails({ details }: VehicleDetailsProps) {
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
   
   // Get localized content
   const localizedColor = locale === 'ar' && details.color_ar ? details.color_ar : details.color

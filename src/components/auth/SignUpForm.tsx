@@ -58,7 +58,6 @@ const SignupForm = () => {
     phoneNumber: "",
     password: "",
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedCountry, setSelectedCountry] = useState<Country>({
     code: "AE",
     name: "United Arab Emirates",

@@ -33,6 +33,13 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
   
+  // Initialize response variable before using it
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+  
   // Create Supabase client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,13 +50,8 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
+          // Use the pre-initialized response
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -82,44 +84,37 @@ export async function middleware(request: NextRequest) {
     // Create a response to redirect to the same page but without the setLang param
     const newUrl = new URL(request.url)
     newUrl.searchParams.delete('setLang')
-    const response = NextResponse.redirect(newUrl)
+    const langSwitchResponse = NextResponse.redirect(newUrl)
     
     // Set cookie for the new language preference (1 year expiry)
-    response.cookies.set('preferred-language', switchLangParam, { 
+    langSwitchResponse.cookies.set('preferred-language', switchLangParam, { 
       maxAge: 60 * 60 * 24 * 365,
       path: '/'
     })
     
-    return response
+    return langSwitchResponse
   }
 
   // Step 2: Redirect if there is no locale in the pathname
   if (!pathnameHasLocale) {
     // Priority: 1. User metadata if logged in, 2. Cookie, 3. Browser preference
-    const locale = user?.user_metadata.preferred_language || getLocale(request)
+    const locale = user?.user_metadata?.preferred_language || getLocale(request)
     const url = new URL(`/${locale}${pathname.startsWith('/') ? pathname : `/${pathname}`}`, request.url)
     url.search = request.nextUrl.search
     
-    const response = NextResponse.redirect(url)
+    const localeRedirectResponse = NextResponse.redirect(url)
     
     // Also set cookie if we're using a locale from user metadata
-    if (user?.user_metadata.preferred_language) {
-      response.cookies.set('preferred-language', user.user_metadata.preferred_language, { 
+    if (user?.user_metadata?.preferred_language) {
+      localeRedirectResponse.cookies.set('preferred-language', user.user_metadata.preferred_language, { 
         maxAge: 60 * 60 * 24 * 365,
         path: '/'
       })
     }
     
-    return response
+    return localeRedirectResponse
   }
   
-  // Step 3: Process Supabase authentication
-  let response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
-
   // Step 4: Check auth and redirect for protected routes if needed
   // Get the path without the locale prefix for easier checks
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')

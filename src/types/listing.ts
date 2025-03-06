@@ -83,7 +83,7 @@ export interface ListingFormData {
     title_ar?: string
     description: string
     description_ar?: string
-    price: number
+    price: string
     address: string
     address_ar?: string
     latitude: number | null
