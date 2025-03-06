@@ -50,7 +50,7 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>;
 
 const SignupForm = () => {
-  const { t, getLocalizedPath } = useTranslation();
+  const { t, getLocalizedPath, locale } = useTranslation();
   const phoneInputRef = useRef<PhoneInputRef>(null);
   const [formData, setFormData] = useState<SignupFormData>({
     fullName: "",
@@ -184,7 +184,8 @@ const SignupForm = () => {
       // Include the phone number in the data sent to the backend
       const response = await signUpWithEmailPassword({
         ...formData,
-        phoneNumber: formattedPhone.replace(/\s+/g, '')
+        phoneNumber: formattedPhone.replace(/\s+/g, ''),
+        preferredLanguage: locale
       });
       const { error } = JSON.parse(response);
 
