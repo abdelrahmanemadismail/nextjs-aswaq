@@ -73,7 +73,7 @@ export default function ImagesPage() {
     const hasSubCategory = !!formData.category?.sub_category
     
     if (hasSubCategory) {
-      router.push(getLocalizedPath('/sell/sub-category'))
+      router.push(getLocalizedPath('/sell/category'))
     } else {
       router.push(getLocalizedPath('/sell/category'))
     }

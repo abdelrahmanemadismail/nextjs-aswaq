@@ -94,7 +94,7 @@ export default async function HelpCenter() {
       {/* Search Section */}
       <div className="space-y-4">
         <h1 className="text-3xl font-bold text-center">{t.help.howCanWeHelp}</h1>
-        <div className="max-w-2xl mx-auto">
+        {/* <div className="max-w-2xl mx-auto">
           <div className="relative">
             <Input 
               type="search" 
@@ -111,7 +111,7 @@ export default async function HelpCenter() {
               </svg>
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Categories Section */}
