@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Locale } from '@/i18n.config';
 import getTrans from '@/utils/translation';
 import { headers } from 'next/headers';
-
+import { FacebookLogo, InstagramLogo, LinkedinLogo, PinterestLogo, SnapLogo, TiktokLogo } from './Icons';
 
 const Footer = async () => {
   const url = (await headers()).get('x-url')
@@ -44,6 +44,64 @@ const Footer = async () => {
                 className="h-auto"
               />
             </Link>
+            
+            {/* Social Media Icons */}
+            <div className="flex space-x-4 mt-4">
+              <a 
+                href="https://linkedin.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <LinkedinLogo />
+              </a>
+              <a 
+                href="https://www.instagram.com/aswaqdotonline/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-pink-600 transition-colors"
+                aria-label="Instagram"
+              >
+                <InstagramLogo />
+              </a>
+              <a 
+                href="https://facebook.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-700 transition-colors"
+                aria-label="Facebook"
+              >
+                <FacebookLogo />
+              </a>
+              <a 
+                href="https://tiktok.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-black transition-colors"
+                aria-label="TikTok"
+              >
+                <TiktokLogo />
+              </a>
+              <a 
+                href="https://pinterest.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-red-600 transition-colors"
+                aria-label="Pinterest"
+              >
+                <PinterestLogo />
+              </a>
+              <a 
+                href="https://snapchat.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-yellow-400 transition-colors"
+                aria-label="Snapchat"
+              >
+               <SnapLogo />
+              </a>
+            </div>
           </div>
 
           {/* Right Column - Navigation Links */}
