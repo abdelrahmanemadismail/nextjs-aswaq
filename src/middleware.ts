@@ -86,8 +86,8 @@ export async function middleware(request: NextRequest) {
   // Get the path without the locale prefix for easier checks
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
   
-  const publicPaths = ['', '/about-us', '/contact', '/terms-of-service', '/privacy-policy']
-  const pathStartsWithPublic = ['/help', '/auth', '/listings','/sell']
+  const publicPaths = ['', '/about-us', '/terms-of-service', '/privacy-policy']
+  const pathStartsWithPublic = ['/help', '/auth', '/listings', '/contact', '/sell']
   
   const isPublicPath = 
     publicPaths.includes(pathWithoutLocale) || 

@@ -15,10 +15,11 @@ import { toast } from "@/hooks/use-toast"
 import { submitContactForm } from '@/actions/contact-actions'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
-
+import { useRouter } from 'next/navigation'
 export function ContactForm() {
   const { t, locale } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -39,6 +40,9 @@ export function ContactForm() {
           description: result.error || t.common.somethingWentWrong,
           variant: "destructive"
         })
+      }
+      if (result && result.success){
+        router.push(`/${locale}/contact/thank-you`)
       }
     } catch (error) {
       toast({

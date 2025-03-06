@@ -55,13 +55,13 @@ const sendSupportNotification = async (formData: ContactFormData) => {
   const systemFromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@aswaq.online'
 
   try {
-    // Use format "User Name <noreply@aswaqonline.com>" to make it appear from the user
+    // Use format "User Name <noreply@aswaq.online>" to make it appear from the user
     // while actually sending from your system email
     const fromName = `${formData.firstName} ${formData.lastName}`
     
     await transporter.sendMail({
       from: `"${fromName}" <${systemFromEmail}>`,
-      replyTo: formData.email, // Set reply-to as the user's email
+      replyTo: formData.email,
       to: supportEmail,
       subject: `New Contact Form Submission: ${formData.subject}`,
       html: `
@@ -232,7 +232,8 @@ const sendUserConfirmation = async (formData: ContactFormData, locale: string = 
   
     try {
       await transporter.sendMail({
-        from: process.env.SUPPORT_EMAIL ,
+        from: process.env.SMTP_FROM_EMAIL,
+        replyTo: process.env.SUPPORT_EMAIL,
         to: formData.email,
         subject: t.subject,
         html: `
@@ -440,7 +441,8 @@ export async function submitContactForm(formData: FormData) {
     }
     
     // Redirect to the thank you page
-    redirect(`/${locale}/contact/thank-you`)
+    // redirect(`/${locale}/contact/thank-you`)
+    return {success: true}
   } catch (error) {
     console.error('Error submitting contact form:', error)
     return { 
