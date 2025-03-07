@@ -152,7 +152,7 @@ export async function signInWithPassword({ email, password }: { email: string; p
 export async function resetPasswordForEmail({ email }: { email: string }) {
   const supabase = await createClient()
   const res = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'http://localhost:3000/auth/reset-password',
+    redirectTo: '${process.env.NEXT_PUBLIC_URL}/auth/reset-password',
   })
   return JSON.stringify(res)
 }
