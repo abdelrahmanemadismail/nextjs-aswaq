@@ -31,7 +31,7 @@ const Footer = async () => {
 
   return (
     <footer style={{ backgroundColor: 'hsla(203, 79%, 94%, 0.5)' }} className="py-12">
-      <div className="w-full mx-auto">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row justify-between items-end">
           {/* Left Column - Logo and Contact */}
           <div className="w-full mb-8 lg:mb-0 flex flex-col items-center lg:items-start md:items-start">

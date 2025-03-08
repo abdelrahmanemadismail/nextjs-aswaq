@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useProfile } from "@/context/ProfileContext";
 import { useTranslation } from '@/hooks/use-translation';
 import { Languages } from "@/constants/enums";
+import { getRamadanPackage } from '@/actions/package-actions';
+import { toast } from '@/hooks/use-toast';
 
 interface PackageCardProps {
   id: string;
@@ -37,6 +39,25 @@ export default function PackageCard({
   // Convert currency to Arabic if needed
   const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
 
+  const handleGetPackage = async () => {
+    const result = await getRamadanPackage();
+    if (result.success) {
+      // Show success message, e.g. "Ramadan package claimed successfully!"
+      toast({
+        title: t.common.success,
+        description: "Ramadan package claimed successfully!",
+      });
+      router.push(`/${locale}/profile/packages`)
+    } else {
+      // Show error message, e.g. result.message
+      toast({
+        title: t.common.error,
+        description: result.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <Card className={`bg-background/60 ${className}`}>
       <CardHeader>
@@ -59,7 +80,7 @@ export default function PackageCard({
       </CardContent>
       <CardFooter>
         {isFree ? 
-         <Button disabled={!!profile} className="w-full" onClick={() => router.push('/auth/signup')}>
+         <Button className="w-full" onClick={async () => profile ? await handleGetPackage() : router.push(`/${locale}/auth/signup`)}>
            {t.payments.getStarted}
          </Button>
          : 

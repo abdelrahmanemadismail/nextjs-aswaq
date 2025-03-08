@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getStripe } from '@/utils/stripe/stripe-server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as supabaseClient} from '@supabase/supabase-js'
 import type Stripe from 'stripe';
 
 export async function POST(request: Request) {
@@ -50,7 +51,10 @@ export async function POST(request: Request) {
 
 // Process successful payment and update database
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
-  const supabase = await createClient();
+  const supabase = supabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
   const packageId = session.metadata?.packageId;
   const userId = session.metadata?.userId;
   const amountPaid = session.amount_total ? session.amount_total / 100 : 0;
