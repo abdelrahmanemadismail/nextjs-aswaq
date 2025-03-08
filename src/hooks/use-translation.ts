@@ -736,7 +736,8 @@ userPackages: {
     days: '',
     day: '',
     purchased: '',
-    id: ''
+    id: '',
+    usePackage: ''
   }
 }
 };
