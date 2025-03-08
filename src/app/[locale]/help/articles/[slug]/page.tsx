@@ -33,7 +33,7 @@ export default async function ArticlePage(props: { params: tParams }) {
   const t = await getTrans(locale);
   
   const { slug } = await props.params
-  const article = await getFaqArticle(slug)
+  const article = await getFaqArticle(slug, locale)
 
   if (!article) {
     notFound()
@@ -66,7 +66,7 @@ export default async function ArticlePage(props: { params: tParams }) {
           </Card>
 
           {/* Was this helpful card */}
-          <Card>
+          {/* <Card>
             <CardContent className="p-6 space-y-4">
               <h3 className="font-semibold">{t.help.wasArticleHelpful}</h3>
               <div className="flex gap-2">
@@ -74,7 +74,7 @@ export default async function ArticlePage(props: { params: tParams }) {
                 <Button variant="outline" className="flex-1">{t.common.no}</Button>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>

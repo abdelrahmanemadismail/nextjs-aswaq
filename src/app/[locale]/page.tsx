@@ -122,7 +122,7 @@ export default async function LandingPage({
       <main className="flex-1">
         {/* Enhanced Hero Section */}
         <section className="relative bg-gradient-to-b from-primary/10 to-background py-24 overflow-hidden">
-          <div className="container mx-auto px-4 text-center relative z-10">
+          <div className="mx-auto px-4 text-center relative z-10">
             <div className="animate-fade-in-up">
               <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
                 {t.homepage.heroTitle}

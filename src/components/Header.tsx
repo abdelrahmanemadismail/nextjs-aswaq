@@ -47,7 +47,7 @@ export default async function Header() {
 
   return (
     <header className="border-b bg-background">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="w-full lg:max-w-[1400px]  mx-auto">
         <nav className="px-2 lg:px-4 py-3">
           <div className="flex items-center justify-between gap-4 md:gap-6 lg:gap-8">
             {/* Logo */}
@@ -81,7 +81,7 @@ export default async function Header() {
 
               {/* Messages */}
               {profile && (
-                <Link href={getLocalizedPath("/chat", locale)}>
+                <Link href={getLocalizedPath("/chat", locale)} className="hidden md:flex">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -112,7 +112,7 @@ export default async function Header() {
               <Link 
                 href={profile ? getLocalizedPath("/sell", locale) : getLocalizedPath("/auth/signup", locale)}
               >
-                <Button size="lg">
+                <Button size={profile ? "default" : "lg"} className="whitespace-nowrap">
                   {t.common.sell}
                 </Button>
               </Link>

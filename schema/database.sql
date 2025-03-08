@@ -513,26 +513,42 @@ LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-    SELECT
-        CASE WHEN lang = 'ar' AND fc.name_ar IS NOT NULL THEN fc.name_ar ELSE fc.name END as category_name,
-        CASE WHEN lang = 'ar' AND fc.description_ar IS NOT NULL THEN fc.description_ar ELSE fc.description END as category_description,
-        json_agg(
-            json_build_object(
-                'id', fa.id,
-                'title', CASE WHEN lang = 'ar' AND fa.title_ar IS NOT NULL THEN fa.title_ar ELSE fa.title END,
-                'content', CASE WHEN lang = 'ar' AND fa.content_ar IS NOT NULL THEN fa.content_ar ELSE fa.content END,
-                'frontmatter', fa.frontmatter,
-                'tags', fa.tags,
-                'view_count', fa.view_count,
-                'updated_at', fa.updated_at
-            )
+    -- First check if the category exists
+    WITH category AS (
+        SELECT 
+            fc.id,
+            CASE WHEN lang = 'ar' AND fc.name_ar IS NOT NULL THEN fc.name_ar ELSE fc.name END as category_name,
+            CASE WHEN lang = 'ar' AND fc.description_ar IS NOT NULL THEN fc.description_ar ELSE fc.description END as category_description
+        FROM faq_categories fc
+        WHERE fc.slug = category_slug
+        AND fc.is_active = true
+        LIMIT 1
+    )
+    
+    SELECT 
+        c.category_name,
+        c.category_description,
+        COALESCE(
+            (SELECT 
+                json_agg(
+                    json_build_object(
+                        'id', fa.id,
+                        'title', CASE WHEN lang = 'ar' AND fa.title_ar IS NOT NULL THEN fa.title_ar ELSE fa.title END,
+                        'content', CASE WHEN lang = 'ar' AND fa.content_ar IS NOT NULL THEN fa.content_ar ELSE fa.content END,
+                        'slug', fa.slug,
+                        'frontmatter', fa.frontmatter,
+                        'tags', fa.tags,
+                        'view_count', fa.view_count,
+                        'updated_at', fa.updated_at
+                    )
+                )
+            FROM faq_articles fa
+            WHERE fa.category_id = c.id
+            AND fa.is_published = true
+            ),
+            '[]'::json
         ) as articles
-    FROM faq_categories fc
-    LEFT JOIN faq_articles fa ON fa.category_id = fc.id
-    WHERE fc.slug = category_slug
-    AND fc.is_active = true
-    AND fa.is_published = true
-    GROUP BY fc.id, fc.name, fc.name_ar, fc.description, fc.description_ar;
+    FROM category c;
 $$;
 
 -- Helper function to get FAQ article with frontmatter

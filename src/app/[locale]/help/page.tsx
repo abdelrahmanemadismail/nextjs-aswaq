@@ -69,7 +69,7 @@ export default async function HelpCenter() {
     {
       title: t.help.findingFavoriteStuff,
       image: "/images/help/Guide.png",
-      href: `/${locale}/help/categories/listing-services`
+      href: `/${locale}/help/articles/safe-meeting-guidelines`
     },
     {
       title: t.help.settingUpAccount,
@@ -79,7 +79,7 @@ export default async function HelpCenter() {
     {
       title: t.help.securingAccount,
       image: "/images/help/Guide-3.png",
-      href: `/${locale}/help/categories/accounts`
+      href: `/${locale}/help/categories/safety-security`
     },
     {
       title: t.help.sellingStuff,
@@ -140,7 +140,7 @@ export default async function HelpCenter() {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">{t.help.guidesForGettingStarted}</h2>
           <Button variant="link" asChild>
-            <Link href="/help/guides">{t.help.browseAllTopics}</Link>
+            <Link href="/help/articles">{t.help.browseAllTopics}</Link>
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

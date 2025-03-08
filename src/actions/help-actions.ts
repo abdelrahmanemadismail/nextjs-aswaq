@@ -14,23 +14,23 @@ export async function getFaqCategories(): Promise<FAQCategory[]> {
   return data
 }
 
-export async function getFaqsByCategory(slug: string): Promise<CategoryWithArticles> {
+export async function getFaqsByCategory(slug: string, lang: string = 'en'): Promise<CategoryWithArticles> {
   const supabase = await createClient()
   
   const { data, error } = await supabase
-    .rpc('get_faqs_by_category', { category_slug: slug })
-    .single()
+    .rpc('get_faqs_by_category', { category_slug: slug, lang: lang })
+    .maybeSingle()
     
   if (error) throw error
   return data as CategoryWithArticles
 }
 
-export async function getFaqArticle(slug: string): Promise<ArticleData> {
+export async function getFaqArticle(slug: string, lang: string = 'en'): Promise<ArticleData> {
   const supabase = await createClient()
   
   const { data, error } = await supabase
-    .rpc('get_faq_article', { article_slug: slug })
-    .single()
+    .rpc('get_faq_article', { article_slug: slug, lang: lang })
+    .maybeSingle()
     
   if (error) throw error
   return data as ArticleData
@@ -87,7 +87,7 @@ export async function getFAQCategories(): Promise<FAQCategory[]> {
         .select('id')
         .eq('slug', category.slug)
         .neq('id', id)
-        .single()
+        .maybeSingle()
   
       if (existingCategory) {
         throw new Error('A category with this slug already exists')
@@ -149,7 +149,7 @@ export async function getFAQCategories(): Promise<FAQCategory[]> {
         .select('id')
         .eq('slug', article.slug)
         .neq('id', id)
-        .single()
+        .maybeSingle()
   
       if (existingArticle) {
         throw new Error('An article with this slug already exists')
@@ -162,7 +162,7 @@ export async function getFAQCategories(): Promise<FAQCategory[]> {
         .from('faq_categories')
         .select('id')
         .eq('id', article.category_id)
-        .single()
+        .maybeSingle()
   
       if (!category) {
         throw new Error('Selected category does not exist')
@@ -202,7 +202,7 @@ export async function getFAQCategories(): Promise<FAQCategory[]> {
       .from('faq_articles')
       .select('*')
       .eq('slug', slug)
-      .single()
+      .maybeSingle()
   
     if (error) throw error
     return data
@@ -214,7 +214,7 @@ export async function getFAQCategories(): Promise<FAQCategory[]> {
     
     const { data, error } = await supabase
       .rpc('get_faqs_by_category', { category_slug: categorySlug })
-      .single()
+      .maybeSingle()
   
     if (error) throw error
     return data

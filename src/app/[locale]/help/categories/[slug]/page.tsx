@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getFaqsByCategory } from '@/actions/help-actions'
 import { headers } from 'next/headers'
@@ -11,9 +9,11 @@ import getTrans from '@/utils/translation'
 
 type tParams = Promise<{ slug: string }>;
 
+
+
 export async function generateMetadata(props: { params: tParams }): Promise<Metadata> {
   const { slug } = await props.params
-
+  
   const category = await getFaqsByCategory(slug)
   
   if (!category) {
@@ -31,14 +31,15 @@ export async function generateMetadata(props: { params: tParams }): Promise<Meta
 export default async function CategoryPage(props: { params: tParams }) {
   const url = (await headers()).get('x-url')
   const locale = url?.split('/')[3] as Locale
-  const t = await getTrans(locale);
   
+  const t = await getTrans(locale);
   const { slug } = await props.params
 
-  const category = await getFaqsByCategory(slug)
+  const category = await getFaqsByCategory(slug, locale)
+  console.log(category)
 
   if (!category) {
-    notFound()
+    return <>test</>
   }
 
   return (
@@ -51,27 +52,9 @@ export default async function CategoryPage(props: { params: tParams }) {
             <p className="text-muted-foreground mt-2">{category.category_description}</p>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Input 
-              type="search" 
-              placeholder={t.help.searchTopic}
-              className="h-12 pl-4"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              className="absolute right-0 top-0 h-12 w-12 rounded-l-none"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </Button>
-          </div>
-
           {/* Articles List */}
           <div className="space-y-4">
-            {category.articles.map((article) => (
+            {category.articles && category.articles.map((article) => (
               <Link 
                 key={article.id} 
                 href={`/${locale}/help/articles/${article.slug}`}

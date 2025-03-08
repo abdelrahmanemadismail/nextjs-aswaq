@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { useProfile } from "@/context/ProfileContext";
 import { useTranslation } from "@/hooks/use-translation";
+import { Messages } from "./Icons";
 
 export function UserMenu() {
   const { profile, refreshProfile } = useProfile();
@@ -85,6 +86,10 @@ export function UserMenu() {
         <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/packages"))}>
           <Percent className="h-5 w-5 text-primary" />
           <span>{t.account.promotionPackages}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/chat"))}>
+          <Messages className="h-5 w-5 text-primary" />
+          <span>{t.account.messages}</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/help"))}>
           <HelpCircle className="h-5 w-5 text-primary" />

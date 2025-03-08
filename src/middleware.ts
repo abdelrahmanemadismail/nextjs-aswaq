@@ -79,15 +79,6 @@ export async function middleware(request: NextRequest) {
   const pathnameParts = pathname.split('/')
   const currentLocale = pathnameParts.length > 1 ? pathnameParts[1] : null
   
-  // Special case: Redirect /help to the root path
-  if (pathnameHasLocale && currentLocale && i18n.locales.includes(currentLocale as LanguageType)) {
-    const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
-    if (pathWithoutLocale === '/help' || pathWithoutLocale.startsWith('/help/')) {
-      // Redirect to the root path with the same locale
-      return NextResponse.redirect(new URL(`/${currentLocale}`, request.url))
-    }
-  }
-  
   // Handle language switch if setLang parameter is present
   if (switchLangParam && i18n.locales.includes(switchLangParam as LanguageType)) {
     // Create a response to redirect to the same page but without the setLang param
@@ -129,7 +120,7 @@ export async function middleware(request: NextRequest) {
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
   
   const publicPaths = ['', '/about-us', '/terms-of-service', '/privacy-policy']
-  const pathStartsWithPublic = ['/auth', '/listings', '/contact', '/sell']
+  const pathStartsWithPublic = ['/help', '/auth', '/listings', '/contact', '/sell']
   
   const isPublicPath = 
     publicPaths.includes(pathWithoutLocale) || 

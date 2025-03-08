@@ -126,6 +126,7 @@
     "profile": "Profile",
     "myPackages": "My Packages",
     "promotionPackages": "Promotion Packages",
+    "messages" : "Messages",
     "help": "Help",
     "settings": "Settings",
     "logout": "Logout",
@@ -523,9 +524,22 @@
     "sellingStuff": "Selling stuff",
     "needToGetInTouch": "Need to get in touch?",
     "contactUs": "Contact us",
-    "needToGetInTouchDesc": "Lorem ipsum dolor sit amet consectetur. Vel orci nibh vitae blandit tortor vestibulum enim neque suspendisse. Neque malesuada purus commodo arcu ante facilisis orci.",
+    "needToGetInTouchDesc": "Contact our customer service team today. We're available to answer your questions and provide support whenever you need assistance.",
     "wasArticleHelpful": "Was this article helpful?",
+    "articles": {
+      "title": "Help Articles",
+      "description": "Find answers to your questions with our help articles",
+      "categories": "Categories",
+      "readMore": "Read more",
+      "noArticles": "No articles found",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of"
+    },
     "categories": {
+      "title": "Help Categories",
+      "description": "Browse all categories to find the help you need",
       "accounts": {
         "name": "Accounts",
         "description": "Account management, updates, security & login/registration"

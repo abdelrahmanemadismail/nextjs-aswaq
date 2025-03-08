@@ -9,8 +9,10 @@ type DbFAQArticle = Database["public"]["Tables"]["faq_articles"]["Row"]
 export interface FAQCategory extends Omit<DbFAQCategory, "created_at" | "updated_at"> {
     id: string;
     name: string;
+    name_ar: string;
     slug: string;
     description: string | null;
+    description_ar: string | null;
     display_order: number;
     is_active: boolean;
 }
@@ -22,8 +24,10 @@ export interface FAQArticle extends Omit<DbFAQArticle, "frontmatter" | "created_
     id: string;
     category_id: string;
     title: string;
+    title_ar: string;
     slug: string;
     content: string;
+    content_ar: string | null;
     frontmatter: Record<string, unknown>;
     tags: string[];
     view_count: number;

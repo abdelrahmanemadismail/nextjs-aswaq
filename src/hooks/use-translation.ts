@@ -136,6 +136,7 @@ const defaultTranslations = {
     profile: '',
     myPackages: '',
     promotionPackages: '',
+    messages: '',
     help: '',
     settings: '',
     logout: '',
@@ -535,7 +536,20 @@ const defaultTranslations = {
     contactUs: '',
     needToGetInTouchDesc: '',
     wasArticleHelpful: '',
+    articles: {
+      title: '',
+      description: '',
+      categories: '',
+      readMore: '',
+      noArticles: '',
+      previous: '',
+      next: '',
+      page: '',
+      of: ''
+    },
     categories: {
+      title: '',
+      description: '',
       accounts: {
         name: '',
         description: ''
