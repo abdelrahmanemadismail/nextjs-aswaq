@@ -56,6 +56,7 @@ export default function PackageCard({
         variant: 'destructive',
       });
     }
+    router.push(`/${locale}/profile/packages`)
   };
 
   return (
