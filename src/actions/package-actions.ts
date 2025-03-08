@@ -4,7 +4,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as supabaseClient} from '@supabase/supabase-js'
 import { UserPackage } from '@/types/package'
-import { addDays } from 'date-fns'
 
 // Get a specific user package by ID
 export async function getUserPackageById(packageId: string): Promise<{ package?: UserPackage, error?: string }> {
@@ -121,7 +120,7 @@ export async function getRamadanPackage(): Promise<{ success: boolean; message: 
     }
 
     // Check if user already has this package
-    const { data: existingPackage, error: checkError } = await supabase
+    const { data: existingPackage } = await supabase
       .from('user_packages')
       .select('id')
       .eq('user_id', user.id)
@@ -139,7 +138,7 @@ export async function getRamadanPackage(): Promise<{ success: boolean; message: 
     const expiresAt = new Date(2025, 2, 30) // Months are 0-indexed, so March is 2
 
     // Create user package record
-    const { data: userPackage, error: insertError } = await supabaseAdmin
+    const { error: insertError } = await supabaseAdmin
       .from('user_packages')
       .insert({
         user_id: user.id,

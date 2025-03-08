@@ -80,17 +80,27 @@ export default function PackageCard({
         </ul>
       </CardContent>
       <CardFooter>
-        {isFree ? 
-         <Button className="w-full" onClick={async () => profile ? await handleGetPackage() : router.push(`/${locale}/auth/signup`)}>
-           {t.payments.getStarted}
-         </Button>
-         : 
+        {!profile ? (
+          <Button 
+            className="w-full" 
+            onClick={() => router.push(`/${locale}/auth/signup`)}
+          >
+            {t.payments.getStarted}
+          </Button>
+        ) : isFree ? (
+          <Button 
+            className="w-full" 
+            onClick={handleGetPackage}
+          >
+            {t.payments.getStarted}
+          </Button>
+        ) : (
           <StripeCheckoutButton
             packageId={id}
             className="w-full"
             buttonText={t.payments.selectPackage}
           />
-         }
+        )}
       </CardFooter>
     </Card>
   );

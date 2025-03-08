@@ -48,7 +48,7 @@ export default async function PackageList() {
       if (pkg.bonus_duration_days > 0) {
         // For Arabic, don't add 's' for plural
         if (locale === Languages.ARABIC) {
-          features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}`);
+          features.push(`${pkg.bonus_duration_days} ${pkg.bonus_duration_days<=10 ? "أيام إضافية" : t.payments.bonusDay}`);
         } else {
           features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}${pkg.bonus_duration_days > 1 ? 's' : ''}`);
         }

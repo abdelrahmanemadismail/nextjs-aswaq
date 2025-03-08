@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getStripe } from '@/utils/stripe/stripe-server';
-import { createClient } from '@/utils/supabase/server';
 import { createClient as supabaseClient} from '@supabase/supabase-js'
 import type Stripe from 'stripe';
 
