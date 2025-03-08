@@ -129,22 +129,22 @@ export default async function UserPackagesPage() {
                       </div>
                     )}
                   </div>
+                <Link 
+                    href={getLocalizedPath(`/sell`)} 
+                    className="w-full"
+                  >
+                    <Button className="w-full mt-4">
+                      {t.userPackages.card.usePackage || 'Use Package'}
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
               <CardFooter className="bg-muted/30 border-t text-xs text-muted-foreground pt-5">
                 <div className="w-full">
-                  <div className="flex justify-between mb-3">
+                  <div className="flex justify-between">
                     <span>{t.userPackages.card.purchased} {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
                     <span>{t.userPackages.card.id} {userPackage.id.split('-')[0]}</span>
                   </div>
-                  <Link 
-                    href={getLocalizedPath(`/sell`)} 
-                    className="w-full"
-                  >
-                    <Button className="w-full">
-                      {t.userPackages.card.usePackage || 'Use Package'}
-                    </Button>
-                  </Link>
                 </div>
               </CardFooter>
             </Card>
