@@ -152,6 +152,67 @@ AS $$
     );
 $$;
 
+-- Add deleted_at column to profiles table
+ALTER TABLE public.profiles
+ADD COLUMN deleted_at timestamp with time zone;
+
+-- Create index to improve query performance for finding deleted accounts
+CREATE INDEX idx_profiles_deleted_at ON public.profiles(deleted_at)
+WHERE deleted_at IS NOT NULL;
+
+-- Function to handle account reactivation (when user logs back in during the 30-day grace period)
+CREATE OR REPLACE FUNCTION public.handle_account_reactivation()
+RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    -- If the last_sign_in_at field has been updated, reactivate the account if it was marked for deletion
+    IF OLD.last_sign_in_at IS DISTINCT FROM NEW.last_sign_in_at THEN
+        -- Check if the user's profile is marked for deletion
+        UPDATE public.profiles
+        SET deleted_at = NULL
+        WHERE id = NEW.id AND deleted_at IS NOT NULL;
+    END IF;
+    
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public;
+
+-- Create trigger to automatically reactivate accounts when user logs in (detected by last_sign_in_at change)
+DROP TRIGGER IF EXISTS on_user_login_reactivate ON auth.users;
+CREATE TRIGGER on_user_login_reactivate
+    AFTER UPDATE OF last_sign_in_at ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_account_reactivation();
+
+-- Create function to permanently delete accounts after 30 days
+CREATE OR REPLACE FUNCTION public.permanently_delete_inactive_accounts()
+RETURNS void AS
+$BODY$
+DECLARE
+    user_id uuid;
+BEGIN
+    -- Find accounts that have been marked for deletion for more than 30 days
+    FOR user_id IN
+        SELECT id FROM public.profiles
+        WHERE deleted_at IS NOT NULL
+        AND deleted_at < (NOW() - INTERVAL '30 days')
+    LOOP
+        -- Delete the user from auth.users (this will cascade to profiles due to foreign key)
+        DELETE FROM auth.users WHERE id = user_id;
+    END LOOP;
+END;
+$BODY$
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public;
+
+-- Comment explaining how to schedule the permanent deletion
+COMMENT ON FUNCTION public.permanently_delete_inactive_accounts() IS 
+'This function should be scheduled to run daily using a cron job or Supabase scheduled functions. 
+Example schedule: every day at midnight.';
 
 -- Arabic language functions
 CREATE OR REPLACE FUNCTION public.get_user_language(user_id uuid)

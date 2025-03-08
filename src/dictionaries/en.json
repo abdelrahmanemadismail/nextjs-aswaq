@@ -726,7 +726,8 @@
     "days": "days",
     "day": "days",
     "purchased": "Purchased",
-    "id": "ID:"
+    "id": "ID:",
+    "usePackage": "Use Package"
   }
 }
 }

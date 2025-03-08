@@ -2,12 +2,13 @@ import { getUserPackages } from '@/actions/payment-actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Package } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { Package } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { Locale } from '@/i18n.config';
 import getTrans from '@/utils/translation';
+import { Button } from '@/components/ui/button';
 
 export default async function UserPackagesPage() {
   const { packages, error } = await getUserPackages();
@@ -67,8 +68,8 @@ export default async function UserPackagesPage() {
           const remainingListings = userPackage.listings_remaining + userPackage.bonus_listings_remaining;
           const usedListingsPercent = Math.round(((totalListings - remainingListings) / totalListings) * 100);
           
-          const expiryDate = new Date(userPackage.expires_at);
-          const isExpiringSoon = expiryDate.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000; // 7 days
+          // const expiryDate = new Date(userPackage.expires_at);
+          // const isExpiringSoon = expiryDate.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000; // 7 days
           
           return (
             <Card key={userPackage.id} className="overflow-hidden">
@@ -97,13 +98,13 @@ export default async function UserPackagesPage() {
                   </div>
                   
                   {/* Expiry information */}
-                  <div className="flex items-center space-x-2 text-sm">
+                  {/* <div className="flex items-center space-x-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className={isExpiringSoon ? 'text-amber-600' : ''}>
                       {t.userPackages.card.expires} {format(expiryDate, 'MMM d, yyyy')}
                       {isExpiringSoon && ` ${t.userPackages.card.soon}`}
                     </span>
-                  </div>
+                  </div> */}
                   
                   {/* Remaining details */}
                   <div className="border rounded-md p-3 bg-muted/30 space-y-2">
@@ -131,9 +132,19 @@ export default async function UserPackagesPage() {
                 </div>
               </CardContent>
               <CardFooter className="bg-muted/30 border-t text-xs text-muted-foreground pt-5">
-                <div className="w-full flex justify-between">
-                  <span>{t.userPackages.card.purchased} {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
-                  <span>{t.userPackages.card.id} {userPackage.id.split('-')[0]}</span>
+                <div className="w-full">
+                  <div className="flex justify-between mb-3">
+                    <span>{t.userPackages.card.purchased} {formatDistanceToNow(new Date(userPackage.created_at), { addSuffix: true })}</span>
+                    <span>{t.userPackages.card.id} {userPackage.id.split('-')[0]}</span>
+                  </div>
+                  <Link 
+                    href={getLocalizedPath(`/sell`)} 
+                    className="w-full"
+                  >
+                    <Button className="w-full">
+                      {t.userPackages.card.usePackage || 'Use Package'}
+                    </Button>
+                  </Link>
                 </div>
               </CardFooter>
             </Card>
