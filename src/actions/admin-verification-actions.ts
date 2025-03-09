@@ -7,6 +7,73 @@ import {
   AdminVerificationRequest,
   VerificationStats,
 } from '@/types/verification-admin'
+import { VerificationRequest } from '@/types/verification'
+import nodemailer from 'nodemailer'
+import { prepareVerificationStatusEmail } from '@/utils/email-templates'
+
+// Create email transporter
+const createTransporter = async () => {
+  // Get SMTP credentials from environment variables
+  const {
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASSWORD,
+    SMTP_FROM_EMAIL
+  } = process.env
+
+  // Validate SMTP configuration
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASSWORD || !SMTP_FROM_EMAIL) {
+    console.error('Missing SMTP configuration')
+    return null
+  }
+
+  // Create transporter
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: parseInt(SMTP_PORT),
+    secure: parseInt(SMTP_PORT) === 465, // true for 465, false for other ports
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASSWORD,
+    },
+  })
+}
+
+// Send verification status update email
+const sendVerificationStatusEmail = async (
+  request: AdminVerificationRequest,
+  userEmail: string,
+  locale: string = 'en'
+) => {
+  const transporter = await createTransporter()
+  if (!transporter) return false
+
+  const systemFromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@aswaq.online'
+
+  try {
+    const html = await prepareVerificationStatusEmail({
+      ...request,
+      rejection_reason: request.rejection_reason ?? null,
+      admin_notes: request.admin_notes ?? null,
+      verified_by: request.verified_by ?? null,
+      verified_at: request.verified_at ?? null
+    } as VerificationRequest, request.user.full_name, locale)
+    
+    await transporter.sendMail({
+      from: systemFromEmail,
+      to: userEmail,
+      subject: request.verification_status === 'approved' 
+        ? 'Your Verification Request has been Approved'
+        : 'Your Verification Request has been Rejected',
+      html
+    })
+    return true
+  } catch (error) {
+    console.error('Failed to send verification status email:', error)
+    return false
+  }
+}
 
 export async function getVerificationRequests(
   page = 1,
@@ -132,21 +199,44 @@ export async function approveVerification(
 
   if (requestError) throw requestError
 
-  // Update user's verification status
+  // Get the verification request with user details
   const { data: verificationRequest } = await supabase
     .from('verification_requests')
-    .select('user_id')
+    .select(`
+      *,
+      user:profiles!user_id (
+        full_name,
+        avatar_url
+      )
+    `)
     .eq('id', requestId)
     .single()
 
   if (!verificationRequest) throw new Error('Verification request not found')
 
+  // Get user's email
+  const { data: userData } = await supabase
+    .from('users')
+    .select('email, locale')
+    .eq('id', verificationRequest.user_id)
+    .single()
+
+  if (!userData) throw new Error('User not found')
+
+  // Update user's verification status
   const { error: profileError } = await supabase
     .from('profiles')
     .update({ verification_status: 'verified' })
     .eq('id', verificationRequest.user_id)
 
   if (profileError) throw profileError
+
+  // Send email notification
+  await sendVerificationStatusEmail(
+    verificationRequest as AdminVerificationRequest,
+    userData.email,
+    userData.locale || 'en'
+  )
 
   return {
     success: true,
@@ -181,21 +271,44 @@ export async function rejectVerification(
 
   if (requestError) throw requestError
 
-  // Update user's verification status
+  // Get the verification request with user details
   const { data: verificationRequest } = await supabase
     .from('verification_requests')
-    .select('user_id')
+    .select(`
+      *,
+      user:profiles!user_id (
+        full_name,
+        avatar_url
+      )
+    `)
     .eq('id', requestId)
     .single()
 
   if (!verificationRequest) throw new Error('Verification request not found')
 
+  // Get user's email
+  const { data: userData } = await supabase
+    .from('users')
+    .select('email, locale')
+    .eq('id', verificationRequest.user_id)
+    .single()
+
+  if (!userData) throw new Error('User not found')
+
+  // Update user's verification status
   const { error: profileError } = await supabase
     .from('profiles')
     .update({ verification_status: 'unverified' })
     .eq('id', verificationRequest.user_id)
 
   if (profileError) throw profileError
+
+  // Send email notification
+  await sendVerificationStatusEmail(
+    verificationRequest as AdminVerificationRequest,
+    userData.email,
+    userData.locale || 'en'
+  )
 
   return {
     success: true,

@@ -203,7 +203,7 @@ export default function VerificationsPage() {
             </Select>
             <Select
               value={filters.documentType}
-              onValueChange={(value: 'all' | 'id' | 'passport' | 'trade_license' | 'other') => 
+              onValueChange={(value: 'all' | 'id' | 'passport') => 
                 setFilters(prev => ({ ...prev, documentType: value }))
               }
             >

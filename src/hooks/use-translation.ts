@@ -710,6 +710,15 @@ verification: {
     fileTooLarge: '',
     fileSizeLimit: ''
   },
+  rejected: {
+    title: '',
+    description: '',
+    reasonTitle: '',
+    defaultReason: '',
+    editRequest: '',
+    backToHome: ''
+  },
+  resubmit: '',
   error: {
     title: '',
     defaultMessage: ''

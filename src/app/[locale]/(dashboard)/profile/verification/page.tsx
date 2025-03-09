@@ -1,28 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Camera, Loader2 } from 'lucide-react'
+import { Camera, Loader2, AlertCircle } from 'lucide-react'
 import { format, addYears } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import DatePicker from '@/components/DatePicker'
-import { submitVerificationRequest } from '@/actions/verification-actions'
-import { useProfile } from '@/context/ProfileContext'
+import { submitVerificationRequest, getVerificationRequest } from '@/actions/verification-actions'
 import { toast } from '@/hooks/use-toast'
 import { Card, CardDescription, CardTitle, CardHeader, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useTranslation } from '@/hooks/use-translation'
+import { VerificationRequest } from '@/types/verification'
 
 export default function IDVerification() {
   const router = useRouter()
-  const { profile, refreshProfile } = useProfile()
   const { t, getLocalizedPath } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isPageLoading, setIsPageLoading] = useState(true)
+  const [verificationRequest, setVerificationRequest] = useState<VerificationRequest | null>(null)
   const [selectedId, setSelectedId] = useState<'id' | 'passport'>('id')
-  const [documentNumber, setDocumentNumber] = useState('')
   const [documentExpiry, setDocumentExpiry] = useState<string | null>(
     format(addYears(new Date(), 5), 'yyyy-MM-dd')
   )
@@ -37,8 +38,37 @@ export default function IDVerification() {
   const [backPreview, setBackPreview] = useState<string | null>(null)
   const [passportPreview, setPassportPreview] = useState<string | null>(null)
 
+  useEffect(() => {
+    const fetchVerificationRequest = async () => {
+      try {
+        const request = await getVerificationRequest()
+        setVerificationRequest(request)
+        
+        if (request?.verification_status === 'approved') {
+          router.replace(getLocalizedPath('/profile'))
+          return
+        }
+
+        // If there is a rejected request, prefill the form with the document type from that request
+        if (request?.verification_status === 'rejected') {
+          if (request.document_type) {
+            setSelectedId(request.document_type)
+          }
+          if (request.document_expiry) {
+            setDocumentExpiry(request.document_expiry)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching verification request:', error)
+      } finally {
+        setIsPageLoading(false)
+      }
+    }
+
+    fetchVerificationRequest()
+  }, [router, getLocalizedPath])
+
   const handleImageUpload = (type: 'front' | 'back' | 'passport', file: File) => {
-    // Create preview URL
     const url = URL.createObjectURL(file)
 
     switch(type) {
@@ -58,15 +88,6 @@ export default function IDVerification() {
   }
 
   const validateForm = () => {
-    if (!documentNumber) {
-      toast({
-        title: t.verification.validation.requiredField,
-        description: t.verification.validation.documentNumberRequired,
-        variant: "destructive",
-      })
-      return false
-    }
-
     if (!documentExpiry) {
       toast({
         title: t.verification.validation.requiredField,
@@ -107,14 +128,31 @@ export default function IDVerification() {
         ? [frontImage!, backImage!]
         : [passportImage!]
 
+      // Pass the existing verification request ID when editing a rejected request
+      const existingRequestId = verificationRequest?.verification_status === 'rejected' 
+        ? verificationRequest.id 
+        : undefined
+
       await submitVerificationRequest(
         selectedId,
         files,
-        documentNumber,
-        documentExpiry!
+        documentExpiry!,
+        existingRequestId
       )
 
-      await refreshProfile()
+      // Refresh verification status
+      const updatedRequest = await getVerificationRequest()
+      setVerificationRequest(updatedRequest)
+      setIsEditing(false)
+
+      // Show success message
+      toast({
+        title: existingRequestId 
+          ? "Verification Updated" 
+          : "Verification Submitted",
+        description: "Your verification request has been submitted successfully.",
+        variant: "default",
+      })
     } catch (error) {
       toast({
         title: t.verification.error.title,
@@ -144,41 +182,101 @@ export default function IDVerification() {
     }
   }
 
-  // Already verified users shouldnt access this page
-  if (profile?.verification_status === 'verified') {
-    router.push(getLocalizedPath('/'))
-    return null
+  // Display loading state
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  // Render the rejected verification state
+  if (verificationRequest?.verification_status === 'rejected' && !isEditing) {
+    return (
+      <div className="min-h-screen">
+        <div className="container py-8">
+          <Card className="max-w-md mx-auto">
+            <CardHeader className="text-center space-y-2">
+              <CardTitle className="text-xl font-semibold">
+                {t.verification?.rejected?.title || 'Verification Rejected'}
+              </CardTitle>
+              <CardDescription className="text-sm">
+                {t.verification?.rejected?.description || 'Your verification request has been rejected. Please review the reason below and submit a new request.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6 py-4">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>{t.verification?.rejected?.reasonTitle || 'Rejection Reason'}</AlertTitle>
+                <AlertDescription>
+                  {verificationRequest.rejection_reason || t.verification?.rejected?.defaultReason || 'Your document verification could not be completed. Please submit a new request.'}
+                </AlertDescription>
+              </Alert>
+              
+              <Image
+                src="/rejected.svg"
+                alt="Rejected Illustration"
+                width={300}
+                height={300}
+                className="mx-auto"
+              />
+              
+              <div className="grid gap-4">
+                <Button 
+                  variant="default"
+                  size="lg" 
+                  onClick={() => setIsEditing(true)}
+                >
+                  {t.verification?.rejected?.editRequest || 'Update Verification'}
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  size="lg" 
+                  onClick={() => router.push(getLocalizedPath('/'))}
+                >
+                  {t.verification?.rejected?.backToHome || 'Back to Home'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   // Pending verification users should see a different message
-  if (profile?.verification_status === 'pending') {
+  if (verificationRequest?.verification_status === 'pending') {
     return (
+      <div className="min-h-screen">
         <div className="container py-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-xl font-semibold">
-              {t.verification.pending.title}
-            </CardTitle>
-            <CardDescription className="text-sm">
-              {t.verification.pending.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6 py-4 text-center">
-            <Image
-              src="/success.svg"
-              alt="Success Illustration"
-              width={300}
-              height={300}
-              className="mx-auto"
-            />
-            <Button 
-              size="lg" 
-              onClick={() => router.push(getLocalizedPath('/'))}
-            >
-              {t.verification.pending.backToHome}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="max-w-md mx-auto">
+            <CardHeader className="text-center space-y-2">
+              <CardTitle className="text-xl font-semibold">
+                {t.verification.pending.title}
+              </CardTitle>
+              <CardDescription className="text-sm">
+                {t.verification.pending.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6 py-4 text-center">
+              <Image
+                src="/success.svg"
+                alt="Success Illustration"
+                width={300}
+                height={300}
+                className="mx-auto"
+              />
+              <Button 
+                size="lg" 
+                onClick={() => router.push(getLocalizedPath('/'))}
+              >
+                {t.verification.pending.backToHome}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>    
     )
   }
@@ -191,6 +289,16 @@ export default function IDVerification() {
             <h1 className="text-2xl font-bold">{t.verification.title}</h1>
             <p className="text-gray-600">{t.verification.subtitle}</p>
           </div>
+
+          {isEditing && verificationRequest?.verification_status === 'rejected' && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Updating Rejected Verification</AlertTitle>
+              <AlertDescription>
+                You are updating your previously rejected verification. Please correct the issues mentioned in the rejection reason.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <RadioGroup 
             value={selectedId} 
@@ -223,16 +331,6 @@ export default function IDVerification() {
           </RadioGroup>
 
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="document-number">{t.verification.documentNumber}</Label>
-              <Input
-                id="document-number"
-                value={documentNumber}
-                onChange={(e) => setDocumentNumber(e.target.value)}
-                placeholder={t.verification.documentNumberPlaceholder}
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="document-expiry">{t.verification.expiryDate}</Label>
               <DatePicker
@@ -366,9 +464,10 @@ export default function IDVerification() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {t.verification.submitting}
               </>
-            ) : (
-              t.verification.continue
-            )}
+            ) : isEditing || verificationRequest?.verification_status === 'rejected' 
+                ? (t.verification?.resubmit || 'Resubmit') 
+                : t.verification.continue
+            }
           </Button>
         </div>
 

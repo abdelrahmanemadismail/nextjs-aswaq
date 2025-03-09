@@ -700,6 +700,15 @@
     "fileTooLarge": "File too large",
     "fileSizeLimit": "Please upload an image less than 5MB"
   },
+  "rejected": {
+    "title": "Verification Rejected",
+    "description": "Your verification request has been rejected. Please review the reason below and submit a new request.",
+    "reasonTitle": "Rejection Reason",
+    "defaultReason": "Your document verification could not be completed. Please submit a new request.",
+    "editRequest": "Update Verification",
+    "backToHome": "Back to Home"
+  },
+  "resubmit": "Resubmit",
   "error": {
     "title": "Error",
     "defaultMessage": "Failed to submit verification request"

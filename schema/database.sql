@@ -383,6 +383,11 @@ CREATE POLICY "Users can create their own verification requests"
     ON public.verification_requests FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "Users can update their own verification requests"
+    ON public.verification_requests FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
 CREATE POLICY "Admins have full access to verification requests"
     ON public.verification_requests FOR ALL
     TO authenticated

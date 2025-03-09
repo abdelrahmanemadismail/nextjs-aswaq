@@ -1219,7 +1219,6 @@ export type Database = {
           admin_notes: string | null
           created_at: string
           document_expiry: string
-          document_number: string
           document_type: string
           document_urls: string[]
           id: string
@@ -1233,8 +1232,7 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           created_at?: string
-          document_expiry: string
-          document_number: string
+          document_expiry: string 
           document_type: string
           document_urls: string[]
           id?: string

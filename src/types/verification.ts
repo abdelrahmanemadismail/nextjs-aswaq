@@ -1,6 +1,4 @@
-import { Database } from '@/types/database.types'
-
-export type VerificationDocumentType = 'id' | 'passport' | 'trade_license' | 'other'
+export type VerificationDocumentType = 'id' | 'passport'
 export type VerificationStatus = 'pending' | 'approved' | 'rejected'
 
 export interface VerificationRequest {
@@ -8,20 +6,19 @@ export interface VerificationRequest {
   user_id: string
   document_type: VerificationDocumentType
   document_urls: string[]
-  document_number: string
   document_expiry: string
-  verification_status: VerificationStatus | null
-  admin_notes: string | null
+  verification_status: VerificationStatus
   rejection_reason: string | null
+  admin_notes: string | null
   verified_by: string | null
+  verified_at: string | null
   created_at: string
   updated_at: string
-  verified_at: string | null
 }
 
-export type CreateVerificationRequest = Omit<
-  Database['public']['Tables']['verification_requests']['Insert'],
-  'id' | 'created_at' | 'updated_at' | 'verified_at' | 'verified_by' | 'verification_status' | 'admin_notes' | 'rejection_reason'
+export type CreateVerificationRequest = Pick<
+  VerificationRequest,
+  'user_id' | 'document_type' | 'document_urls' | 'document_expiry'
 >
 
 export interface UploadVerificationDocuments {

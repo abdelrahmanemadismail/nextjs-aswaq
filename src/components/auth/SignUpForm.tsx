@@ -191,9 +191,10 @@ const SignupForm = () => {
       if (error) {
         toast({
           title: t.auth.registrationError,
-          description: t.auth.accountCreationError,
+          description: error,
           variant: "destructive",
         });
+        console.log(error)
       } else {
         // Instead of redirecting, show the confirmation screen
         sendGTMEvent({ event: 'buttonClicked', value: 'Created Account' })

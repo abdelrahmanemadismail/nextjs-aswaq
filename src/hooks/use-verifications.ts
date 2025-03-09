@@ -20,7 +20,7 @@ interface UseVerificationsOptions {
 
 interface FilterState extends VerificationFilters {
   status: 'all' | 'pending' | 'approved' | 'rejected';
-  documentType: 'all' | 'id' | 'passport' | 'trade_license' | 'other';
+  documentType: 'all' | 'id' | 'passport';
 }
 
 interface SearchState {
