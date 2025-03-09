@@ -44,7 +44,7 @@ export default async function PackageCard({
   const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
   // Generate the redirect URLs for authentication
   const signupUrl = `/${locale}/auth/signup`;
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function claimPackageAction(formData: FormData) {
     'use server';
     

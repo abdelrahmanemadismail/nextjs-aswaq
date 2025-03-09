@@ -44,6 +44,7 @@ export async function prepareSupportNotificationEmail(formData: ContactFormData)
 export async function prepareUserConfirmationEmail(
   formData: ContactFormData,
   locale: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   translations: Record<string, any>
 ): Promise<string> {
   const t = translations[locale as keyof typeof translations]
