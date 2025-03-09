@@ -50,11 +50,11 @@ export default function PackageCard({
       router.push(`/${locale}/profile/packages`)
     } else {
       // Show error message, e.g. result.message
-      toast({
-        title: t.common.error,
-        description: result.message,
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: t.common.error,
+      //   description: result.message,
+      //   variant: 'destructive',
+      // });
     }
     router.push(`/${locale}/profile/packages`)
   };

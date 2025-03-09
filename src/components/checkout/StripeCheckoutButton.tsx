@@ -28,11 +28,11 @@ export default function StripeCheckoutButton({
 
   const handleClick = async () => {
     if (!packageId) {
-      toast({
-        title: t.common.error,
-        description: t.payments.packageIdRequired,
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: t.common.error,
+      //   description: t.payments.packageIdRequired,
+      //   variant: 'destructive',
+      // });
       return;
     }
 
