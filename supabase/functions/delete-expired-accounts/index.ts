@@ -1,5 +1,3 @@
-// functions/delete-expired-accounts.ts
-
 /**
  * This file should be deployed as a Supabase Edge Function that runs on a schedule.
  * It calls the permanently_delete_inactive_accounts() function to delete accounts
@@ -12,14 +10,14 @@
  * 4. Set up a CRON job to run the function daily
  */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+const supabaseUrl: string = Deno.env.get('SUPABASE_URL') || ''
+const supabaseServiceKey: string = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
 
-export const deleteExpiredAccounts = async () => {
+export const deleteExpiredAccounts = async (): Promise<Response> => {
   try {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase: SupabaseClient = createClient(supabaseUrl, supabaseServiceKey)
     
     // Call the SQL function we created to handle the account deletion
     const { error } = await supabase.rpc('permanently_delete_inactive_accounts')
@@ -33,7 +31,7 @@ export const deleteExpiredAccounts = async () => {
       headers: { 'Content-Type': 'application/json' },
       status: 200
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting expired accounts:', error)
     
     return new Response(JSON.stringify({ 
@@ -47,18 +45,4 @@ export const deleteExpiredAccounts = async () => {
 }
 
 // For Supabase Edge Functions
-Deno.serve(deleteExpiredAccounts)
-
-/**
- * Scheduling the function:
- * 
- * Using the Supabase Dashboard:
- * 1. Go to your Supabase project
- * 2. Navigate to Edge Functions
- * 3. Find your function and click "Scheduling"
- * 4. Set up a CRON expression like '0 0 * * *' for daily at midnight
- * 
- * Alternative: If you're not using Supabase Edge Functions,
- * you can set up a serverless function with AWS Lambda or similar,
- * and schedule it with CloudWatch Events or a similar scheduler.
- */
+Deno.serve(deleteExpiredAccounts) 
