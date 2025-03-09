@@ -1,15 +1,16 @@
-'use client';
-
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation';
-import { useProfile } from "@/context/ProfileContext";
-import { useTranslation } from '@/hooks/use-translation';
 import { Languages } from "@/constants/enums";
 import { getRamadanPackage } from '@/actions/package-actions';
-import { toast } from '@/hooks/use-toast';
+// import { toast } from '@/hooks/use-toast';
+import Link from 'next/link';
+import { headers } from 'next/headers';
+import { Locale } from '@/i18n.config';
+import getTrans from '@/utils/translation';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
 interface PackageCardProps {
   id: string;
@@ -22,7 +23,7 @@ interface PackageCardProps {
   isFree?: boolean;
 }
 
-export default function PackageCard({
+export default async function PackageCard({
   id,
   name,
   description,
@@ -32,32 +33,30 @@ export default function PackageCard({
   className = '',
   isFree = false
 }: PackageCardProps) {
-    const router = useRouter();
-    const { profile } = useProfile();
-    const { t, locale } = useTranslation();
+  const url = (await headers()).get('x-url')
+  const locale = url?.split('/')[3] as Locale
+  const t = await getTrans(locale);
+  
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
   
   // Convert currency to Arabic if needed
   const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
+  // Generate the redirect URLs for authentication
+  const signupUrl = `/${locale}/auth/signup`;
 
-  const handleGetPackage = async () => {
+  async function claimPackageAction(formData: FormData) {
+    'use server';
+    
     const result = await getRamadanPackage();
-    if (result.success) {
-      // Show success message, e.g. "Ramadan package claimed successfully!"
-      toast({
-        title: t.common.success,
-        description: "Ramadan package claimed successfully!",
-      });
-      router.push(`/${locale}/profile/packages`)
-    } else {
-      // Show error message, e.g. result.message
-      // toast({
-      //   title: t.common.error,
-      //   description: result.message,
-      //   variant: 'destructive',
-      // });
+    if (!result.success) {
+      // Handle error without returning
+      console.error(result.message);
+      return;
     }
-    router.push(`/${locale}/profile/packages`)
-  };
+    
+    redirect(`/${locale}/profile/packages`);
+  }
 
   return (
     <Card className={`bg-background/60 ${className}`}>
@@ -80,20 +79,18 @@ export default function PackageCard({
         </ul>
       </CardContent>
       <CardFooter>
-        {!profile ? (
-          <Button 
-            className="w-full" 
-            onClick={() => router.push(`/${locale}/auth/signup`)}
-          >
-            {t.payments.getStarted}
-          </Button>
+        {!session ? (
+          <Link href={signupUrl} className="w-full">
+            <Button className="w-full">
+              {t.payments.getStarted}
+            </Button>
+          </Link>
         ) : isFree ? (
-          <Button 
-            className="w-full" 
-            onClick={handleGetPackage}
-          >
-            {t.payments.getStarted}
-          </Button>
+          <form action={claimPackageAction} className='w-full'>
+            <Button type="submit" className="w-full">
+              {t.payments.getStarted}
+            </Button>
+          </form>
         ) : (
           <StripeCheckoutButton
             packageId={id}
