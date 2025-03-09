@@ -674,7 +674,7 @@
   "subtitle": "This will allow us to verify your identity",
   "emitatesId": "Emirates ID",
   "recommended": "Recommended",
-  "passport": "Passport & Residence Visa",
+  "passport": "Passport or Residence Visa",
   "documentNumber": "Document Number",
   "documentNumberPlaceholder": "Enter document number",
   "expiryDate": "Document Expiry Date",

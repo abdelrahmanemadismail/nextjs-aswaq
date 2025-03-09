@@ -3,14 +3,13 @@ import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
 import { Languages } from "@/constants/enums";
-import { getRamadanPackage } from '@/actions/package-actions';
 // import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { Locale } from '@/i18n.config';
 import getTrans from '@/utils/translation';
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from 'next/navigation';
+import { ClaimPackageForm } from './ClaimPackageForm';
 
 interface PackageCardProps {
   id: string;
@@ -36,27 +35,14 @@ export default async function PackageCard({
   const url = (await headers()).get('x-url')
   const locale = url?.split('/')[3] as Locale
   const t = await getTrans(locale);
-  
+
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
-  
+
   // Convert currency to Arabic if needed
   const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
   // Generate the redirect URLs for authentication
   const signupUrl = `/${locale}/auth/signup`;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function claimPackageAction(formData: FormData) {
-    'use server';
-    
-    const result = await getRamadanPackage();
-    if (!result.success) {
-      // Handle error without returning
-      console.error(result.message);
-      return;
-    }
-    
-    redirect(`/${locale}/profile/packages`);
-  }
 
   return (
     <Card className={`bg-background/60 ${className}`}>
@@ -66,9 +52,9 @@ export default async function PackageCard({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold mb-4">
-          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree? "" : displayCurrency}</span>
+          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree ? "" : displayCurrency}</span>
         </div>
-         
+
         <ul className="space-y-2">
           {features.map((feature, index) => (
             <li key={index} className="flex items-center">
@@ -86,11 +72,7 @@ export default async function PackageCard({
             </Button>
           </Link>
         ) : isFree ? (
-          <form action={claimPackageAction} className='w-full'>
-            <Button type="submit" className="w-full">
-              {t.payments.getStarted}
-            </Button>
-          </form>
+          <ClaimPackageForm buttonText={t.payments.getStarted} />
         ) : (
           <StripeCheckoutButton
             packageId={id}

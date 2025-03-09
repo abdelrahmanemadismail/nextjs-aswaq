@@ -9,14 +9,8 @@ import { headers } from 'next/headers';
 import { Locale } from '@/i18n.config';
 import getTrans from '@/utils/translation';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle2, AlertCircle } from "lucide-react";
 
-export default async function UserPackagesPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default async function UserPackagesPage() {
   const { packages, error } = await getUserPackages();
   const url = (await headers()).get('x-url')
   const locale = url?.split('/')[3] as Locale
@@ -26,10 +20,6 @@ export default async function UserPackagesPage({
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
   };
-
-  // Handle success/error messages from search params
-  const errorMessage = searchParams.error as string;
-  const success = searchParams.success === 'true';
 
   if (error) {
     return (
@@ -69,28 +59,6 @@ export default async function UserPackagesPage({
   return (
     <div className="container py-12">
       <h1 className="text-3xl font-bold mb-6">{t.userPackages.title}</h1>
-      
-      {/* Show success/error messages */}
-      {success && (
-        <Alert className="mb-6 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">Success</AlertTitle>
-          <AlertDescription className="text-green-700">
-            Package claimed successfully!
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {errorMessage && (
-        <Alert className="mb-6 bg-destructive/10">
-          <AlertCircle className="h-4 w-4 text-destructive" />
-          <AlertTitle className="text-destructive">Error</AlertTitle>
-          <AlertDescription className="text-destructive">
-            {decodeURIComponent(errorMessage)}
-          </AlertDescription>
-        </Alert>
-      )}
-
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {packages.map((userPackage) => {
           const pkg = userPackage.package;
