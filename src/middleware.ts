@@ -32,14 +32,14 @@ function getLocale(request: NextRequest): string | undefined {
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
-  
+
   // Initialize response variable before using it
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   })
-  
+
   // Create Supabase client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,20 +78,20 @@ export async function middleware(request: NextRequest) {
   // Extract current locale from path if present
   const pathnameParts = pathname.split('/')
   const currentLocale = pathnameParts.length > 1 ? pathnameParts[1] : null
-  
+
   // Handle language switch if setLang parameter is present
   if (switchLangParam && i18n.locales.includes(switchLangParam as LanguageType)) {
     // Create a response to redirect to the same page but without the setLang param
     const newUrl = new URL(request.url)
     newUrl.searchParams.delete('setLang')
     const langSwitchResponse = NextResponse.redirect(newUrl)
-    
+
     // Set cookie for the new language preference (1 year expiry)
-    langSwitchResponse.cookies.set('preferred-language', switchLangParam, { 
+    langSwitchResponse.cookies.set('preferred-language', switchLangParam, {
       maxAge: 60 * 60 * 24 * 365,
       path: '/'
     })
-    
+
     return langSwitchResponse
   }
 
@@ -101,31 +101,53 @@ export async function middleware(request: NextRequest) {
     const locale = user?.user_metadata?.preferred_language || getLocale(request)
     const url = new URL(`/${locale}${pathname.startsWith('/') ? pathname : `/${pathname}`}`, request.url)
     url.search = request.nextUrl.search
-    
+
     const localeRedirectResponse = NextResponse.redirect(url)
-    
+
     // Also set cookie if we're using a locale from user metadata
     if (user?.user_metadata?.preferred_language) {
-      localeRedirectResponse.cookies.set('preferred-language', user.user_metadata.preferred_language, { 
+      localeRedirectResponse.cookies.set('preferred-language', user.user_metadata.preferred_language, {
         maxAge: 60 * 60 * 24 * 365,
         path: '/'
       })
     }
-    
+
     return localeRedirectResponse
   }
-  
+
   // Step 4: Check auth and redirect for protected routes if needed
   // Get the path without the locale prefix for easier checks
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
-  
+  if (user && (pathWithoutLocale.startsWith('/sell'))){
+    const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+    if(profile.verification_status !== 'verified')
+    {
+      const verifyUrl = request.nextUrl.clone()
+      verifyUrl.pathname = `/${currentLocale}/profile/verification`
+      return NextResponse.redirect(verifyUrl)
+    }
+  }
+
+  // Check if logged-in user is trying to access login or signup pages
+  if (user && (pathWithoutLocale === '/auth/login' || pathWithoutLocale === '/auth/signup')) {
+    // Redirect to home page with the correct locale
+    const homeUrl = request.nextUrl.clone()
+    homeUrl.pathname = `/${currentLocale}/`
+    return NextResponse.redirect(homeUrl)
+  }
+
   const publicPaths = ['', '/about-us', '/terms-of-service', '/privacy-policy']
   const pathStartsWithPublic = ['/help', '/auth', '/listings', '/contact', '/sell']
-  
-  const isPublicPath = 
-    publicPaths.includes(pathWithoutLocale) || 
+
+  const isPublicPath =
+    publicPaths.includes(pathWithoutLocale) ||
     pathStartsWithPublic.some(p => pathWithoutLocale.startsWith(p))
-  
+
   if (!user && !isPublicPath) {
     // No user and trying to access protected route
     // Redirect to login page with the correct locale
