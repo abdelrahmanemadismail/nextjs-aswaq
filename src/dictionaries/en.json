@@ -609,7 +609,7 @@
     "title": "Delete Your Account",
     "button": "Delete your account",
     "confirmTitle": "Are you absolutely sure?",
-    "confirmDescription": "This action will mark your account for deletion. You'll have 30 days to change your mind by simply logging back in. After 30 days, your account and all associated data will be permanently removed from our servers.from our servers.",
+    "confirmDescription": "This action will mark your account for deletion. You'll have 30 days to change your mind by simply logging back in. After 30 days, your account and all associated data will be permanently removed from our servers.",
     "cancel": "Cancel",
     "confirm": "Delete Account",
     "success": "Account deleted",
