@@ -209,10 +209,11 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public;
 
--- Comment explaining how to schedule the permanent deletion
-COMMENT ON FUNCTION public.permanently_delete_inactive_accounts() IS 
-'This function should be scheduled to run daily using a cron job or Supabase scheduled functions. 
-Example schedule: every day at midnight.';
+-- First, enable the pg_cron extension (requires superuser)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- Schedule the function to run daily at midnight
+SELECT cron.schedule('0 0 * * *', $$SELECT permanently_delete_inactive_accounts()$$);
 
 -- Arabic language functions
 CREATE OR REPLACE FUNCTION public.get_user_language(user_id uuid)
