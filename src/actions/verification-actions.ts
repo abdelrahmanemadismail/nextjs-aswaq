@@ -41,9 +41,9 @@ const sendVerificationRequestNotification = async (request: VerificationRequest,
 
   const supportEmail = process.env.SUPPORT_EMAIL || 'support@aswaq.online'
   const systemFromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@aswaq.online'
-  const adminUrl = process.env.NEXT_PUBLIC_SITE_URL ? 
-    `${process.env.NEXT_PUBLIC_SITE_URL}/admin/verification` : 
-    'http://localhost:3000/admin/verification'
+  const adminUrl = process.env.NEXT_PUBLIC_URL ? 
+    `${process.env.NEXT_PUBLIC_URL}/admin/verifications` : 
+    'http://localhost:3000/admin/verifications'
 
   try {
     const html = await prepareVerificationRequestEmail(request, userName, adminUrl)

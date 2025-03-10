@@ -8,7 +8,9 @@ import {
 } from './email-template-strings'
 
 // Type for template variables
-type TemplateVariables = Record<string, string | number>
+type TemplateVariables = Record<string, string | number> & {
+  messageContent?: string
+}
 
 // Types for verification email translations
 type VerificationTranslation = {
@@ -42,11 +44,20 @@ function renderEmailTemplate(
   template: string,
   variables: TemplateVariables
 ): string {
+  let renderedTemplate = template
+
+  // Handle conditional blocks first
+  const conditionalPattern = /{{#if\s+([^}]+)}}([\s\S]*?)(?:{{else}}([\s\S]*?))?{{\/if}}/g
+  renderedTemplate = renderedTemplate.replace(conditionalPattern, (match, condition, ifContent, elseContent = '') => {
+    const value = variables[condition]
+    return value ? ifContent.trim() : elseContent.trim()
+  })
+
   // Replace all variables in the template
   return Object.entries(variables).reduce((html, [key, value]) => {
     const regex = new RegExp(`{{${key}}}`, 'g')
-    return html.replace(regex, String(value))
-  }, template)
+    return html.replace(regex, String(value || ''))
+  }, renderedTemplate)
 }
 
 // Function to prepare support notification email
@@ -166,27 +177,33 @@ export async function prepareVerificationStatusEmail(
   const status = request.verification_status === 'approved' ? 'approved' : 'rejected'
   const t = translations[locale as keyof typeof translations][status]
 
-  const variables = {
+  // Create message blocks based on status and available information
+  let messageContent = `${t.greeting}\n\n${t.message}\n\n`
+  
+  if (status === 'rejected' && request.rejection_reason) {
+    messageContent += `${(t as typeof translations.en.rejected).rejectionReasonLabel}:\n${request.rejection_reason}\n\n`
+  }
+  
+  if (request.admin_notes) {
+    messageContent += `${(t as typeof translations.en.rejected).adminNotesLabel}:\n${request.admin_notes}\n\n`
+  }
+  
+  messageContent += `${t.closing}\n${t.team}`
+
+  const variables: TemplateVariables = {
     locale,
     direction: isRtl ? 'rtl' : 'ltr',
     textAlign: isRtl ? 'right' : 'left',
     borderSide: isRtl ? 'right' : 'left',
     title: t.title,
-    greeting: t.greeting,
-    message: t.message,
-    rejectionReason: request.rejection_reason || '',
-    rejectionReasonLabel: status === 'rejected' ? (t as typeof translations.en.rejected).rejectionReasonLabel : '',
-    adminNotes: request.admin_notes || '',
-    adminNotesLabel: status === 'rejected' ? (t as typeof translations.en.rejected).adminNotesLabel : '',
-    actionUrl: `/dashboard/verifications`,
+    actionUrl: `${process.env.NEXT_PUBLIC_URL}/profile/verification`,
     actionLabel: t.actionLabel,
-    closing: t.closing,
-    team: t.team,
     year: new Date().getFullYear(),
     copyright: isRtl ? 'جميع الحقوق محفوظة' : 'All rights reserved',
     automatedMessage: isRtl 
       ? 'هذه رسالة آلية من نظام الإشعارات الآمن الخاص بنا.'
-      : 'This is an automated message from our secure notification system.'
+      : 'This is an automated message from our secure notification system.',
+    messageContent: messageContent.replace(/\n/g, '<br>')
   }
 
   return renderEmailTemplate(verificationStatusTemplate, variables)

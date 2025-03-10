@@ -157,7 +157,7 @@ export const supportNotificationTemplate = `<!DOCTYPE html>
         <tr>
           <td align="center" style="padding: 20px; background-color: #f8fafc; font-size: 12px; color: #718096; border-radius: 0 0 8px 8px;">
             <p style="margin-bottom: 5px;">
-              &copy; 2025 Aswaq Online. All rights reserved.
+              &copy; 2025 Aswaq.online. All rights reserved.
             </p>
             <p style="margin-top: 0;">
               This is an automated message from our secure notification system.
@@ -318,7 +318,7 @@ export const userConfirmationTemplate = `<!DOCTYPE html>
         <tr>
           <td align="center" style="padding: 20px; background-color: #f8fafc; font-size: 12px; color: #718096; border-radius: 0 0 8px 8px;">
             <p style="margin-bottom: 5px;">
-              &copy; {{year}} Aswaq Online. {{copyright}}
+              &copy; {{year}} Aswaq.online. {{copyright}}
             </p>
             <p style="margin-top: 0;">
               {{automatedMessage}}
@@ -422,7 +422,7 @@ export const verificationRequestTemplate = `<!DOCTYPE html>
         <tr>
           <td align="center" style="padding: 20px; background-color: #f8fafc; font-size: 12px; color: #718096; border-radius: 0 0 8px 8px;">
             <p style="margin-bottom: 5px;">
-              &copy; {{year}} Aswaq Online. All rights reserved.
+              &copy; {{year}} Aswaq.online. All rights reserved.
             </p>
             <p style="margin-top: 0;">
               This is an automated message from our secure notification system.
@@ -486,51 +486,22 @@ export const verificationStatusTemplate = `<!DOCTYPE html>
             </h1>
             <div style="height: 2px; background-color: #e0e0e0; margin: 0 auto 30px; width: 100px;"></div>
             
-            <p style="margin-bottom: 24px; font-size: 16px;">
-              {{greeting}}
-            </p>
-            
-            <p style="margin-bottom: 24px; font-size: 16px;">
-              {{message}}
-            </p>
-
-            {{#if rejectionReason}}
-            <div style="margin: 20px 0; padding: 15px; background-color: #fff5f5; border-{{borderSide}}: 4px solid #e53e3e; border-radius: 4px;">
-              <strong style="color: #e53e3e;">{{rejectionReasonLabel}}:</strong>
-              <p style="margin-top: 8px; margin-bottom: 0; color: #4a5568;">
-                {{rejectionReason}}
-              </p>
+            <div style="color: #4a5568; font-size: 16px;">
+              {{messageContent}}
             </div>
-            {{/if}}
-
-            {{#if adminNotes}}
-            <div style="margin: 20px 0; padding: 15px; background-color: #f8fafc; border-{{borderSide}}: 4px solid #4a5568; border-radius: 4px;">
-              <strong style="color: #4a5568;">{{adminNotesLabel}}:</strong>
-              <p style="margin-top: 8px; margin-bottom: 0; color: #4a5568;">
-                {{adminNotes}}
-              </p>
-            </div>
-            {{/if}}
             
             <div style="margin-top: 30px; text-align: center;">
               <a href="{{actionUrl}}" style="background-color: #006eb8; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
                 {{actionLabel}}
               </a>
             </div>
-            
-            <p style="margin-top: 30px; font-size: 16px;">
-              {{closing}}
-            </p>
-            <p style="font-weight: 600; color: #006eb8; margin-bottom: 0;">
-              {{team}}
-            </p>
           </td>
         </tr>
 
         <tr>
           <td align="center" style="padding: 20px; background-color: #f8fafc; font-size: 12px; color: #718096; border-radius: 0 0 8px 8px;">
             <p style="margin-bottom: 5px;">
-              &copy; {{year}} Aswaq Online. {{copyright}}
+              &copy; {{year}} Aswaq.online. {{copyright}}
             </p>
             <p style="margin-top: 0;">
               {{automatedMessage}}

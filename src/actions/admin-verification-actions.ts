@@ -10,6 +10,19 @@ import {
 import { VerificationRequest } from '@/types/verification'
 import nodemailer from 'nodemailer'
 import { prepareVerificationStatusEmail } from '@/utils/email-templates'
+import { createClient as supabaseClient} from '@supabase/supabase-js'
+
+// Email subjects by locale
+const EMAIL_SUBJECTS = {
+  en: {
+    approved: 'Your Verification Request has been Approved',
+    rejected: 'Your Verification Request has been Rejected'
+  },
+  ar: {
+    approved: 'تم قبول طلب التحقق الخاص بك',
+    rejected: 'تم رفض طلب التحقق الخاص بك'
+  }
+}
 
 // Create email transporter
 const createTransporter = async () => {
@@ -50,6 +63,7 @@ const sendVerificationStatusEmail = async (
   if (!transporter) return false
 
   const systemFromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@aswaq.online'
+  const status = request.verification_status === 'approved' ? 'approved' : 'rejected'
 
   try {
     const html = await prepareVerificationStatusEmail({
@@ -63,9 +77,7 @@ const sendVerificationStatusEmail = async (
     await transporter.sendMail({
       from: systemFromEmail,
       to: userEmail,
-      subject: request.verification_status === 'approved' 
-        ? 'Your Verification Request has been Approved'
-        : 'Your Verification Request has been Rejected',
+      subject: EMAIL_SUBJECTS[locale as keyof typeof EMAIL_SUBJECTS][status as keyof typeof EMAIL_SUBJECTS['en']],
       html
     })
     return true
@@ -82,7 +94,9 @@ export async function getVerificationRequests(
   search?: string,
   sort?: VerificationSort,
 ) {
+  
   const supabase = await createClient()
+
   const start = (page - 1) * limit
   const end = start + limit - 1
 
@@ -135,13 +149,15 @@ export async function getVerificationRequests(
   const { data, error } = await query.range(start, end)
 
   if (error) throw error
-    // Filter out any results where user is null
-    const filteredData = (data as AdminVerificationRequest[]).filter(
-        request => request.user !== null
-      )
+  
+  // Filter out any results where user is null
+  const filteredData = (data as AdminVerificationRequest[]).filter(
+    request => request.user !== null
+  )
+  
   // Generate signed URLs for each document
   const requestsWithUrls = await Promise.all(
-    (filteredData as AdminVerificationRequest[]).map(async (request) => {
+    filteredData.map(async (request) => {
       // Generate signed URLs for each document URL in the request
       const signedDocUrls = await Promise.all(
         request.document_urls.map(async (doc) => {
@@ -165,7 +181,7 @@ export async function getVerificationRequests(
       }
     }),
   )
-//   console.log(requestsWithUrls)
+
   return {
     requests: requestsWithUrls,
     total: count || 0,
@@ -178,7 +194,12 @@ export async function approveVerification(
   requestId: string,
   adminNotes?: string,
 ) {
+  
   const supabase = await createClient()
+  const supabaseAdmin = supabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   // Get admin user
   const {
@@ -214,14 +235,12 @@ export async function approveVerification(
 
   if (!verificationRequest) throw new Error('Verification request not found')
 
-  // Get user's email
-  const { data: userData } = await supabase
-    .from('users')
-    .select('email, locale')
-    .eq('id', verificationRequest.user_id)
-    .single()
+  // Get user's email and locale
+  const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(
+    verificationRequest.user_id
+  )
 
-  if (!userData) throw new Error('User not found')
+  if (userError || !userData.user) throw new Error('User not found')
 
   // Update user's verification status
   const { error: profileError } = await supabase
@@ -234,8 +253,8 @@ export async function approveVerification(
   // Send email notification
   await sendVerificationStatusEmail(
     verificationRequest as AdminVerificationRequest,
-    userData.email,
-    userData.locale || 'en'
+    userData.user.email!,
+    userData.user.app_metadata?.locale || 'en'
   )
 
   return {
@@ -249,7 +268,12 @@ export async function rejectVerification(
   rejectionReason: string,
   adminNotes?: string,
 ) {
+  
   const supabase = await createClient()
+  const supabaseAdmin = supabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   // Get admin user
   const {
@@ -286,14 +310,12 @@ export async function rejectVerification(
 
   if (!verificationRequest) throw new Error('Verification request not found')
 
-  // Get user's email
-  const { data: userData } = await supabase
-    .from('users')
-    .select('email, locale')
-    .eq('id', verificationRequest.user_id)
-    .single()
+  // Get user's email and locale
+  const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(
+    verificationRequest.user_id
+  )
 
-  if (!userData) throw new Error('User not found')
+  if (userError || !userData.user) throw new Error('User not found')
 
   // Update user's verification status
   const { error: profileError } = await supabase
@@ -306,8 +328,8 @@ export async function rejectVerification(
   // Send email notification
   await sendVerificationStatusEmail(
     verificationRequest as AdminVerificationRequest,
-    userData.email,
-    userData.locale || 'en'
+    userData.user.email!,
+    userData.user.app_metadata?.locale || 'en'
   )
 
   return {
@@ -331,6 +353,7 @@ export async function addAdminNotes(requestId: string, notes: string) {
 
 export async function getVerificationStats(): Promise<VerificationStats> {
   const supabase = await createClient()
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
