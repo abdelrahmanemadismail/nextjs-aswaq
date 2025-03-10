@@ -54,7 +54,7 @@ export default async function RootLayout({
     >
       <GoogleTagManager gtmId={process.env.gtmId||"GTM-XYZ"} />
       <body className={locale === Languages.ARABIC ? cairo.className : lato.className}>
-        <div className="h-screen w-screen">
+        <div>
           <ProfileProvider>
             <Suspense fallback={<Spinner />}>
               {children}

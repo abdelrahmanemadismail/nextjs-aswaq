@@ -20,6 +20,7 @@ const defaultTranslations = {
     moreDetails: '',
     close: '',
     back: '',
+    leave: '',
     next: '',
     submit: '',
     cancel: '',
