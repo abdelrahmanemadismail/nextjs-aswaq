@@ -47,7 +47,6 @@ export async function getListing(slug: string): Promise<DisplayListing> {
       `)
       .eq('slug', slug)
       .eq('is_active', true)
-      .eq('status', 'active')
       .gte('package_listings.expires_at', now)
       .single()
   

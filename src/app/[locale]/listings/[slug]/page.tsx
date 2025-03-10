@@ -15,6 +15,8 @@ import { formatDistance } from 'date-fns'
 import { Languages } from '@/constants/enums'
 import { ListingActionButtons } from "@/components/listing/ListingActionButtons"
 import { ListingMobileTopActions } from "@/components/listing/ListingMobileTopActions"
+import { ListingOwnerActions } from "@/components/listing/ListingOwnerActions"
+import { createClient } from '@/utils/supabase/server'
 
 type tParams = Promise<{ slug: string; locale: string }>;
 
@@ -43,7 +45,12 @@ export default async function ListingPage(props: { params: tParams }) {
   const { slug, locale } = await props.params
   const isArabic = locale === Languages.ARABIC
 
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser()
+
   const listing = await getListing(slug)
+
   await incrementViewCount(listing.id)
   const similarListings = await getSimilarListings(listing.category.id, listing.id)
 
@@ -189,6 +196,38 @@ export default async function ListingPage(props: { params: tParams }) {
             </CardHeader>
           </Card>
 
+          {/* Listing Owner Actions - Only visible to the listing owner */}
+          {/* For demonstration purposes: */}
+          {user?.id === listing.user.id && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.listings.ownerActions?.title || "Manage Listing"}</CardTitle>
+                <CardDescription>{t.listings.ownerActions?.description || "Update the status of your listing"}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3">
+                <ListingOwnerActions
+                  listingId={listing.id}
+                  listingStatus={listing.status}
+                  translations={{
+                    edit: t.listings.ownerActions?.edit || "Edit Listing",
+                    markAsSold: t.listings.ownerActions?.markAsSold || "Mark as Sold",
+                    disable: t.listings.ownerActions?.disable || "Disable Listing",
+                    activate: t.listings.ownerActions?.activate || "Activate Listing",
+                    confirmSold: t.listings.ownerActions?.confirmSold || "Are you sure you want to mark this listing as sold?",
+                    confirmDisable: t.listings.ownerActions?.confirmDisable || "Are you sure you want to disable this listing?",
+                    confirmActivate: t.listings.ownerActions?.confirmActivate || "Are you sure you want to activate this listing?",
+                    cancel: t.common?.cancel || "Cancel",
+                    confirm: t.common?.confirm || "Confirm",
+                    status: t.listings.ownerActions?.status || "Status",
+                    statusActive: t.listings.ownerActions?.statusActive || "Active",
+                    statusSold: t.listings.ownerActions?.statusSold || "Sold",
+                    statusUnavailable: t.listings.ownerActions?.statusUnavailable || "Unavailable"
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           {hasCoordinates && (
             <Card>
               <CardHeader>
@@ -235,6 +274,38 @@ export default async function ListingPage(props: { params: tParams }) {
                 longitude={listing.longitude}
                 title={listing.title}
                 title_ar={listing.title_ar}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Listing Owner Actions Card for Mobile */}
+      {user?.id === listing.user.id && (
+        <div className="mt-6 lg:hidden">
+          <Card>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-base">{t.listings.ownerActions?.title || "Manage Listing"}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-2">
+              <ListingOwnerActions
+                listingId={listing.id}
+                listingStatus={listing.status}
+                translations={{
+                  edit: t.listings.ownerActions?.edit || "Edit Listing",
+                  markAsSold: t.listings.ownerActions?.markAsSold || "Mark as Sold",
+                  disable: t.listings.ownerActions?.disable || "Disable Listing",
+                  activate: t.listings.ownerActions?.activate || "Activate Listing",
+                  confirmSold: t.listings.ownerActions?.confirmSold || "Are you sure you want to mark this listing as sold?",
+                  confirmDisable: t.listings.ownerActions?.confirmDisable || "Are you sure you want to disable this listing?",
+                  confirmActivate: t.listings.ownerActions?.confirmActivate || "Are you sure you want to activate this listing?",
+                  cancel: t.common?.cancel || "Cancel",
+                  confirm: t.common?.confirm || "Confirm",
+                  status: t.listings.ownerActions?.status || "Status",
+                  statusActive: t.listings.ownerActions?.statusActive || "Active",
+                  statusSold: t.listings.ownerActions?.statusSold || "Sold",
+                  statusUnavailable: t.listings.ownerActions?.statusUnavailable || "Unavailable"
+                }}
               />
             </CardContent>
           </Card>
