@@ -138,6 +138,7 @@ const defaultTranslations = {
   },
   account: {
     profile: '',
+    myListings: '',
     myPackages: '',
     promotionPackages: '',
     messages: '',

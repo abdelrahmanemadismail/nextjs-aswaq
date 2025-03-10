@@ -68,6 +68,7 @@ export default function ListingCard({
   return (
     <Card className={`w-full max-w-md overflow-hidden rounded-3xl shadow-none ${className}`}>
       <div className="relative">
+      <Link href={getLocalizedPath(`/listings/${slug}`)}>
         <Image
           src={`${photos[currentPhotoIndex]}`}
           alt={`Photo ${currentPhotoIndex + 1} of ${listingTitle}`}
@@ -75,6 +76,7 @@ export default function ListingCard({
           height={400}
           className={`object-cover w-full rounded-3xl ${ASPECT_RATIOS[aspectRatio]}`}
         />
+        </Link>
         <div className="absolute top-4 right-4 z-20">
           <LikeButton
             initialLiked={initialLiked}

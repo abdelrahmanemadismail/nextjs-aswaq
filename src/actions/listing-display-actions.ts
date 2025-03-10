@@ -71,7 +71,180 @@ interface GetListingsParams {
   country?: string
   city?: string
 }
+export async function getMyListings({
+  page = 1,
+  category,
+  search,
+  sort = 'date_desc',
+  minPrice,
+  maxPrice,
+  country,
+  city,
+}: GetListingsParams) {
+  const supabase = await createClient()
+  const limit = 20
+  const start = (page - 1) * limit
+  const end = start + limit - 1
+  const now = new Date().toISOString()
 
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    throw new Error('User not authenticated')
+  }
+
+  // Build query with active package check and filter by current user
+  let query = supabase
+    .from('listings')
+    .select(`
+      *,
+      user:profiles!user_id (
+        id,
+        full_name,
+        avatar_url,
+        phone_number
+      ),
+      category:categories!category_id (
+        id,
+        name,
+        name_ar,
+        slug,
+        parent_id
+      ),
+      location:locations (
+        id,
+        name,
+        name_ar,
+        type,
+        slug,
+        parent:locations (
+          id,
+          name,
+          name_ar,
+          slug
+        )
+      ),
+      package_listings!inner (id)
+    `)
+    .eq('is_active', true)
+    .eq('user_id', user.id)  // Filter by current user
+    .gte('package_listings.expires_at', now)
+
+  // Apply filters
+  if (category) {
+    const { data: categoryData } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', category)
+      .single()
+
+    if (categoryData) {
+      const { data: subcategories } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('parent_id', categoryData.id)
+
+      const categoryIds = [categoryData.id, ...(subcategories?.map(c => c.id) || [])]
+      query = query.in('category_id', categoryIds)
+    }
+  }
+
+  // Apply location filters
+  if (city) {
+    const { data: cityData } = await supabase
+      .from('locations')
+      .select('id')
+      .eq('slug', city)
+      .eq('type', 'city')
+      .single()
+
+    if (cityData) {
+      query = query.eq('location_id', cityData.id)
+    }
+  } else if (country) {
+    const { data: countryData } = await supabase
+      .from('locations')
+      .select('id')
+      .eq('slug', country)
+      .eq('type', 'country')
+      .single()
+
+    if (countryData) {
+      const { data: cityData } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('parent_id', countryData.id)
+
+      const cityIds = cityData?.map(city => city.id) || []
+      if (cityIds.length > 0) {
+        query = query.in('location_id', cityIds)
+      }
+    }
+  }
+
+  // Enhanced search with support for both languages
+  if (search) {
+    query = query.or(
+      `title.ilike.%${search}%,` +
+      `description.ilike.%${search}%,` +
+      `title_ar.ilike.%${search}%,` +
+      `description_ar.ilike.%${search}%`
+    )
+  }
+
+  // Apply sorting
+  switch (sort) {
+    case 'price_asc':
+      query = query.order('price', { ascending: true })
+      break
+    case 'price_desc':
+      query = query.order('price', { ascending: false })
+      break
+    case 'date_asc':
+      query = query.order('created_at', { ascending: true })
+      break
+    default:
+      // First order by featured, then by created date
+      query = query
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+  }
+
+  // Apply price filters
+  if (minPrice) {
+    query = query.gte('price', minPrice)
+  }
+  
+  if (maxPrice) {
+    query = query.lte('price', maxPrice)
+  }
+
+  // Get count of user's listings
+  const { count } = await supabase
+    .from('listings')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_active', true)
+    .eq('user_id', user.id)
+
+  // Get paginated results
+  const { data: results, error } = await query
+    .range(start, end)
+
+  if (error) throw error
+  
+  // Remove package_listings from each result
+  const listings = results.map(item => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { package_listings, ...listing } = item
+    return listing
+  })
+
+  return {
+    listings,
+    totalPages: Math.ceil((count || 0) / limit)
+  }
+}
 export async function getListings({
   page = 1,
   category,

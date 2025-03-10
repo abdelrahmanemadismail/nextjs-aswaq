@@ -128,6 +128,7 @@
   },
   "account": {
     "profile": "الملف الشخصي",
+    "myListings": "اعلاناتي",
     "myPackages": "باقاتي",
     "promotionPackages": "باقات الترويج",
     "messages":"الرسائل",

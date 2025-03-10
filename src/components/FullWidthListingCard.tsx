@@ -80,6 +80,7 @@ export default function FullWidthListingCard({
     <Card className={cn("flex flex-col md:flex-row w-full max-w-4xl overflow-hidden rounded-3xl", className)}>
       {/* Image container - full width on mobile, 40% on desktop */}
       <div className="relative w-full md:w-2/5 h-[250px] md:h-auto md:min-h-[300px] group z-10">
+      <Link href={getLocalizedPath(`/listings/${listing.slug}`)} className="block">
         <Image
           src={listing.images[currentPhotoIndex]}
           alt={listingTitle}
@@ -87,15 +88,15 @@ export default function FullWidthListingCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover w-full h-full"
         />
-        
+        </Link>
+
         <ImageNavigation
           total={listing.images.length}
           current={currentPhotoIndex}
           onNext={nextPhoto}
           onPrev={prevPhoto}
           onDotClick={setCurrentPhotoIndex}
-          arrowSize="sm"
-          className="absolute inset-0"
+          arrowSize="md"
         />
       </div>
 

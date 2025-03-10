@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Settings,
   LogOut,
+  LayoutList,
 } from "lucide-react";
 import { signOut } from "@/actions/auth-actions";
 import { useRouter } from "next/navigation";
@@ -71,11 +72,11 @@ export function UserMenu() {
           <Wallet className="h-5 w-5 text-primary" />
           <span>Aswaq wallet</span>
         </DropdownMenuItem> */}
-        {/* <DropdownMenuItem className="gap-2 py-3">
+         <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/my-listings"))}>
           <LayoutList className="h-5 w-5 text-primary" />
-          <span>Ads Listing</span>
+          <span>{t.account.myListings}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 py-3">
+        {/*<DropdownMenuItem className="gap-2 py-3">
           <Heart className="h-5 w-5 text-primary" />
           <span>Favourites</span>
         </DropdownMenuItem> */}
