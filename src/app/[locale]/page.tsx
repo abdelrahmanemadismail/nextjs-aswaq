@@ -133,13 +133,13 @@ export default async function LandingPage({
               </p>
               <MainSearch />
             </div>
-            <div className="mt-12 flex gap-4 justify-center flex-wrap">
-              {categories.slice(0, 6).map((category) => (
+            <div className="mt-12 grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:justify-center">
+              {categories.map((category) => (
                 <Link
                   key={category.name}
                   href={`/listings?category=${category.slug}`}
                   prefetch={true}
-                  className="group flex flex-col items-center p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all"
+                  className="group flex flex-col items-center p-2 sm:p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all h-[120px] w-[100px] sm:w-[140px]"
                 >
                   <div className="h-16 w-16 flex items-center justify-center">
                     <Image
@@ -147,10 +147,9 @@ export default async function LandingPage({
                       alt={category.name}
                       width={32}
                       height={32}
-                    // className="h-8 w-8"
                     />
                   </div>
-                  <span className="mt-2 text-sm font-medium">
+                  <span className="mt-2 text-xs sm:text-sm font-medium text-center line-clamp-2">
                     {locale === 'ar' && category.name_ar ? category.name_ar : category.name}
                   </span>
                 </Link>
