@@ -1,7 +1,11 @@
-import fs from 'fs/promises'
-import path from 'path'
 import { ContactFormData } from '@/actions/contact-actions'
 import { VerificationRequest } from '@/types/verification'
+import { 
+  supportNotificationTemplate,
+  userConfirmationTemplate,
+  verificationRequestTemplate,
+  verificationStatusTemplate
+} from './email-template-strings'
 
 // Type for template variables
 type TemplateVariables = Record<string, string | number>
@@ -33,25 +37,16 @@ type VerificationTranslations = {
   ar: VerificationTranslation
 }
 
-// Function to load and render email template
-export async function renderEmailTemplate(
-  templateName: string,
+// Function to render email template
+function renderEmailTemplate(
+  template: string,
   variables: TemplateVariables
-): Promise<string> {
-  try {
-    // Read template file
-    const templatePath = path.join(process.cwd(), 'src', 'email-templates', templateName)
-    const template = await fs.readFile(templatePath, 'utf-8')
-
-    // Replace all variables in the template
-    return Object.entries(variables).reduce((html, [key, value]) => {
-      const regex = new RegExp(`{{${key}}}`, 'g')
-      return html.replace(regex, String(value))
-    }, template)
-  } catch (error) {
-    console.error(`Error loading email template ${templateName}:`, error)
-    throw error
-  }
+): string {
+  // Replace all variables in the template
+  return Object.entries(variables).reduce((html, [key, value]) => {
+    const regex = new RegExp(`{{${key}}}`, 'g')
+    return html.replace(regex, String(value))
+  }, template)
 }
 
 // Function to prepare support notification email
@@ -65,7 +60,7 @@ export async function prepareSupportNotificationEmail(formData: ContactFormData)
     message: formData.message.replace(/\n/g, '<br>')
   }
 
-  return renderEmailTemplate('support-notification.html', variables)
+  return renderEmailTemplate(supportNotificationTemplate, variables)
 }
 
 // Function to prepare user confirmation email
@@ -98,7 +93,7 @@ export async function prepareUserConfirmationEmail(
       : 'This is an automated message from our secure notification system.'
   }
 
-  return renderEmailTemplate('user-confirmation.html', variables)
+  return renderEmailTemplate(userConfirmationTemplate, variables)
 }
 
 // Function to prepare verification request notification email
@@ -115,7 +110,7 @@ export async function prepareVerificationRequestEmail(
     year: new Date().getFullYear()
   }
 
-  return renderEmailTemplate('verification-request-notification.html', variables)
+  return renderEmailTemplate(verificationRequestTemplate, variables)
 }
 
 // Function to prepare verification status update email
@@ -194,5 +189,5 @@ export async function prepareVerificationStatusEmail(
       : 'This is an automated message from our secure notification system.'
   }
 
-  return renderEmailTemplate('verification-status-update.html', variables)
+  return renderEmailTemplate(verificationStatusTemplate, variables)
 } 
