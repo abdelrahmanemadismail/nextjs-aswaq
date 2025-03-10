@@ -21,6 +21,8 @@ const defaultTranslations = {
     close: '',
     back: '',
     leave: '',
+    confirmLeaving: '',
+    leaveWarning: '',
     next: '',
     submit: '',
     cancel: '',

@@ -4,6 +4,7 @@ const DB_NAME = 'aswaq_db';
 const DB_VERSION = 1;
 const FILE_STORE = 'files';
 const FORM_ID = 'listing_form';
+const EXPIRATION_TIME = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
 
 interface StoredFile {
   id: string;
@@ -11,6 +12,7 @@ interface StoredFile {
   type: string;
   lastModified: number;
   data: ArrayBuffer;
+  timestamp: number; // Add timestamp for expiration
 }
 
 /**
@@ -35,9 +37,34 @@ export async function initDB(): Promise<IDBDatabase> {
       
       // Create an object store for files if it doesn't exist
       if (!db.objectStoreNames.contains(FILE_STORE)) {
-        db.createObjectStore(FILE_STORE, { keyPath: 'id' });
+        const store = db.createObjectStore(FILE_STORE, { keyPath: 'id' });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
       }
     };
+  });
+}
+
+/**
+ * Check if stored data has expired
+ */
+async function checkExpiration(db: IDBDatabase): Promise<boolean> {
+  return new Promise((resolve) => {
+    const transaction = db.transaction([FILE_STORE], 'readonly');
+    const store = transaction.objectStore(FILE_STORE);
+    const request = store.get(FORM_ID);
+
+    request.onsuccess = () => {
+      const record = request.result;
+      if (!record || !record.timestamp) {
+        resolve(true);
+        return;
+      }
+
+      const hasExpired = Date.now() - record.timestamp > EXPIRATION_TIME;
+      resolve(hasExpired);
+    };
+
+    request.onerror = () => resolve(true);
   });
 }
 
@@ -57,16 +84,15 @@ export async function storeFiles(files: File[]): Promise<void> {
           name: file.name,
           type: file.type,
           lastModified: file.lastModified,
-          data: arrayBuffer
+          data: arrayBuffer,
+          timestamp: Date.now()
         };
       })
     );
 
-    // Create a NEW transaction for storing metadata
     const metaTx = db.transaction([FILE_STORE], 'readwrite');
     const metaStore = metaTx.objectStore(FILE_STORE);
     
-    // Clear existing files for this form
     const clearRequest = metaStore.delete(FORM_ID);
     
     await new Promise<void>((resolve, reject) => {
@@ -76,13 +102,10 @@ export async function storeFiles(files: File[]): Promise<void> {
       metaTx.onerror = () => reject(metaTx.error);
     });
 
-    // If there are no files, we're done
     if (files.length === 0) {
       return;
     }
 
-    // Store file metadata record to track all files for this form
-    // Create a NEW transaction for metadata
     const metaDataTx = db.transaction([FILE_STORE], 'readwrite');
     const metaDataStore = metaDataTx.objectStore(FILE_STORE);
     
@@ -101,7 +124,6 @@ export async function storeFiles(files: File[]): Promise<void> {
       metaDataTx.onerror = () => reject(metaDataTx.error);
     });
 
-    // Store each file in a separate transaction to avoid the transaction timeout
     for (let i = 0; i < filesData.length; i++) {
       const fileData = filesData[i];
       const fileTx = db.transaction([FILE_STORE], 'readwrite');
@@ -130,10 +152,17 @@ export async function storeFiles(files: File[]): Promise<void> {
 export async function retrieveFiles(): Promise<File[]> {
   try {
     const db = await initDB();
+
+    // Check for expiration
+    const hasExpired = await checkExpiration(db);
+    if (hasExpired) {
+      await clearFiles();
+      return [];
+    }
+
     const transaction = db.transaction([FILE_STORE], 'readonly');
     const store = transaction.objectStore(FILE_STORE);
 
-    // Get the metadata to know how many files to expect
     const metaRequest = store.get(FORM_ID);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metaRecord = await new Promise<any>((resolve, reject) => {
@@ -145,11 +174,9 @@ export async function retrieveFiles(): Promise<File[]> {
       return [];
     }
 
-    // Retrieve all file entries for this form
     const files: File[] = [];
     for (let i = 0; i < metaRecord.fileCount; i++) {
       const fileId = `${FORM_ID}_${i}`;
-      // Create a new transaction for each file to prevent transaction timeout
       const fileTx = db.transaction([FILE_STORE], 'readonly');
       const fileStore = fileTx.objectStore(FILE_STORE);
       const fileRequest = fileStore.get(fileId);
@@ -160,7 +187,6 @@ export async function retrieveFiles(): Promise<File[]> {
       });
 
       if (fileData) {
-        // Convert back to a File object
         const file = new File(
           [fileData.data], 
           fileData.name, 
@@ -189,7 +215,6 @@ export async function clearFiles(): Promise<void> {
     const transaction = db.transaction([FILE_STORE], 'readwrite');
     const store = transaction.objectStore(FILE_STORE);
 
-    // Get the metadata to know how many files to delete
     const metaRequest = store.get(FORM_ID);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metaRecord = await new Promise<any>((resolve, reject) => {
@@ -201,7 +226,6 @@ export async function clearFiles(): Promise<void> {
       return;
     }
 
-    // Delete all file entries for this form
     const deleteMetaRequest = store.delete(FORM_ID);
     await new Promise<void>((resolve, reject) => {
       deleteMetaRequest.onsuccess = () => resolve();

@@ -5,6 +5,8 @@ import { persist } from 'zustand/middleware'
 import { storeFiles, retrieveFiles, clearFiles } from '@/services/indexedDB';
 import { ListingFormData, ListingStep } from '@/types/listing'
 
+// 5 hours in milliseconds
+const EXPIRATION_TIME = 5 * 60 * 60 * 1000;
 
 interface ListingFormState {
   // Form data
@@ -13,6 +15,7 @@ interface ListingFormState {
   isSubmitting: boolean;
   validationErrors: Record<string, string | undefined>;
   imagesLoaded: boolean;
+  lastUpdated: number; // Add timestamp for expiration check
   
   // Actions
   setFormData: (data: Partial<ListingFormData>) => void;
@@ -26,6 +29,7 @@ interface ListingFormState {
   resetForm: () => void;
   saveImagesToIndexedDB: () => Promise<void>;
   loadImagesFromIndexedDB: () => Promise<void>;
+  checkExpiration: () => boolean;
 }
 
 // Initial form data structure
@@ -65,15 +69,16 @@ export const useListingFormStore = create<ListingFormState>()(
       isSubmitting: false,
       validationErrors: {},
       imagesLoaded: false,
+      lastUpdated: Date.now(),
       
       // Actions
       setFormData: (data) => 
         set((state) => {
           const newState = { 
-            formData: { ...state.formData, ...data } 
+            formData: { ...state.formData, ...data },
+            lastUpdated: Date.now()
           };
           
-          // If images are updated, save them to IndexedDB
           if (data.images && Array.isArray(data.images)) {
             get().saveImagesToIndexedDB();
           }
@@ -87,10 +92,10 @@ export const useListingFormStore = create<ListingFormState>()(
             formData: { 
               ...state.formData, 
               [key]: value 
-            }
+            },
+            lastUpdated: Date.now()
           };
           
-          // If images are updated, save them to IndexedDB
           if (key === 'images' && Array.isArray(value)) {
             setTimeout(() => get().saveImagesToIndexedDB(), 0);
           }
@@ -99,7 +104,7 @@ export const useListingFormStore = create<ListingFormState>()(
         }),
       
       setCurrentStep: (step) => 
-        set({ currentStep: step }),
+        set({ currentStep: step, lastUpdated: Date.now() }),
       
       setIsSubmitting: (isSubmitting) => 
         set({ isSubmitting }),
@@ -122,7 +127,8 @@ export const useListingFormStore = create<ListingFormState>()(
           currentStep: 'category',
           isSubmitting: false,
           validationErrors: {},
-          imagesLoaded: false
+          imagesLoaded: false,
+          lastUpdated: Date.now()
         });
       },
       
@@ -130,7 +136,6 @@ export const useListingFormStore = create<ListingFormState>()(
         const { formData } = get();
         if (formData.images && Array.isArray(formData.images)) {
           try {
-            // Only save valid File objects
             const validFiles = formData.images.filter(file => file instanceof File);
             await storeFiles(validFiles);
           } catch (error) {
@@ -141,6 +146,12 @@ export const useListingFormStore = create<ListingFormState>()(
       
       loadImagesFromIndexedDB: async () => {
         try {
+          // Check expiration before loading
+          if (get().checkExpiration()) {
+            await get().resetForm();
+            return;
+          }
+
           if (!get().imagesLoaded) {
             const files = await retrieveFiles();
             if (files.length > 0) {
@@ -149,7 +160,8 @@ export const useListingFormStore = create<ListingFormState>()(
                   ...state.formData,
                   images: files
                 },
-                imagesLoaded: true
+                imagesLoaded: true,
+                lastUpdated: Date.now()
               }));
             } else {
               set({ imagesLoaded: true });
@@ -160,16 +172,21 @@ export const useListingFormStore = create<ListingFormState>()(
           set({ imagesLoaded: true });
         }
       },
+
+      checkExpiration: () => {
+        const { lastUpdated } = get();
+        return Date.now() - lastUpdated > EXPIRATION_TIME;
+      }
     }),
     {
       name: 'listing-form-storage',
-      // Don't persist images to avoid File serialization issues
       partialize: (state) => ({
         formData: {
           ...state.formData,
           images: undefined, // Don't save images to localStorage
         },
         currentStep: state.currentStep,
+        lastUpdated: state.lastUpdated
       }),
     }
   )

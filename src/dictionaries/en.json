@@ -11,6 +11,8 @@
     "close": "Close",
     "back": "Back",
     "leave": "Leave",
+    "confirmLeaving": "Confirm Leaving",
+    "leaveWarning": "All your entered data will be lost. Are you sure you want to leave?",
     "next": "Next",
     "submit": "Submit",
     "cancel": "Cancel",

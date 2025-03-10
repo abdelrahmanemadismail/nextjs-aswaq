@@ -1,30 +1,55 @@
 // components/SellHeader.tsx
-import React from 'react';
+'use client'
+
+import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { headers } from 'next/headers';
-import { Locale } from '@/i18n.config';
-import getTrans from '@/utils/translation';
+import { useListingFormStore } from '@/hooks/use-listing-form-store';
+import { useTranslation } from '@/hooks/use-translation';
 import LanguageSwitcher from './LanguageSwitcher';
 
-export default async function SellHeader() {
-    const url = (await headers()).get('x-url')
-    const locale = url?.split('/')[3] as Locale
-    const t = await getTrans(locale);
+// Import components for the alert dialog
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+export default function SellHeader() {
+  const { t } = useTranslation();
+  const resetForm = useListingFormStore((state) => state.resetForm);
+  const router = useRouter();
+  const [showAlert, setShowAlert] = useState(false);
+
+  const handleLeave = async () => {
+    // Show confirmation dialog
+    setShowAlert(true);
+  };
+
+  const confirmLeave = async () => {
+    // Reset form and navigate to home
+    await resetForm();
+    router.push('/');
+  };
 
   return (
-    <header className="flex items-center justify-between py-3 px-12 border-b w-full">
-      <Link 
-        href="/"
-        className="flex items-center text-foreground hover:text-primary transition-colors"
-      >
-        <X className="h-6 w-6 mr-2" />
-        <span className="text-base font-medium">{t.common.leave}</span>
-      </Link>
-      
-      <div className="flex-1 flex justify-center">
-        <Link href="/">
+    <>
+      <header className="flex items-center justify-between py-3 px-12 border-b w-full">
+        <button 
+          className="flex items-center text-foreground hover:text-primary transition-colors"
+          onClick={handleLeave}
+        >
+          <X className="h-6 w-6 mr-2" />
+          <span className="text-base font-medium">{t.common.leave}</span>
+        </button>
+        
+        <div className="flex-1 flex justify-center">
           <Image
             src="/logo.svg"
             alt="ASWAQ Online"
@@ -33,13 +58,30 @@ export default async function SellHeader() {
             className="h-20 w-auto"
             priority
           />
-        </Link>
-      </div>
-      
-      {/* Empty div to balance the layout */}
-      <div className="w-20">
-      <LanguageSwitcher />
-      </div>
-    </header>
+        </div>
+        
+        <div className="w-20">
+          <LanguageSwitcher />
+        </div>
+      </header>
+
+      {/* Confirmation Alert Dialog */}
+      <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.common.confirmLeaving || 'Confirm Leaving'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.common.leaveWarning || 'All your entered data will be lost. Are you sure you want to leave?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.common.cancel || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLeave} className="bg-destructive text-destructive-foreground">
+              {t.common.leave || 'Leave'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
