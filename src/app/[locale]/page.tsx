@@ -139,7 +139,7 @@ export default async function LandingPage({
                   key={category.name}
                   href={`/listings?category=${category.slug}`}
                   prefetch={true}
-                  className="group flex flex-col items-center p-2 sm:p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all h-[120px] w-[100px] sm:w-[140px]"
+                  className="group flex flex-col items-center p-2 sm:p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all h-[120px] w-[100px] sm:w-[120px]"
                 >
                   <div className="h-16 w-16 flex items-center justify-center">
                     <Image
