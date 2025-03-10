@@ -46,13 +46,16 @@ export default async function ListingPage(props: { params: tParams }) {
   const listing = await getListing(slug)
   await incrementViewCount(listing.id)
   const similarListings = await getSimilarListings(listing.category.id, listing.id)
-  
+
   // Get translations
   const dict = await import(`@/dictionaries/${locale}.json`).then(module => module.default)
   const t = dict
 
   // Get localized content
   const listingTitle = isArabic && listing.title_ar ? listing.title_ar : listing.title
+
+  // Check if coordinates are available to show the map
+  const hasCoordinates = listing.latitude && listing.longitude
 
   return (
     <main className="container px-4 md:px-6 py-6 m-auto">
@@ -88,7 +91,7 @@ export default async function ListingPage(props: { params: tParams }) {
         {/* Left Column (Full width on mobile, 2/3 on desktop) */}
         <div className="lg:col-span-2 space-y-6">
           <ImageGallery images={listing.images} />
-          
+
           {/* Mobile-only title and price section */}
           <div className="lg:hidden space-y-2">
             <h1 className="text-2xl font-bold">{isArabic && listing.title_ar ? listing.title_ar : listing.title}</h1>
@@ -116,29 +119,29 @@ export default async function ListingPage(props: { params: tParams }) {
           </Card>
 
           <Separator className="hidden lg:block" />
-          
+
           {listing.vehicle_details && (
             <VehicleDetails details={listing.vehicle_details} />
           )}
           {listing.property_details && (
             <PropertyDetails details={listing.property_details} />
           )}
-          
+
           <Separator />
-          
+
           {/* Hide the title on desktop as it's in the description component */}
           <div className="hidden lg:block">
-            <ListingDescription 
-              title={listing.title} 
+            <ListingDescription
+              title={listing.title}
               title_ar={listing.title_ar}
-              location={listing.address} 
+              location={listing.address}
               location_ar={listing.address_ar}
-              timestamp={listing.created_at} 
-              description={listing.description} 
+              timestamp={listing.created_at}
+              description={listing.description}
               description_ar={listing.description_ar}
             />
           </div>
-          
+
           {/* Mobile version of description without title */}
           <div className="lg:hidden">
             <h2 className="text-xl font-semibold mb-4">{t.listings.description}</h2>
@@ -186,21 +189,23 @@ export default async function ListingPage(props: { params: tParams }) {
             </CardHeader>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.listings.map.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ListingMap
-                location={listing.address}
-                location_ar={listing.address_ar}
-                latitude={listing.latitude}
-                longitude={listing.longitude}
-                title={listing.title}
-                title_ar={listing.title_ar}
-              />
-            </CardContent>
-          </Card>
+          {hasCoordinates && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.listings.map.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ListingMap
+                  location={listing.address}
+                  location_ar={listing.address_ar}
+                  latitude={listing.latitude}
+                  longitude={listing.longitude}
+                  title={listing.title}
+                  title_ar={listing.title_ar}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
@@ -216,23 +221,25 @@ export default async function ListingPage(props: { params: tParams }) {
       </div>
 
       {/* Map Section for Mobile Only */}
-      <div className="mt-6 lg:hidden">
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">{t.listings.map.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-2">
-            <ListingMap
-              location={listing.address}
-              location_ar={listing.address_ar}
-              latitude={listing.latitude}
-              longitude={listing.longitude}
-              title={listing.title}
-              title_ar={listing.title_ar}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      {hasCoordinates && (
+        <div className="mt-6 lg:hidden">
+          <Card>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-base">{t.listings.map.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-2">
+              <ListingMap
+                location={listing.address}
+                location_ar={listing.address_ar}
+                latitude={listing.latitude}
+                longitude={listing.longitude}
+                title={listing.title}
+                title_ar={listing.title_ar}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Safety Tips for Mobile */}
       <div className="mt-6 lg:hidden">
@@ -250,13 +257,13 @@ export default async function ListingPage(props: { params: tParams }) {
 
       {/* Similar Listings */}
       <div className="mt-10 mb-20 lg:mb-10">
-        <SimilarListings 
-          listings={similarListings} 
-          categoryName={listing.category.name} 
-          categoryName_ar={listing.category.name_ar} 
+        <SimilarListings
+          listings={similarListings}
+          categoryName={listing.category.name}
+          categoryName_ar={listing.category.name_ar}
         />
       </div>
-      
+
       {/* Mobile Action Buttons (Fixed at bottom) */}
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-background p-4 border-t lg:hidden">
         <ListingActionButtons

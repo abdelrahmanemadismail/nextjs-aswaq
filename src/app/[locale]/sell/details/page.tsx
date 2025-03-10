@@ -260,7 +260,6 @@ export default function DetailsPage() {
                   placeholder={t.listings.location.locationPlaceholder}
                   value={formData.details?.address || ''}
                   onChange={(e) => updateDetailsField('address', e.target.value)}
-                  readOnly
                   className={validationErrors['details.address'] ? "border-destructive" : ""}
                 />
                 <LocationPicker
