@@ -262,8 +262,8 @@ export default function IDVerification() {
             </CardHeader>
             <CardContent className="grid gap-6 py-4 text-center">
               <Image
-                src="/success.svg"
-                alt="Success Illustration"
+                src="/pending.svg"
+                alt="Pending Illustration"
                 width={300}
                 height={300}
                 className="mx-auto"
