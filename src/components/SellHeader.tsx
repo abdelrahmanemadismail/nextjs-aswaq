@@ -40,7 +40,7 @@ export default function SellHeader() {
 
   return (
     <>
-      <header className="flex items-center justify-between py-3 px-12 border-b w-full">
+      <header className="flex items-center justify-between py-3 px-3 md:px-8 lg:px-10 border-b w-full">
         <button 
           className="flex items-center text-foreground hover:text-primary transition-colors"
           onClick={handleLeave}
@@ -60,7 +60,7 @@ export default function SellHeader() {
           />
         </div>
         
-        <div className="w-20">
+        <div >
           <LanguageSwitcher />
         </div>
       </header>

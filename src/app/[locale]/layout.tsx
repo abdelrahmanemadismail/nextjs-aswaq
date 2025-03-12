@@ -5,7 +5,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { Suspense } from "react";
-import { LoaderCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Locale } from "@/i18n.config";
 import { Directions, Languages } from "@/constants/enums";
 import { GoogleTagManager } from '@next/third-parties/google'
@@ -29,8 +29,8 @@ const cairo = Cairo({
 
 // Simple spinner component
 const Spinner = () => (
-  <div className="flex justify-center items-center h-full">
-    <LoaderCircle className="text-primary" />
+  <div className="flex justify-center items-center h-screen w-screen">
+    <Loader2 className="text-primary" />
   </div>
 );
 

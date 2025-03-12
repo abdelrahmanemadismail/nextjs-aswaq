@@ -53,7 +53,7 @@ export function ProgressBar() {
           return (
             <div 
               key={step.key}
-              className={`flex flex-col items-center ${index > 0 ? 'flex-1' : ''}`}
+              className="flex flex-col items-center flex-1"
             >
               <div 
                 className={`
