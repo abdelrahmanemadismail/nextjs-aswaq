@@ -58,6 +58,7 @@ const defaultTranslations = {
     chatWithSeller: '',
     notifications: '',
     messages: '',
+    attachFile: '',
     loading: ''
   },
   auth: {

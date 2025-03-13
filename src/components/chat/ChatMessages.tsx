@@ -2,10 +2,17 @@
 
 import { useEffect, useRef, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
+import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Download, FileText } from "lucide-react"
+import { 
+  ArrowLeft, 
+  ExternalLink,
+  X,
+  ZoomIn,
+  ZoomOut,
+  RotateCw
+} from "lucide-react"
 import { MessageInput } from "./MessageInput"
 import { useChatStore } from "@/lib/stores/use-chat-store"
 import { cn } from "@/lib/utils"
@@ -13,6 +20,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/utils/supabase/client"
 import { useTranslation } from "@/hooks/use-translation"
+import Image from "next/image"
 
 interface ChatMessagesProps {
   conversationId: string
@@ -22,6 +30,9 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [currentUserId, setCurrentUserId] = useState<string>()
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [imageZoom, setImageZoom] = useState(1)
+  const [imageRotation, setImageRotation] = useState(0)
   const supabase = createClient()
   const { messages, conversations, isLoadingMessages, sendMessage } = useChatStore()
   const { t } = useTranslation()
@@ -48,18 +59,55 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
     scrollToBottom()
   }, [conversationMessages])
 
-  const handleSendMessage = async (content: string, attachments?: string[]) => {
-    if (!content.trim() && (!attachments || attachments.length === 0)) return
+  // Reset zoom and rotation when a new image is selected
+  useEffect(() => {
+    setImageZoom(1)
+    setImageRotation(0)
+  }, [selectedImage])
 
-    await sendMessage({
-      conversation_id: conversationId,
-      content: content.trim(),
-      attachments
-    })
+  // Handle ESC key to close the image viewer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedImage) {
+        setSelectedImage(null)
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedImage])
+
+  const handleSendMessage = async (content: string, attachments?: string[]) => {
+    // Allow empty content if attachments are present
+    if ((!content || !content.trim()) && (!attachments || attachments.length === 0)) {
+      return
+    }
+
+    try {
+      await sendMessage({
+        conversation_id: conversationId,
+        content: content || "", // Use empty string for null/undefined content
+        attachments
+      })
+    } catch (error) {
+      console.error("Error sending message:", error)
+    }
   }
 
   const handleBackToList = () => {
     router.push('/chat')
+  }
+
+  const handleZoomIn = () => {
+    setImageZoom(prev => Math.min(prev + 0.25, 3))
+  }
+
+  const handleZoomOut = () => {
+    setImageZoom(prev => Math.max(prev - 0.25, 0.5))
+  }
+
+  const handleRotate = () => {
+    setImageRotation(prev => (prev + 90) % 360)
   }
 
   // Helper function to determine if a URL is an image
@@ -75,13 +123,18 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
       const pathname = urlObj.pathname
       const segments = pathname.split('/')
       return segments[segments.length - 1]
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    catch (error){
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
       // If URL parsing fails, just return the last part
       const segments = url.split('/')
       return segments[segments.length - 1]
     }
+  }
+
+  // Helper function to get file extension
+  const getFileExtension = (url: string) => {
+    const fileName = getFileNameFromUrl(url)
+    return fileName.split('.').pop()?.toUpperCase() || '?'
   }
 
   if (!conversation) {
@@ -170,7 +223,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
             ))}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {conversationMessages.length === 0 ? (
               <div className="text-center text-muted-foreground py-10">
                 {t.common.noMessages || "No messages yet"}
@@ -179,85 +232,111 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
               conversationMessages.map((message) => {
                 const isOwn = message.sender_id === currentUserId
                 const hasAttachments = message.attachments && message.attachments.length > 0
+                const hasContent = message.content && message.content.trim() !== ''
 
                 return (
                   <div
                     key={message.id}
                     className={cn(
-                      "flex gap-2 md:gap-3",
-                      isOwn && "flex-row-reverse"
+                      "flex flex-col gap-2",
+                      isOwn && "items-end"
                     )}
                   >
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage 
-                        src={isOwn ? conversation.buyer?.avatar_url || undefined : otherParticipant.avatar_url || undefined}
-                      />
-                      <AvatarFallback>
-                        {isOwn ? conversation.buyer?.full_name[0] : otherParticipant.full_name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-
+                    {/* Message header with user info and timestamp */}
                     <div className={cn(
-                      "group flex flex-col max-w-[75%] md:max-w-[80%]",
+                      "flex items-center gap-2",
+                      isOwn ? "flex-row-reverse" : "flex-row"
+                    )}>
+                      <Avatar className="h-7 w-7 flex-shrink-0">
+                        <AvatarImage 
+                          src={isOwn ? conversation.buyer?.avatar_url || undefined : otherParticipant.avatar_url || undefined}
+                        />
+                        <AvatarFallback>
+                          {isOwn ? conversation.buyer?.full_name[0] : otherParticipant.full_name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs md:text-sm font-medium truncate max-w-[100px] md:max-w-[150px]">
+                        {isOwn ? t.common.you || "You" : otherParticipant.full_name}
+                      </span>
+                      <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+
+                    {/* Message content */}
+                    <div className={cn(
+                      "flex flex-col max-w-[75%] md:max-w-[80%] gap-1",
                       isOwn && "items-end"
                     )}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs md:text-sm font-medium truncate max-w-[100px] md:max-w-[150px]">
-                          {isOwn ? t.common.you || "You" : otherParticipant.full_name}
-                        </span>
-                        <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                        </span>
-                      </div>
-
-                      <div className={cn(
-                        "mt-1 rounded-2xl px-3 py-2 md:px-4 md:py-2 break-words",
-                        isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
-                      )}>
-                        {/* Message text content */}
-                        {message.content && <p className="mb-2">{message.content}</p>}
-                        
-                        {/* Message attachments */}
-                        {hasAttachments && (
-                          <div className="space-y-2 mt-2">
-                            {message.attachments?.map((attachment, index) => (
-                              isImageAttachment(attachment) ? (
-                                <div key={index} className="relative group/img">
-                                  <Image 
-                                    height={50}
-                                    width={50}
+                      {/* Text bubble */}
+                      {hasContent && (
+                        <div className={cn(
+                          "rounded-2xl px-3 py-2 md:px-4 md:py-2 break-words",
+                          isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                        )}>
+                          {message.content}
+                        </div>
+                      )}
+                      
+                      {/* Attachments outside the bubble */}
+                      {hasAttachments && (
+                        <div className="flex flex-col gap-2 mt-1">
+                          {message.attachments?.map((attachment, index) => (
+                            isImageAttachment(attachment) ? (
+                              // Image attachment with preview
+                              <div key={index} className="relative overflow-hidden rounded-lg border border-border bg-background/50 max-w-[240px]">
+                                <div 
+                                  className="aspect-square w-full max-h-[240px] overflow-hidden cursor-pointer"
+                                  onClick={() => setSelectedImage(attachment)}
+                                >
+                                  <Image
+                                  height={50}
+                                  width={50} 
                                     src={attachment} 
                                     alt="Attachment" 
-                                    className="max-w-full rounded-md max-h-48 object-contain bg-background"
+                                    className="h-full w-full object-cover"
                                   />
-                                  <a 
-                                    href={attachment} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    download
-                                    className="absolute top-2 right-2 bg-background/75 rounded-full p-1 opacity-0 group-hover/img:opacity-100 transition-opacity"
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </a>
                                 </div>
-                              ) : (
-                                <a 
-                                  key={index}
-                                  href={attachment}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 bg-background/20 rounded p-2 text-xs hover:bg-background/30 transition-colors"
-                                >
-                                  <FileText className="h-4 w-4" />
-                                  <span className="truncate">{getFileNameFromUrl(attachment)}</span>
-                                  <Download className="h-3 w-3 ml-auto flex-shrink-0" />
-                                </a>
-                              )
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                                <div className="p-2 flex items-center justify-between bg-background/80 text-xs">
+                                  <span className="truncate flex-1">{getFileNameFromUrl(attachment)}</span>
+                                  <div className="flex gap-1">
+                                    <a 
+                                      href={attachment} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="p-1 hover:bg-muted rounded-full"
+                                      title="Open in new tab"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              // Document attachment
+                              <div 
+                                key={index}
+                                className="flex items-center gap-2 border border-border rounded-lg p-2 bg-background/50 hover:bg-background transition-colors max-w-[240px] cursor-pointer"
+                                onClick={() => window.open(attachment, '_blank')}
+                              >
+                                <div className="bg-muted h-10 w-10 rounded flex items-center justify-center flex-shrink-0">
+                                  <span className="text-xs font-medium">{getFileExtension(attachment)}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-medium truncate">{getFileNameFromUrl(attachment)}</div>
+                                  <div className="text-[10px] text-muted-foreground">Click to open</div>
+                                </div>
+                                <div className="p-1 rounded-full">
+                                  <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                                </div>
+                              </div>
+                            )
+                          ))}
+                        </div>
+                      )}
 
+                      {/* Delivery status */}
                       {isOwn && (
                         <span className="text-[10px] md:text-xs text-muted-foreground mt-1">
                           {message.read_at ? t.common.read || "Read" : t.common.delivered || "Delivered"}
@@ -277,6 +356,81 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
       <div className="border-t p-3 md:p-4">
         <MessageInput onSendMessage={handleSendMessage} />
       </div>
+
+      {/* Image Viewer Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            className="relative max-w-full max-h-full overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+            height={50}
+            width={50}
+              src={selectedImage} 
+              alt="Full size" 
+              className="max-w-full max-h-[85vh] object-contain transition-transform"
+              style={{ 
+                transform: `scale(${imageZoom}) rotate(${imageRotation}deg)`,
+                transformOrigin: 'center center'
+              }}
+            />
+            
+            {/* Close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-background/20 hover:bg-background/40 rounded-full"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            
+            {/* Controls */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-background/30 backdrop-blur-sm p-2 rounded-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={handleZoomIn}
+                title="Zoom in"
+              >
+                <ZoomIn className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={handleZoomOut}
+                title="Zoom out"
+              >
+                <ZoomOut className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={handleRotate}
+                title="Rotate"
+              >
+                <RotateCw className="h-5 w-5" />
+              </Button>
+              <Link
+                href={selectedImage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 w-9 rounded-full flex items-center justify-center text-foreground bg-background/10 hover:bg-background/30 transition-colors"
+                title="Open in new tab"
+              >
+                <ExternalLink className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

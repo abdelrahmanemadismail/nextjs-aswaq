@@ -25,8 +25,9 @@ export function MessageInput({ onSendMessage, className }: MessageInputProps) {
   const { t } = useTranslation()
 
   const handleSend = async () => {
-    if ((message.trim() || uploadedFiles.length > 0) && !isUploading) {
-      onSendMessage(message.trim(), uploadedFiles.length > 0 ? uploadedFiles : undefined)
+    // Allow sending if there are uploads, even if message is empty
+    if ((uploadedFiles.length > 0 || message.trim()) && !isUploading) {
+      onSendMessage(message, uploadedFiles.length > 0 ? uploadedFiles : undefined)
       setMessage("")
       setSelectedFiles([])
       setUploadedFiles([])
@@ -39,7 +40,8 @@ export function MessageInput({ onSendMessage, className }: MessageInputProps) {
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey && !isComposing) {
+    // Only send on Enter if there's actual text content
+    if (e.key === "Enter" && !e.shiftKey && !isComposing && message.trim()) {
       e.preventDefault()
       handleSend()
     }
@@ -170,7 +172,7 @@ export function MessageInput({ onSendMessage, className }: MessageInputProps) {
           variant="ghost" 
           size="icon" 
           className="flex-shrink-0 h-9 w-9 md:h-10 md:w-10"
-          aria-label={t.common.attachImage || "Attach image"}
+          aria-label={t.common.attachFile || "Attach file"}
           onClick={handleAttachClick}
           disabled={isUploading}
         >
@@ -204,7 +206,7 @@ export function MessageInput({ onSendMessage, className }: MessageInputProps) {
             size="icon"
             className="absolute bottom-1 right-1 h-8 w-8 md:h-10 md:w-10"
             onClick={handleSend}
-            disabled={(!message.trim() && uploadedFiles.length === 0) || isUploading}
+            disabled={(message.trim() === '' && uploadedFiles.length === 0) || isUploading}
             aria-label={t.common.send || "Send"}
           >
             <Send className="h-4 w-4" />

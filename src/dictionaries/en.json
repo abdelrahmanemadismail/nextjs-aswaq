@@ -48,6 +48,7 @@
     "chatWithSeller": "Chat",
     "notifications": "Notifications",
     "messages": "Messages",
+    "attachFile":"Attach file",
     "loading": "Loading..."
   },
   "auth": {

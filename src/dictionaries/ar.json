@@ -48,6 +48,7 @@
     "chatWithSeller": "الدردشة",
     "notifications": "الإشعارات",
     "messages": "الرسائل",
+    "attachFile":"إرفاق ملف",
     "loading": "جار التحميل..."
   },
   "auth": {
