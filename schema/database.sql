@@ -2024,7 +2024,46 @@ CREATE POLICY "Allow authenticated users to update category images"
     FOR UPDATE TO authenticated
     USING (bucket_id = 'categories')
     WITH CHECK (bucket_id = 'categories');
+-- Run this SQL in your Supabase SQL Editor to create the chat_attachments bucket
+-- and set up the necessary policies
 
+-- Create chat_attachments bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('chat_attachments', 'chat_attachments', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for chat attachments
+-- Policy for viewing chat attachments (public access)
+CREATE POLICY "Chat attachments are publicly accessible"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'chat_attachments');
+
+-- Policy for uploading chat attachments
+CREATE POLICY "Users can upload chat attachments"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'chat_attachments'
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+-- Policy for updating chat attachments
+CREATE POLICY "Users can update their own chat attachments"
+    ON storage.objects FOR UPDATE
+    USING (
+        bucket_id = 'chat_attachments'
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+-- Policy for deleting chat attachments
+CREATE POLICY "Users can delete their own chat attachments"
+    ON storage.objects FOR DELETE
+    USING (
+        bucket_id = 'chat_attachments'
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name))[1] = auth.uid()::text
+    );
 -- Create a secure URL generator function for verification documents
 CREATE OR REPLACE FUNCTION public.get_verification_doc_url(file_path TEXT)
 RETURNS TEXT

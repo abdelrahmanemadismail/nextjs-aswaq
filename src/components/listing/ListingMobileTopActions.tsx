@@ -63,6 +63,7 @@ export function ListingMobileTopActions({
           sellerId={sellerId}
           size="sm"
           variant="outline"
+          iconOnly={true}
           className="p-0 h-9 w-9 flex items-center justify-center"
         />
       )}
@@ -83,4 +84,4 @@ export function ListingMobileTopActions({
       )}
     </div>
   )
-} 
+}

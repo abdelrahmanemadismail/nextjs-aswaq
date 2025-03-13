@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Download, FileText } from "lucide-react"
 import { MessageInput } from "./MessageInput"
 import { useChatStore } from "@/lib/stores/use-chat-store"
 import { cn } from "@/lib/utils"
@@ -47,17 +48,40 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
     scrollToBottom()
   }, [conversationMessages])
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
+  const handleSendMessage = async (content: string, attachments?: string[]) => {
+    if (!content.trim() && (!attachments || attachments.length === 0)) return
 
     await sendMessage({
       conversation_id: conversationId,
-      content: content.trim()
+      content: content.trim(),
+      attachments
     })
   }
 
   const handleBackToList = () => {
     router.push('/chat')
+  }
+
+  // Helper function to determine if a URL is an image
+  const isImageAttachment = (url: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
+    return imageExtensions.some(ext => url.toLowerCase().endsWith(ext))
+  }
+
+  // Helper function to get file name from URL
+  const getFileNameFromUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url)
+      const pathname = urlObj.pathname
+      const segments = pathname.split('/')
+      return segments[segments.length - 1]
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    catch (error){
+      // If URL parsing fails, just return the last part
+      const segments = url.split('/')
+      return segments[segments.length - 1]
+    }
   }
 
   if (!conversation) {
@@ -154,6 +178,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
             ) : (
               conversationMessages.map((message) => {
                 const isOwn = message.sender_id === currentUserId
+                const hasAttachments = message.attachments && message.attachments.length > 0
 
                 return (
                   <div
@@ -189,7 +214,48 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
                         "mt-1 rounded-2xl px-3 py-2 md:px-4 md:py-2 break-words",
                         isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
                       )}>
-                        {message.content}
+                        {/* Message text content */}
+                        {message.content && <p className="mb-2">{message.content}</p>}
+                        
+                        {/* Message attachments */}
+                        {hasAttachments && (
+                          <div className="space-y-2 mt-2">
+                            {message.attachments?.map((attachment, index) => (
+                              isImageAttachment(attachment) ? (
+                                <div key={index} className="relative group/img">
+                                  <Image 
+                                    height={50}
+                                    width={50}
+                                    src={attachment} 
+                                    alt="Attachment" 
+                                    className="max-w-full rounded-md max-h-48 object-contain bg-background"
+                                  />
+                                  <a 
+                                    href={attachment} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    download
+                                    className="absolute top-2 right-2 bg-background/75 rounded-full p-1 opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </a>
+                                </div>
+                              ) : (
+                                <a 
+                                  key={index}
+                                  href={attachment}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 bg-background/20 rounded p-2 text-xs hover:bg-background/30 transition-colors"
+                                >
+                                  <FileText className="h-4 w-4" />
+                                  <span className="truncate">{getFileNameFromUrl(attachment)}</span>
+                                  <Download className="h-3 w-3 ml-auto flex-shrink-0" />
+                                </a>
+                              )
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       {isOwn && (

@@ -14,6 +14,7 @@ interface StartChatProps {
   variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive"
   size?: "default" | "sm" | "lg" | "icon"
   fullWidth?: boolean
+  iconOnly?: boolean
 }
 
 export function StartChat({ 
@@ -22,7 +23,8 @@ export function StartChat({
   className,
   variant = "default",
   size = "default",
-  fullWidth = false
+  fullWidth = false,
+  iconOnly = false
 }: StartChatProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -103,10 +105,10 @@ export function StartChat({
       variant={variant}
       size={size}
     >
-      <MessageCircle className={cn("h-4 w-4", size !== "icon" && "mr-2")} />
-      {size !== "icon" && (isLoading ? 
+      <MessageCircle className={cn("h-4 w-4", !iconOnly && size !== "icon" && "mr-2")} />
+      {!iconOnly && size !== "icon" && (isLoading ? 
         (t.common.startingChat || 'Starting Chat...') : 
-        (t.common.chatWithSeller || 'Chat with Seller')
+        (t.common.chatWithSeller || 'Chat')
       )}
     </Button>
   )

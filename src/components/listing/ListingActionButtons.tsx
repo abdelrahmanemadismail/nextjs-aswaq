@@ -67,6 +67,7 @@ export function ListingActionButtons({
           sellerId={sellerId}
           variant="outline"
           className="flex-1"
+          iconOnly={false}
         />
       )}
       
@@ -86,4 +87,4 @@ export function ListingActionButtons({
       )}
     </div>
   )
-} 
+}
