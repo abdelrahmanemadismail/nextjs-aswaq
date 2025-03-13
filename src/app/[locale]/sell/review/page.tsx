@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertCircle, Loader2, GiftIcon, Clock, Gem } from 'lucide-react'
+import { AlertCircle, Loader2, GiftIcon, Clock, Gem, ImageIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
 import { useTranslation } from '@/hooks/use-translation'
@@ -38,6 +38,7 @@ export default function ReviewPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imagesLoading, setImagesLoading] = useState(false)
+  const [imagesProcessingMessage, setImagesProcessingMessage] = useState<string | null>(null)
   
   // Get form data from Zustand store
   const { 
@@ -61,7 +62,6 @@ export default function ReviewPage() {
         
         if (!validation.valid) {
           // If validation fails, navigate back to the appropriate step
-          // This is a simplified approach - ideally you would determine the right step
           router.push(getLocalizedPath('/sell/category'))
           return
         }
@@ -145,6 +145,12 @@ export default function ReviewPage() {
       setStoreSubmitting(true)
       setError(null)
       
+      // Show a message about images being processed in the background
+      if (formData.images && formData.images.length > 3) {
+        setImagesProcessingMessage(t.listings.imagesProcessingInBackground || 
+          "Your images will continue uploading in the background.")
+      }
+      
       // Update the current step in the store to review
       useListingFormStore.getState().setCurrentStep('review')
       
@@ -179,11 +185,19 @@ export default function ReviewPage() {
       
       const listingSlug = await createListing(completeFormData)
       
-      // Show success toast
-      toast({
-        title: t.listings.success,
-        description: t.listings.listingPublished,
-      })
+      // Show success toast with additional message about images if needed
+      if (imagesProcessingMessage) {
+        toast({
+          title: t.listings.success,
+          description: `${t.listings.listingPublished} ${imagesProcessingMessage}`,
+          duration: 6000, // Show for longer than default
+        })
+      } else {
+        toast({
+          title: t.listings.success,
+          description: t.listings.listingPublished,
+        })
+      }
       
       // Clear images from IndexedDB
       await clearFiles()
@@ -233,35 +247,49 @@ export default function ReviewPage() {
       )
     }
     
+    // Display info about number of images
+    const imageCount = validImages.length;
+    const totalSize = validImages.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024);
+    
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {validImages.map((file: File, index: number) => {
-          let objectUrl = ''
-          try {
-            objectUrl = URL.createObjectURL(file)
-          } catch (err) {
-            console.error('Error creating object URL:', err)
-            return null
-          }
-          
-          return (
-            <div key={index} className="relative aspect-square">
-              <Image
-                src={objectUrl}
-                alt={t.listings.photos.uploadAlt.replace('{index}', (index + 1).toString())}
-                fill
-                className="object-cover rounded-lg"
-                onLoad={() => {
-                  // We could revoke URL here, but it's needed while image is displayed
-                }}
-                onError={() => {
-                  // Revoke URL on error
-                  if (objectUrl) URL.revokeObjectURL(objectUrl)
-                }}
-              />
-            </div>
-          )
-        })}
+      <div className="space-y-4">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <ImageIcon className="mr-1 h-4 w-4" />
+          <span>
+            {imageCount} {imageCount === 1 ? t.listings.photos.image : t.listings.photos.images} 
+            {totalSize > 1 ? ` (${totalSize.toFixed(1)} MB)` : ''}
+          </span>
+        </div>
+      
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {validImages.map((file: File, index: number) => {
+            let objectUrl = ''
+            try {
+              objectUrl = URL.createObjectURL(file)
+            } catch (err) {
+              console.error('Error creating object URL:', err)
+              return null
+            }
+            
+            return (
+              <div key={index} className="relative aspect-square">
+                <Image
+                  src={objectUrl}
+                  alt={t.listings.photos.uploadAlt.replace('{index}', (index + 1).toString())}
+                  fill
+                  className="object-cover rounded-lg"
+                  onLoad={() => {
+                    // We could revoke URL here, but it's needed while image is displayed
+                  }}
+                  onError={() => {
+                    // Revoke URL on error
+                    if (objectUrl) URL.revokeObjectURL(objectUrl)
+                  }}
+                />
+              </div>
+            )
+          })}
+        </div>
       </div>
     )
   }
@@ -465,6 +493,16 @@ export default function ReviewPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </CardContent>
+      )}
+      
+      {imagesProcessingMessage && (
+        <CardContent className="pt-0 pb-4">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{t.listings.common.info || "Info"}</AlertTitle>
+            <AlertDescription>{imagesProcessingMessage}</AlertDescription>
           </Alert>
         </CardContent>
       )}

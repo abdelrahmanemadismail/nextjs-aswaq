@@ -1,11 +1,9 @@
-// actions/listing-actions.ts
-
 "use server"
 
 import { ListingFormData } from '@/types/listing'
 import { createClient } from '@/utils/supabase/server'
 import { createClient as supabaseClient} from '@supabase/supabase-js'
-import { uploadListingImages } from '@/lib/storage'
+import { uploadListingImagesInBatches } from '@/lib/storage'
 import { checkPackageAvailability } from './package-actions'
 
 export async function createListing(data: ListingFormData): Promise<string> {
@@ -61,28 +59,26 @@ export async function createListing(data: ListingFormData): Promise<string> {
         throw new Error('Category not found')
       }
       
-      // Upload images first
-      const imagePaths = await uploadListingImages(data.images, user.id)
-  
-      // Create the listing with i18n support
+      // Create the listing first with an empty images array
+      // We'll update it later as images are uploaded
       const { data: listingData, error: listingError } = await supabase
         .from('listings')
         .insert({
           user_id: user.id,
           category_id: categoryData.id,
           title: data.details.title,
-          title_ar: data.details.title_ar, // Arabic title
+          title_ar: data.details.title_ar,
           description: data.details.description,
-          description_ar: data.details.description_ar, // Arabic description
+          description_ar: data.details.description_ar,
           price: data.details.price,
           address: data.details.address,
-          address_ar: data.details.address_ar, // Arabic address
+          address_ar: data.details.address_ar,
           latitude: data.details.latitude,
           longitude: data.details.longitude,
           location_id: data.details.location_id,
           condition: data.details.condition,
-          contact_methods: data.details.contact_method, // Array of contact methods
-          images: imagePaths,
+          contact_methods: data.details.contact_method,
+          images: [], // Start with empty images array
           is_featured: data.package_details.is_featured || false,
           status: 'active',
           is_active: true,
@@ -116,7 +112,7 @@ export async function createListing(data: ListingFormData): Promise<string> {
       const supabaseAdmin = supabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+      )
       // Create package_listing entry to track the listing usage
       const { error: packageListingError } = await supabaseAdmin
         .from('package_listings')
@@ -147,14 +143,14 @@ export async function createListing(data: ListingFormData): Promise<string> {
             brand: data.vehicle_details.brand,
             model: data.vehicle_details.model,
             color: data.vehicle_details.color,
-            color_ar: data.vehicle_details.color_ar, // Arabic color
+            color_ar: data.vehicle_details.color_ar,
             version: data.vehicle_details.version,
             year: data.vehicle_details.year,
             mileage: data.vehicle_details.mileage,
             specs: data.vehicle_details.specs,
-            specs_ar: data.vehicle_details.specs_ar, // Arabic specs
-            sub_category: data.vehicle_details.sub_category || 'car', // Default to car if not specified
-            payment_terms: data.vehicle_details.payment_terms || 'sale' // Default to sale if not specified
+            specs_ar: data.vehicle_details.specs_ar,
+            sub_category: data.vehicle_details.sub_category || 'car',
+            payment_terms: data.vehicle_details.payment_terms || 'sale'
           })
   
         if (vehicleError) {
@@ -175,9 +171,9 @@ export async function createListing(data: ListingFormData): Promise<string> {
             bathrooms: data.property_details.bathrooms,
             square_footage: data.property_details.square_footage,
             community: data.property_details.community,
-            community_ar: data.property_details.community_ar, // Arabic community
+            community_ar: data.property_details.community_ar,
             furnished: data.property_details.furnished,
-            payment_terms: data.property_details.payment_terms || 'sale' // Default to sale if not specified
+            payment_terms: data.property_details.payment_terms || 'sale'
           })
   
         if (propertyError) {
@@ -186,6 +182,16 @@ export async function createListing(data: ListingFormData): Promise<string> {
           await supabase.from('listings').delete().eq('id', listingData.id)
           throw propertyError
         }
+      }
+      
+      // Start the image upload process in the background
+      // We don't await this to allow the listing to be created faster
+      if (data.images && data.images.length > 0) {
+        // Use Promise.resolve to make this truly asynchronous
+        Promise.resolve().then(() => {
+          uploadListingImagesInBatches(data.images, user.id, listingData.id)
+            .catch(error => console.error('Error uploading images in background:', error))
+        })
       }
   
       return listingData.slug

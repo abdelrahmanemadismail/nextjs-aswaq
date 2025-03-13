@@ -308,7 +308,8 @@
       "paymentTerms": "شروط الدفع",
       "selectPaymentTerms": "اختر شروط الدفع",
       "forSale": "للبيع",
-      "forRent": "للإيجار"
+      "forRent": "للإيجار",
+      "info": "معلومات"
     },
     "photos": {
       "tipsHeading": "نصائح للصور الرائعة:",
@@ -323,8 +324,12 @@
       "supportedFormats": "الصيغ المدعومة: JPG، PNG، WebP",
       "uploadedCount": "{current} من {max} صور تم تحميلها",
       "uploadAlt": "تحميل {index}",
-      "removeImage": "إزالة الصورة"
+      "removeImage": "إزالة الصورة",
+      "image": "صورة",
+      "images": "صور",
+      "processing": "جارٍ معالجة صورك..."
     },
+    "imagesProcessingInBackground": "ستستمر صورك في التحميل في الخلفية.",
     "packageSelection": {
       "title": "اختر الباقة",
       "description": "اختر الباقة التي تريد استخدامها لهذا الإعلان",

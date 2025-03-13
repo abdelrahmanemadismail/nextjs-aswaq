@@ -308,7 +308,8 @@
       "paymentTerms": "Payment Terms",
       "selectPaymentTerms": "Select payment terms",
       "forSale": "For Sale",
-      "forRent": "For Rent"
+      "forRent": "For Rent",
+      "info": "Info"
     },
     "photos": {
       "tipsHeading": "Tips for great photos:",
@@ -323,8 +324,12 @@
       "supportedFormats": "Supported formats: JPG, PNG, WebP",
       "uploadedCount": "{current} of {max} images uploaded",
       "uploadAlt": "Upload {index}",
-      "removeImage": "Remove image"
+      "removeImage": "Remove image",
+      "image": "image",
+      "images": "images",
+      "processing": "Processing your images..."
     },
+    "imagesProcessingInBackground": "Your images will continue uploading in the background.",
     "packageSelection": {
       "title": "Select Package",
       "description": "Choose which package you want to use for this listing",

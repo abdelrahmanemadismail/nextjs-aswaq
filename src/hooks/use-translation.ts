@@ -318,7 +318,8 @@ const defaultTranslations = {
       paymentTerms: '',
       selectPaymentTerms: '',
       forSale: '',
-      forRent: ''
+      forRent: '',
+      info: ''
     },
     photos: {
       tipsHeading: '',
@@ -333,8 +334,12 @@ const defaultTranslations = {
       supportedFormats: '',
       uploadedCount: '',
       uploadAlt: '',
-      removeImage: ''
+      removeImage: '',
+      image: '',
+      images: '',
+      processing: ''
     },
+    imagesProcessingInBackground: '',
     packageSelection: {
       title: '',
       description: '',
