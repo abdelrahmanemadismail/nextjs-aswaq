@@ -80,7 +80,7 @@ export function StartChat({
         .insert({
           conversation_id: newConversation.id,
           sender_id: user.id,
-          content: t.common.initialMessage || "Hi, I'm interested in this item.",
+          content: t.common.initialMessage || "Hi, I'm interested in this topic.",
           is_system_message: false
         })
 
