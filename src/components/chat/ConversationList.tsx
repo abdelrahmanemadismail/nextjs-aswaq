@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
@@ -10,6 +10,7 @@ import { Conversation } from "@/types/chat"
 import { formatDistanceToNow } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useTranslation } from "@/hooks/use-translation"
+import { createClient } from "@/utils/supabase/client"
 
 interface ConversationListProps {
   selectedConversationId: string | null
@@ -22,15 +23,29 @@ export function ConversationList({
 }: ConversationListProps) {
   const { conversations, fetchConversations, isLoadingConversations } = useChatStore()
   const { t } = useTranslation()
+  const [currentUserId, setCurrentUserId] = useState<string>()
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Get the current user ID
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUserId(user?.id)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     fetchConversations()
   }, [fetchConversations])
 
   const renderConversation = (conversation: Conversation) => {
+    // Skip if we can't determine the current user yet
+    if (!currentUserId) return null
+
     // Get the other participant (not the current user)
-    // For now, we'll just use the buyer info
-    const participant = conversation.buyer
+    const isCurrentUserBuyer = currentUserId === conversation.buyer_id
+    const participant = isCurrentUserBuyer ? conversation.seller : conversation.buyer
+
     const lastMessage = "Hey, is this still available?" // Replace with actual last message
     const unreadCount = 0 // Replace with actual unread count
 

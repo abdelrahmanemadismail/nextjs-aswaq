@@ -265,7 +265,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
 
                     {/* Message content */}
                     <div className={cn(
-                      "flex flex-col max-w-[75%] md:max-w-[80%] gap-1",
+                      "flex flex-col max-w-[75%] md:max-w-[80%] gap-1 w-fit",
                       isOwn && "items-end"
                     )}>
                       {/* Text bubble */}
