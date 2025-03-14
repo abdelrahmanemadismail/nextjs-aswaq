@@ -337,8 +337,15 @@ const defaultTranslations = {
       removeImage: '',
       image: '',
       images: '',
-      processing: ''
+      processing: '',
+      processingMessage: '',
+      uploading: '',
+      uploadComplete: '',
+      uploadSuccess: ''
     },
+    creating: '',
+    creatingDescription: '',
+    listingCreated: '',
     imagesProcessingInBackground: '',
     packageSelection: {
       title: '',

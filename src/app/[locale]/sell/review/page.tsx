@@ -20,14 +20,17 @@ import Image from 'next/image'
 import { useTranslation } from '@/hooks/use-translation'
 import { useListingFormStore } from '@/hooks/use-listing-form-store'
 import { validateStep } from '@/utils/listing-form-validation'
-import { createListing } from '@/actions/listing-actions'
+import { createListingWithoutImages } from '@/actions/listing-actions'
+import { processAndUploadImages } from '@/services/client-upload'
 import { formatPrice } from '@/lib/utils'
 import { useLocationStore } from '@/hooks/use-location-store'
 import { toast } from '@/hooks/use-toast'
 import { Languages } from '@/constants/enums'
 import { UserPackage } from '@/types/package'
 import { ListingFormData } from '@/types/listing'
+import { MinimalListingFormData } from '@/actions/listing-actions'
 import { clearFiles } from '@/services/indexedDB'
+import { Progress } from '@/components/ui/progress' 
 
 export default function ReviewPage() {
   const { t, locale, getLocalizedPath } = useTranslation()
@@ -38,7 +41,9 @@ export default function ReviewPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imagesLoading, setImagesLoading] = useState(false)
-  const [imagesProcessingMessage, setImagesProcessingMessage] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isCreatingListing, setIsCreatingListing] = useState(false)
+  const [isUploadingImages, setIsUploadingImages] = useState(false)
   
   // Get form data from Zustand store
   const { 
@@ -144,12 +149,7 @@ export default function ReviewPage() {
       setIsSubmitting(true)
       setStoreSubmitting(true)
       setError(null)
-      
-      // Show a message about images being processed in the background
-      if (formData.images && formData.images.length > 3) {
-        setImagesProcessingMessage(t.listings.imagesProcessingInBackground || 
-          "Your images will continue uploading in the background.")
-      }
+      setUploadProgress(0)
       
       // Update the current step in the store to review
       useListingFormStore.getState().setCurrentStep('review')
@@ -174,28 +174,56 @@ export default function ReviewPage() {
         throw new Error('Form data is incomplete')
       }
       
-      const completeFormData: ListingFormData = {
+      // Create a minimal version of the form data without images
+      const minimalFormData: MinimalListingFormData = {
         category: formData.category,
-        images: formData.images,
         details: formData.details,
         package_details: formData.package_details,
         vehicle_details: formData.vehicle_details,
-        property_details: formData.property_details
+        property_details: formData.property_details,
+        image_count: formData.images.length
       }
       
-      const listingSlug = await createListing(completeFormData)
+      // Show status message
+      setIsCreatingListing(true)
       
-      // Show success toast with additional message about images if needed
-      if (imagesProcessingMessage) {
+      // Create listing without images first
+      const { slug, id: listingId, userId } = await createListingWithoutImages(minimalFormData)
+      
+      // Show success toast for listing creation
+      toast({
+        title: t.listings.success,
+        description: t.listings.listingCreated || "Your listing has been created successfully.",
+      })
+      
+      // Switch to uploading images status
+      setIsCreatingListing(false)
+      setIsUploadingImages(true)
+      
+      // Start uploading images from the client side
+      if (formData.images && formData.images.length > 0) {
+        // Show uploading progress message
         toast({
-          title: t.listings.success,
-          description: `${t.listings.listingPublished} ${imagesProcessingMessage}`,
-          duration: 6000, // Show for longer than default
+          title: t.listings.photos.uploading || "Uploading Images",
+          description: t.listings.photos.processingMessage || "Your images are being processed and uploaded.",
+          duration: 5000,
         })
-      } else {
+        
+        // Process and upload images with progress tracking
+        await processAndUploadImages(
+          formData.images, 
+          userId, 
+          listingId,
+          (current, total) => {
+            const percent = Math.round((current / total) * 100)
+            setUploadProgress(percent)
+          }
+        )
+        
+        // Show success message for images
         toast({
-          title: t.listings.success,
-          description: t.listings.listingPublished,
+          title: t.listings.photos.uploadComplete || "Images Uploaded",
+          description: t.listings.photos.uploadSuccess || "Your images have been successfully uploaded.",
         })
       }
       
@@ -206,12 +234,14 @@ export default function ReviewPage() {
       resetForm()
       
       // Navigate to the listing page
-      router.push(getLocalizedPath(`/listings/${listingSlug}`))
+      router.push(getLocalizedPath(`/listings/${slug}`))
     } catch (err) {
       console.error('Error submitting form:', err)
       setError(t.listings.failedToCreate)
       setIsSubmitting(false)
       setStoreSubmitting(false)
+      setIsCreatingListing(false)
+      setIsUploadingImages(false)
       
       // Show error toast
       toast({
@@ -487,6 +517,7 @@ export default function ReviewPage() {
         <CardDescription>{t.listings.review.previewDescription}</CardDescription>
       </CardHeader>
       
+      {/* Error message */}
       {error && (
         <CardContent className="pt-0 pb-4">
           <Alert variant="destructive">
@@ -497,12 +528,27 @@ export default function ReviewPage() {
         </CardContent>
       )}
       
-      {imagesProcessingMessage && (
+      {/* Status messages */}
+      {isCreatingListing && (
         <CardContent className="pt-0 pb-4">
           <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{t.listings.common.info || "Info"}</AlertTitle>
-            <AlertDescription>{imagesProcessingMessage}</AlertDescription>
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <AlertTitle>{t.listings.creating || "Creating Listing"}</AlertTitle>
+            <AlertDescription>{t.listings.creatingDescription || "Your listing is being created..."}</AlertDescription>
+          </Alert>
+        </CardContent>
+      )}
+      
+      {isUploadingImages && (
+        <CardContent className="pt-0 pb-4">
+          <Alert>
+            <ImageIcon className="h-4 w-4 mr-2" />
+            <AlertTitle>{t.listings.photos.uploading || "Uploading Images"}</AlertTitle>
+            <AlertDescription className="space-y-2">
+              <p>{t.listings.photos.processingMessage || "Your images are being processed and uploaded..."}</p>
+              <Progress value={uploadProgress} className="h-2 mt-2" />
+              <p className="text-xs text-right">{uploadProgress}%</p>
+            </AlertDescription>
           </Alert>
         </CardContent>
       )}
@@ -594,5 +640,5 @@ export default function ReviewPage() {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

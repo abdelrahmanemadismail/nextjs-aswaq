@@ -3,10 +3,24 @@
 import { ListingFormData } from '@/types/listing'
 import { createClient } from '@/utils/supabase/server'
 import { createClient as supabaseClient} from '@supabase/supabase-js'
-import { uploadListingImagesInBatches } from '@/lib/storage'
 import { checkPackageAvailability } from './package-actions'
 
-export async function createListing(data: ListingFormData): Promise<string> {
+// Create a minimized version of the form data without the image files
+export interface MinimalListingFormData {
+  category: ListingFormData['category'];
+  details: ListingFormData['details'];
+  package_details: ListingFormData['package_details'];
+  vehicle_details?: ListingFormData['vehicle_details'];
+  property_details?: ListingFormData['property_details'];
+  image_count: number; // Just send the count instead of the actual files
+}
+
+// Function to create a listing without images
+export async function createListingWithoutImages(data: MinimalListingFormData): Promise<{ 
+  slug: string; 
+  id: string;
+  userId: string;
+}> {
     const supabase = await createClient()
     
     // Get the current user
@@ -44,7 +58,7 @@ export async function createListing(data: ListingFormData): Promise<string> {
         .eq('status', 'active')
         .single()
 
-        if (packageError || !packageData) {
+      if (packageError || !packageData) {
         throw new Error('Selected package not found or inactive')
       }
 
@@ -59,8 +73,7 @@ export async function createListing(data: ListingFormData): Promise<string> {
         throw new Error('Category not found')
       }
       
-      // Create the listing first with an empty images array
-      // We'll update it later as images are uploaded
+      // Create the listing with empty images array
       const { data: listingData, error: listingError } = await supabase
         .from('listings')
         .insert({
@@ -183,20 +196,31 @@ export async function createListing(data: ListingFormData): Promise<string> {
           throw propertyError
         }
       }
-      
-      // Start the image upload process in the background
-      // We don't await this to allow the listing to be created faster
-      if (data.images && data.images.length > 0) {
-        // Use Promise.resolve to make this truly asynchronous
-        Promise.resolve().then(() => {
-          uploadListingImagesInBatches(data.images, user.id, listingData.id)
-            .catch(error => console.error('Error uploading images in background:', error))
-        })
-      }
   
-      return listingData.slug
+      return {
+        slug: listingData.slug,
+        id: listingData.id,
+        userId: user.id
+      }
     } catch (error) {
       console.error('Error creating listing:', error)
       throw error
     }
   }
+
+// Keep the original function signature for backward compatibility
+export async function createListing(data: ListingFormData): Promise<string> {
+  // Remove the images from the data sent to the server
+  const minimalData: MinimalListingFormData = {
+    category: data.category,
+    details: data.details,
+    package_details: data.package_details,
+    vehicle_details: data.vehicle_details,
+    property_details: data.property_details,
+    image_count: data.images?.length || 0
+  };
+
+  // Create listing without images
+  const { slug } = await createListingWithoutImages(minimalData);
+  return slug;
+}

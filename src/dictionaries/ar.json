@@ -327,8 +327,15 @@
       "removeImage": "إزالة الصورة",
       "image": "صورة",
       "images": "صور",
-      "processing": "جارٍ معالجة صورك..."
+      "processing": "جارٍ معالجة صورك...",
+      "processingMessage": "جارٍ معالجة وتحميل صورك...",
+      "uploading": "تحميل الصور",
+      "uploadComplete": "تم تحميل الصور",
+      "uploadSuccess": "تم تحميل صورك بنجاح."
     },
+    "creating": "إنشاء القائمة",
+    "creatingDescription": "جارٍ إنشاء قائمتك...",
+    "listingCreated": "تم إنشاء قائمتك بنجاح.",
     "imagesProcessingInBackground": "ستستمر صورك في التحميل في الخلفية.",
     "packageSelection": {
       "title": "اختر الباقة",

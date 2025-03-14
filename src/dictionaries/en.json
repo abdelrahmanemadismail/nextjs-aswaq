@@ -327,8 +327,15 @@
       "removeImage": "Remove image",
       "image": "image",
       "images": "images",
-      "processing": "Processing your images..."
+      "processing": "Processing your images...",
+      "processingMessage": "Your images are being processed and uploaded...",
+      "uploading": "Uploading Images",
+      "uploadComplete": "Images Uploaded",
+      "uploadSuccess": "Your images have been successfully uploaded."
     },
+    "creating": "Creating Listing",
+    "creatingDescription": "Your listing is being created...",
+    "listingCreated": "Your listing has been created successfully.",
     "imagesProcessingInBackground": "Your images will continue uploading in the background.",
     "packageSelection": {
       "title": "Select Package",
