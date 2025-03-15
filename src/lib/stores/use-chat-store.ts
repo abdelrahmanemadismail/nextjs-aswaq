@@ -137,18 +137,50 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   markAsRead: async (conversationId) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+  
+      // Only mark messages from other users as read
       const { error } = await supabase
         .from('messages')
         .update({ read_at: new Date().toISOString() })
         .eq('conversation_id', conversationId)
+        .neq('sender_id', user.id) // Only update messages not sent by current user
         .is('read_at', null)
-
+  
       if (error) throw error
     } catch (error) {
       console.error('Error marking messages as read:', error)
     }
   },
-
+  fetchUnreadCounts: async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return {}
+  
+      // Use a simpler query approach that's type-safe
+      const { data, error } = await supabase
+        .from('messages')
+        .select('conversation_id')
+        .eq('read_at', null)
+        .neq('sender_id', user.id)
+  
+      if (error) throw error
+  
+      // Count the messages by conversation_id manually
+      const unreadCounts: Record<string, number> = {}
+      
+      data.forEach(message => {
+        const conversationId = message.conversation_id
+        unreadCounts[conversationId] = (unreadCounts[conversationId] || 0) + 1
+      })
+  
+      return unreadCounts
+    } catch (error) {
+      console.error('Error fetching unread counts:', error)
+      return {}
+    }
+  },
   addOptimisticMessage: (message) => {
     set((state) => ({
       messages: {

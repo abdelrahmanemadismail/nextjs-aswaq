@@ -1,0 +1,4 @@
+# supabase/functions/schedule.yaml
+function: unread-message-notifications
+schedule: '*/2 * * * *'  # Run every 2 minutes
+payload: {}

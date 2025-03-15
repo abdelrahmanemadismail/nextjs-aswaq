@@ -2622,3 +2622,45 @@ SELECT
     (SELECT COUNT(*) FROM public.contact_submissions WHERE is_spam = true) as spam_submissions_count,
     (SELECT COUNT(*) FROM public.contact_submissions WHERE created_at > (now() - interval '24 hours')) as submissions_last_24h,
     (SELECT COUNT(*) FROM public.contact_submissions WHERE created_at > (now() - interval '7 days')) as submissions_last_7d;
+
+
+-- Add notification_sent column to messages table
+ALTER TABLE public.messages
+ADD COLUMN notification_sent timestamp with time zone;
+
+-- Create index for efficient querying of unread messages without notifications
+CREATE INDEX messages_unread_notification_idx ON public.messages(read_at, notification_sent, created_at)
+WHERE read_at IS NULL AND notification_sent IS NULL;
+
+-- Add notification preferences to profiles table if it doesn't exist
+-- First check if the column exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'profiles' 
+        AND column_name = 'notification_preferences'
+    ) THEN
+        ALTER TABLE public.profiles
+        ADD COLUMN notification_preferences jsonb DEFAULT jsonb_build_object(
+            'chat_email', true,
+            'listing_activity', true,
+            'marketing', false
+        );
+    END IF;
+END $$;
+
+-- Add locale column to profiles if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'profiles' 
+        AND column_name = 'locale'
+    ) THEN
+        ALTER TABLE public.profiles
+        ADD COLUMN locale text DEFAULT 'en';
+    END IF;
+END $$;
