@@ -1,51 +1,93 @@
-import { Buffer } from "https://deno.land/std@0.177.0/node/buffer.ts";
+// Import the nodemailer package from npm
+import nodemailer from "npm:nodemailer@6.9.3";
+// Import the Supabase JS client
+import { createClient } from "npm:@supabase/supabase-js@2.38.0";
 
-globalThis.Buffer = Buffer;
-
-
-// @deno-types="https://deno.land/std@0.177.0/http/server.d.ts"
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
-// @deno-types="npm:@supabase/supabase-js@2.7.1"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
-import * as nodemailer from "https://esm.sh/nodemailer@6.9.3"
-
-// Define Deno namespace type for TypeScript
-declare global {
-  namespace Deno {
-    interface Env {
-      get(key: string): string | undefined
-    }
-    const env: Env
-  }
+// Define types for our application
+interface Profile {
+  id: string;
+  full_name: string;
+  email: string;
+  notification_preferences?: {
+    chat_email: boolean;
+    [key: string]: any;
+  };
+  locale?: string;
 }
 
+interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  conversations?: {
+    buyer_id: string;
+    seller_id: string;
+    listing_id: string;
+    listing?: {
+      title: string;
+      [key: string]: any;
+    }[];
+  };
+}
+
+// Define the CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-serve(async (req: Request) => {
+// Define translations for email content
+const translations = {
+  en: {
+    subject: 'New Message on Aswaq Online',
+    newMessage: 'New Message',
+    from: 'From',
+    regarding: 'Regarding',
+    messagePreview: 'Message Preview',
+    viewConversation: 'View Conversation',
+    unreadMessage: 'You have an unread message',
+    team: 'The Aswaq Online Team',
+    automaticMessage: 'This is an automated message from our secure notification system.'
+  },
+  ar: {
+    subject: 'رسالة جديدة على أسواق أونلاين',
+    newMessage: 'رسالة جديدة',
+    from: 'من',
+    regarding: 'بخصوص',
+    messagePreview: 'معاينة الرسالة',
+    viewConversation: 'عرض المحادثة',
+    unreadMessage: 'لديك رسالة غير مقروءة',
+    team: 'فريق أسواق أونلاين',
+    automaticMessage: 'هذه رسالة آلية من نظام الإشعارات الآمن الخاص بنا.'
+  }
+};
+
+console.info('Unread message notification service started');
+
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Create a Supabase client with the service role key
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    // Create a Supabase client with the service role key (pre-populated in Supabase environment)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     
     if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
+      throw new Error('Missing Supabase environment variables');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     // Get current timestamp
-    const now = new Date()
+    const now = new Date();
     
     // Calculate timestamp for messages that were sent at least 5 minutes ago
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString()
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
     
     // Get unread messages that are at least 5 minutes old and haven't been notified yet
     const { data: unreadMessages, error } = await supabase
@@ -67,10 +109,10 @@ serve(async (req: Request) => {
       .is('notification_sent', null)
       .lt('created_at', fiveMinutesAgo)
       .order('created_at', { ascending: true })
-      .limit(50) // Process in batches to avoid timeouts
+      .limit(50); // Process in batches to avoid timeouts
     
     if (error) {
-      throw new Error(`Error fetching unread messages: ${error.message}`)
+      throw new Error(`Error fetching unread messages: ${error.message}`);
     }
     
     if (!unreadMessages || unreadMessages.length === 0) {
@@ -79,23 +121,23 @@ serve(async (req: Request) => {
         message: 'No unread messages to notify about' 
       }), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      })
+      });
     }
     
-    console.log(`Found ${unreadMessages.length} unread messages to send notifications for`)
+    console.log(`Found ${unreadMessages.length} unread messages to send notifications for`);
     
     // Get all user IDs for batch fetching profiles
-    const userIds = new Set<string>()
-    for (const message of unreadMessages) {
-      const conversation = message.conversations
+    const userIds = new Set<string>();
+    for (const message of unreadMessages as Message[]) {
+      const conversation = message.conversations;
       if (conversation) {
         // Determine recipient (opposite of sender)
         const recipientId = message.sender_id === conversation.buyer_id
           ? conversation.seller_id
-          : conversation.buyer_id
+          : conversation.buyer_id;
         
-        userIds.add(recipientId)
-        userIds.add(message.sender_id)
+        userIds.add(recipientId);
+        userIds.add(message.sender_id);
       }
     }
     
@@ -103,114 +145,92 @@ serve(async (req: Request) => {
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, full_name, email, notification_preferences, locale')
-      .in('id', Array.from(userIds))
+      .in('id', Array.from(userIds));
     
     if (profilesError) {
-      throw new Error(`Error fetching user profiles: ${profilesError.message}`)
+      throw new Error(`Error fetching user profiles: ${profilesError.message}`);
     }
     
     // Map profiles by ID for easy lookup
-    const profilesMap = new Map()
-    profiles?.forEach((profile: any) => {
-      profilesMap.set(profile.id, profile)
-    })
+    const profilesMap = new Map<string, Profile>();
+    profiles?.forEach((profile: Profile) => {
+      profilesMap.set(profile.id, profile);
+    });
     
-    // Process messages and send notifications
-    let notificationsSent = 0
-    const messageIdsToUpdate = []
-    
-    for (const message of unreadMessages) {
-      const conversation = message.conversations
-      if (!conversation) continue
+    // Set up async task for handling emails
+    const processMessagesTask = async () => {
+      // Process messages and send notifications
+      let notificationsSent = 0;
+      const messageIdsToUpdate = [];
       
-      // Determine recipient (opposite of sender)
-      const recipientId = message.sender_id === conversation.buyer_id
-        ? conversation.seller_id
-        : conversation.buyer_id
-      
-      const recipientProfile = profilesMap.get(recipientId)
-      const senderProfile = profilesMap.get(message.sender_id)
-      
-      if (!recipientProfile || !senderProfile) {
-        console.error(`Missing profile data for message ${message.id}`)
-        messageIdsToUpdate.push(message.id) // Mark as processed anyway
-        continue
-      }
-      
-      // Skip if recipient has disabled chat email notifications
-      if (recipientProfile.notification_preferences?.chat_email === false) {
-        console.log(`Recipient ${recipientId} has disabled chat email notifications`)
-        messageIdsToUpdate.push(message.id) // Mark as processed anyway
-        continue
-      }
-      
-      // Get email credentials from environment
-      const smtpHost = Deno.env.get('SMTP_HOST')
-      const smtpPort = Deno.env.get('SMTP_PORT')
-      const smtpUser = Deno.env.get('SMTP_USER')
-      const smtpPassword = Deno.env.get('SMTP_PASSWORD')
-      const fromEmail = Deno.env.get('SMTP_FROM_EMAIL')
-      
-      if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword || !fromEmail) {
-        throw new Error('Missing email configuration')
-      }
-      
-      // Create transporter
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: parseInt(smtpPort),
-        secure: parseInt(smtpPort) === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPassword,
-        },
-      })
-      
-      // Get listing title if available
-      const listingTitle = conversation.listing?.[0]?.title
-      
-      // Create a safe message preview
-      const messagePreview = message.content.length > 100
-        ? message.content.substring(0, 100) + '...'
-        : message.content
-      
-      // Get recipient's preferred locale
-      const locale = recipientProfile.locale || 'en'
-      const isRtl = locale === 'ar'
-      
-      // Translations for the email
-      const translations = {
-        en: {
-          subject: 'New Message on Aswaq Online',
-          newMessage: 'New Message',
-          from: 'From',
-          regarding: 'Regarding',
-          messagePreview: 'Message Preview',
-          viewConversation: 'View Conversation',
-          unreadMessage: 'You have an unread message',
-          team: 'The Aswaq Online Team',
-          automaticMessage: 'This is an automated message from our secure notification system.'
-        },
-        ar: {
-          subject: 'رسالة جديدة على أسواق أونلاين',
-          newMessage: 'رسالة جديدة',
-          from: 'من',
-          regarding: 'بخصوص',
-          messagePreview: 'معاينة الرسالة',
-          viewConversation: 'عرض المحادثة',
-          unreadMessage: 'لديك رسالة غير مقروءة',
-          team: 'فريق أسواق أونلاين',
-          automaticMessage: 'هذه رسالة آلية من نظام الإشعارات الآمن الخاص بنا.'
+      for (const message of unreadMessages as Message[]) {
+        const conversation = message.conversations;
+        if (!conversation) continue;
+        
+        // Determine recipient (opposite of sender)
+        const recipientId = message.sender_id === conversation.buyer_id
+          ? conversation.seller_id
+          : conversation.buyer_id;
+        
+        const recipientProfile = profilesMap.get(recipientId);
+        const senderProfile = profilesMap.get(message.sender_id);
+        
+        if (!recipientProfile || !senderProfile) {
+          console.error(`Missing profile data for message ${message.id}`);
+          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          continue;
         }
-      }
-      
-      const t = translations[locale as keyof typeof translations] || translations.en
-      
-      // Prepare email HTML
-      const appUrl = Deno.env.get('NEXT_PUBLIC_URL') || 'https://aswaq.online'
-      const year = new Date().getFullYear()
-      
-      const emailHtml = `<!DOCTYPE html>
+        
+        // Skip if recipient has disabled chat email notifications
+        if (recipientProfile.notification_preferences?.chat_email === false) {
+          console.log(`Recipient ${recipientId} has disabled chat email notifications`);
+          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          continue;
+        }
+        
+        // Get email credentials from environment
+        const smtpHost = Deno.env.get('SMTP_HOST');
+        const smtpPort = Deno.env.get('SMTP_PORT');
+        const smtpUser = Deno.env.get('SMTP_USER');
+        const smtpPassword = Deno.env.get('SMTP_PASSWORD');
+        const fromEmail = Deno.env.get('SMTP_FROM_EMAIL');
+        
+        if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword || !fromEmail) {
+          console.error('Missing email configuration');
+          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          continue;
+        }
+        
+        // Create transporter
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: parseInt(smtpPort),
+          secure: parseInt(smtpPort) === 465,
+          auth: {
+            user: smtpUser,
+            pass: smtpPassword,
+          },
+        });
+        
+        // Get listing title if available
+        const listingTitle = conversation.listing?.[0]?.title;
+        
+        // Create a safe message preview
+        const messagePreview = message.content.length > 100
+          ? message.content.substring(0, 100) + '...'
+          : message.content;
+        
+        // Get recipient's preferred locale
+        const locale = recipientProfile.locale || 'en';
+        const isRtl = locale === 'ar';
+        
+        const t = translations[locale as keyof typeof translations] || translations.en;
+        
+        // Prepare email HTML
+        const appUrl = Deno.env.get('NEXT_PUBLIC_URL') || 'https://aswaq.online';
+        const year = new Date().getFullYear();
+        
+        const emailHtml = `<!DOCTYPE html>
 <html lang="${locale}" dir="${isRtl ? 'rtl' : 'ltr'}">
   <head>
     <meta charset="utf-8" />
@@ -251,47 +271,53 @@ serve(async (req: Request) => {
       </div>
     </div>
   </body>
-</html>`
-      
-      try {
-        // Send the email
-        await transporter.sendMail({
-          from: fromEmail,
-          to: recipientProfile.email,
-          subject: t.subject,
-          html: emailHtml
-        })
+</html>`;
         
-        console.log(`Sent notification email to ${recipientProfile.email} for message ${message.id}`)
-        messageIdsToUpdate.push(message.id)
-        notificationsSent++
-      } catch (emailError: unknown) {
-        const errorMessage = emailError instanceof Error ? emailError.message : String(emailError)
-        console.error(`Error sending email for message ${message.id}:`, errorMessage)
+        try {
+          // Send the email
+          await transporter.sendMail({
+            from: fromEmail,
+            to: recipientProfile.email,
+            subject: t.subject,
+            html: emailHtml
+          });
+          
+          console.log(`Sent notification email to ${recipientProfile.email} for message ${message.id}`);
+          messageIdsToUpdate.push(message.id);
+          notificationsSent++;
+        } catch (emailError: unknown) {
+          const errorMessage = emailError instanceof Error ? emailError.message : String(emailError);
+          console.error(`Error sending email for message ${message.id}:`, errorMessage);
+        }
       }
-    }
-    
-    // Update all processed messages to mark notifications as sent
-    if (messageIdsToUpdate.length > 0) {
-      const { error: updateError } = await supabase
-        .from('messages')
-        .update({ notification_sent: new Date().toISOString() })
-        .in('id', messageIdsToUpdate)
       
-      if (updateError) {
-        console.error('Error updating message notification status:', updateError)
+      // Update all processed messages to mark notifications as sent
+      if (messageIdsToUpdate.length > 0) {
+        const { error: updateError } = await supabase
+          .from('messages')
+          .update({ notification_sent: new Date().toISOString() })
+          .in('id', messageIdsToUpdate);
+        
+        if (updateError) {
+          console.error('Error updating message notification status:', updateError);
+        }
       }
-    }
+      
+      console.log(`Processed ${unreadMessages.length} messages and sent ${notificationsSent} notifications`);
+    };
+
+    // Begin processing messages in the background without blocking the response
+    EdgeRuntime.waitUntil(processMessagesTask());
     
     return new Response(JSON.stringify({ 
       status: 'success', 
-      message: `Processed ${unreadMessages.length} messages and sent ${notificationsSent} notifications` 
+      message: 'Processing unread messages in the background'
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-    })
+    });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('Error processing unread message notifications:', errorMessage)
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error processing unread message notifications:', errorMessage);
     
     return new Response(JSON.stringify({ 
       status: 'error', 
@@ -299,6 +325,6 @@ serve(async (req: Request) => {
     }), { 
       status: 500, 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-    })
+    });
   }
-})
+});
