@@ -34,7 +34,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
   const [imageZoom, setImageZoom] = useState(1)
   const [imageRotation, setImageRotation] = useState(0)
   const supabase = createClient()
-  const { messages, conversations, isLoadingMessages, sendMessage } = useChatStore()
+  const { messages, conversations, isLoadingMessages, sendMessage, markAsRead } = useChatStore()
   const { t } = useTranslation()
 
   // Get current conversation and messages
@@ -50,6 +50,22 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Add this effect to mark messages as read
+  useEffect(() => {
+    // Mark messages as read when the component mounts or when new messages arrive
+    if (conversationId) {
+      const markMessagesAsRead = async () => {
+        try {
+          await markAsRead(conversationId);
+        } catch (error) {
+          console.error("Error marking messages as read:", error);
+        }
+      };
+      
+      markMessagesAsRead();
+    }
+  }, [conversationId, conversationMessages.length, markAsRead]); // Add dependencies
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -339,7 +355,9 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
                       {/* Delivery status */}
                       {isOwn && (
                         <span className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                          {message.read_at ? t.common.read || "Read" : t.common.delivered || "Delivered"}
+                          {message.read_at ? 
+                            (t.common.read || "Read") : 
+                            (t.common.delivered || "Delivered")}
                         </span>
                       )}
                     </div>

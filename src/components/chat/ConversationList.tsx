@@ -24,6 +24,7 @@ export function ConversationList({
   const { conversations, fetchConversations, isLoadingConversations } = useChatStore()
   const { t } = useTranslation()
   const [currentUserId, setCurrentUserId] = useState<string>()
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
   const supabase = createClient()
 
   useEffect(() => {
@@ -38,6 +39,59 @@ export function ConversationList({
     fetchConversations()
   }, [fetchConversations])
 
+  // Fetch unread message counts
+  useEffect(() => {
+    const fetchUnreadCounts = async () => {
+      if (!currentUserId) return;
+      
+      try {
+        // Get unread messages
+        const { data, error } = await supabase
+          .from('messages')
+          .select('conversation_id, id')
+          .neq('sender_id', currentUserId)
+          .is('read_at', null)
+        
+        if (error) throw error;
+        
+        // Count unread messages by conversation
+        const counts: Record<string, number> = {};
+        data.forEach(msg => {
+          counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1;
+        });
+        
+        setUnreadCounts(counts);
+      } catch (error) {
+        console.error('Error fetching unread counts:', error);
+      }
+    };
+    
+    fetchUnreadCounts();
+    
+    // Set up subscription for new messages to update unread counts
+    const channel = supabase.channel('public:messages');
+    channel
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          if (payload.new && payload.new.sender_id !== currentUserId) {
+            fetchUnreadCounts();
+          }
+        }
+      )
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages' },
+        () => {
+          fetchUnreadCounts();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId, supabase]);
+
   const renderConversation = (conversation: Conversation) => {
     // Skip if we can't determine the current user yet
     if (!currentUserId) return null
@@ -46,8 +100,7 @@ export function ConversationList({
     const isCurrentUserBuyer = currentUserId === conversation.buyer_id
     const participant = isCurrentUserBuyer ? conversation.seller : conversation.buyer
 
-    const lastMessage = "Hey, is this still available?" // Replace with actual last message
-    const unreadCount = 0 // Replace with actual unread count
+    const unreadCount = unreadCounts[conversation.id] || 0
 
     if (!participant) return null
 
@@ -56,7 +109,8 @@ export function ConversationList({
         key={conversation.id}
         className={cn(
           "w-full p-4 flex items-start gap-3 hover:bg-muted/50 transition-colors",
-          selectedConversationId === conversation.id && "bg-muted"
+          selectedConversationId === conversation.id && "bg-muted",
+          unreadCount > 0 && "bg-primary/5" // Highlight conversations with unread messages
         )}
         onClick={() => onSelectConversation(conversation.id)}
       >
@@ -67,7 +121,12 @@ export function ConversationList({
         
         <div className="flex-1 text-left">
           <div className="flex justify-between items-start">
-            <span className="font-medium truncate max-w-[120px] md:max-w-full">{participant.full_name}</span>
+            <span className={cn(
+              "font-medium truncate max-w-[120px] md:max-w-full",
+              unreadCount > 0 && "font-bold" // Bold text for unread messages
+            )}>
+              {participant.full_name}
+            </span>
             <span className="text-xs text-muted-foreground whitespace-nowrap ml-1">
               {formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: true })}
             </span>
@@ -78,10 +137,6 @@ export function ConversationList({
               {conversation.listing.title}
             </p>
           )}
-          
-          <p className="text-sm text-muted-foreground truncate">
-            {lastMessage}
-          </p>
         </div>
 
         {unreadCount > 0 && (

@@ -32,9 +32,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
           seller:profiles!seller_id(id, full_name, avatar_url)
         `)
         .order('last_message_at', { ascending: false })
-
+  
       if (error) throw error
-
+  
       set({ conversations: data })
     } catch (error) {
       set({ error: 'Failed to load conversations' })
@@ -99,22 +99,25 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   sendMessage: async ({ conversation_id, content, attachments = [] }) => {
     const sender_id = (await supabase.auth.getUser()).data.user?.id 
+    if (!sender_id) return;
+    
     // Create optimistic message
     const optimisticMessage: Message = {
       id: crypto.randomUUID(),
       conversation_id,
-      sender_id:  sender_id ?? '',
+      sender_id: sender_id,
       content,
       attachments,
       is_system_message: false,
       created_at: new Date().toISOString(),
     }
-
+  
     // Add optimistic message to state
     get().addOptimisticMessage(optimisticMessage)
-
+  
     try {
-      const { data, error } = await supabase
+      // Insert the message into the database
+      const { error: messageError } = await supabase
         .from('messages')
         .insert([{
           sender_id,
@@ -122,12 +125,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
           content,
           attachments
         }])
-        .select()
-        .single()
-      if (error) throw error
-
-      // Update optimistic message with real data
-      get().updateOptimisticMessage(optimisticMessage.id, data)
+  
+      if (messageError) throw messageError
+  
+      // Update the conversation's last_message_at timestamp
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .update({ last_message_at: new Date().toISOString() })
+        .eq('id', conversation_id)
+  
+      if (conversationError) throw conversationError
+      
+      // Update conversation in the local state
+      await get().updateConversation(conversation_id)
     } catch (error) {
       // Handle error - maybe revert optimistic update
       set({ error: 'Failed to send message' })
@@ -139,16 +149,45 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-  
-      // Only mark messages from other users as read
-      const { error } = await supabase
+      
+      // First get the messages that need to be marked as read
+      const { data: messagesToUpdate } = await supabase
         .from('messages')
-        .update({ read_at: new Date().toISOString() })
+        .select('id')
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id) // Only update messages not sent by current user
         .is('read_at', null)
-  
+      
+      if (!messagesToUpdate || messagesToUpdate.length === 0) return
+      
+      // Update messages in the database
+      const { error } = await supabase
+        .from('messages')
+        .update({ read_at: new Date().toISOString() })
+        .in('id', messagesToUpdate.map(msg => msg.id))
+      
       if (error) throw error
+      
+      // Update messages in the local state
+      set(state => {
+        const conversationMessages = state.messages[conversationId]
+        if (!conversationMessages) return state
+        
+        const updatedMessages = conversationMessages.map(message => {
+          if (message.sender_id !== user.id && message.read_at === null) {
+            return { ...message, read_at: new Date().toISOString() }
+          }
+          return message
+        })
+        
+        return {
+          ...state,
+          messages: {
+            ...state.messages,
+            [conversationId]: updatedMessages
+          }
+        }
+      })
     } catch (error) {
       console.error('Error marking messages as read:', error)
     }
@@ -213,60 +252,81 @@ export const useChatStore = create<ChatState>((set, get) => ({
   }
 }))
 
-// Set up realtime subscriptions
-const channel = supabase.channel('chat-updates')
+const setupRealtimeSubscriptions = () => {
+  const channel = supabase.channel('chat-updates')
 
-// Subscribe to new messages
-channel.on('postgres_changes', {
-  event: 'INSERT',
-  schema: 'public',
-  table: 'messages'
-}, async (payload) => {
-  const message = payload.new as Message
-  const state = useChatStore.getState()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (message.sender_id === user?.id) return
-  
-  state.addOptimisticMessage(message)
-  await state.updateConversation(message.conversation_id)
-})
-
-// Subscribe to message updates
-channel.on('postgres_changes', {
-  event: 'UPDATE',
-  schema: 'public',
-  table: 'messages'
-}, (payload) => {
-  const message = payload.new as Message
-  const state = useChatStore.getState()
-  state.updateOptimisticMessage(message.id, message)
-})
-
-// Subscribe to conversation updates
-channel.on('postgres_changes', {
-  event: 'UPDATE',
-  schema: 'public',
-  table: 'conversations'
-}, async (payload) => {
-  const conversation = payload.new as Conversation
-  const state = useChatStore.getState()
-  await state.updateConversation(conversation.id)
-})
-
-// Subscribe to new conversations
-channel.on('postgres_changes', {
-  event: 'INSERT',
-  schema: 'public',
-  table: 'conversations'
-}, async (payload) => {
-  const conversation = payload.new as Conversation
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (user && (conversation.buyer_id === user.id || conversation.seller_id === user.id)) {
+  // Subscribe to new messages
+  channel.on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'messages'
+  }, async (payload) => {
+    const message = payload.new as Message
     const state = useChatStore.getState()
-    await state.fetchConversations()
-  }
-})
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // Don't add your own messages here as they're handled by optimistic updates
+    if (message.sender_id === user?.id) return
+    
+    // Add the new message to the state
+    state.addOptimisticMessage(message)
+    
+    // Update conversation in list to reflect new message
+    await state.updateConversation(message.conversation_id)
+    
+    // If this conversation is active, mark as read
+    if (state.activeConversationId === message.conversation_id) {
+      await state.markAsRead(message.conversation_id)
+    }
+  })
 
-channel.subscribe()
+  // Subscribe to message updates (e.g., read status)
+  channel.on('postgres_changes', {
+    event: 'UPDATE',
+    schema: 'public',
+    table: 'messages'
+  }, (payload) => {
+    const message = payload.new as Message
+    const state = useChatStore.getState()
+    state.updateOptimisticMessage(message.id, message)
+  })
+
+  // Subscribe to conversation updates
+  channel.on('postgres_changes', {
+    event: 'UPDATE',
+    schema: 'public',
+    table: 'conversations'
+  }, async (payload) => {
+    const conversation = payload.new as Conversation
+    const state = useChatStore.getState()
+    await state.updateConversation(conversation.id)
+  })
+
+  // Subscribe to new conversations
+  channel.on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'conversations'
+  }, async (payload) => {
+    const conversation = payload.new as Conversation
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user && (conversation.buyer_id === user.id || conversation.seller_id === user.id)) {
+      const state = useChatStore.getState()
+      await state.fetchConversations()
+    }
+  })
+
+  channel.subscribe()
+  return channel
+}
+
+// Initialize the channel
+const channel = setupRealtimeSubscriptions()
+
+// Clean up function (can be exported if needed)
+export const cleanupChatSubscriptions = () => {
+  if (channel) {
+    supabase.removeChannel(channel)
+  }
+}

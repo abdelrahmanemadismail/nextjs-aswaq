@@ -54,6 +54,7 @@ export interface Message {
     fetchMessages: (conversationId: string) => Promise<void>
     sendMessage: (message: NewMessage) => Promise<void>
     markAsRead: (conversationId: string) => Promise<void>
+    fetchUnreadCounts: () => Promise<Record<string, number>>
     
     // Optimistic updates
     addOptimisticMessage: (message: Message) => void
