@@ -77,10 +77,10 @@ export async function generateMetadata({
         "بيع الأثاث بسرعة في دبي", "نقد فوري مقابل الأثاث في الإمارات"
       ],
       openGraph: {
-        title: 'أسواق أونلاين | أسرع طريقة للبيع والشراء في الإمارات',
+        title: 'أسواق.أونلاين | أسرع طريقة للبيع والشراء في الإمارات',
         description: 'بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد في دبي وجميع أنحاء الإمارات',
         url: 'https://aswaq.online/ar',
-        siteName: 'Aswaq Online',
+        siteName: 'Aswaq.Online',
         locale: 'ar_AE',
         type: 'website',
         images: [
@@ -88,7 +88,7 @@ export async function generateMetadata({
             url: 'https://aswaq.online/og-image.png',
             width: 1200,
             height: 630,
-            alt: 'أسواق أونلاين - سوق التسوق الإلكتروني في الإمارات',
+            alt: 'أسواق.أونلاين - سوق التسوق الإلكتروني في الإمارات',
           }
         ],
       },
@@ -96,7 +96,7 @@ export async function generateMetadata({
     };
   } else {
     return {
-      title: "Aswaq Online | Fastest Way to Buy & Sell in UAE",
+      title: "Aswaq.Online | Fastest Way to Buy & Sell in UAE",
       description: "Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE. Enjoy the cheapest subscription rates and reach trusted buyers instantly.",
       keywords: [
         "Buy and sell in UAE", "Fast deals in Dubai", "Online marketplace UAE", 
@@ -108,10 +108,10 @@ export async function generateMetadata({
         "Buy and sell furniture UAE", "Sell used furniture fast Dubai", "Cash for furniture UAE"
       ],
       openGraph: {
-        title: 'Aswaq Online | Fastest Way to Buy & Sell in UAE',
+        title: 'Aswaq.Online | Fastest Way to Buy & Sell in UAE',
         description: 'Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE.',
         url: 'https://aswaq.online/en',
-        siteName: 'Aswaq Online',
+        siteName: 'Aswaq.Online',
         locale: 'en_US',
         type: 'website',
         images: [
