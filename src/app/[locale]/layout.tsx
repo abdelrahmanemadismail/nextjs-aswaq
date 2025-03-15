@@ -85,7 +85,7 @@ export async function generateMetadata({
         type: 'website',
         images: [
           {
-            url: 'https://aswaq.online/og-image-ar.jpg',
+            url: 'https://aswaq.online/og-image.png',
             width: 1200,
             height: 630,
             alt: 'أسواق أونلاين - سوق التسوق الإلكتروني في الإمارات',
@@ -116,7 +116,7 @@ export async function generateMetadata({
         type: 'website',
         images: [
           {
-            url: 'https://aswaq.online/og-image-en.jpg',
+            url: 'https://aswaq.online/og-image.png',
             width: 1200,
             height: 630,
             alt: 'Aswaq Online - UAE E-commerce Marketplace',
