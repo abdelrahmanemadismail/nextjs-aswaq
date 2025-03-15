@@ -2664,3 +2664,52 @@ BEGIN
         ADD COLUMN locale text DEFAULT 'en';
     END IF;
 END $$;
+
+-- 1. Add email column to profiles table
+ALTER TABLE public.profiles
+ADD COLUMN email text UNIQUE;
+
+-- 2. Update existing profiles with emails from auth.users
+UPDATE public.profiles p
+SET email = u.email
+FROM auth.users u
+WHERE p.id = u.id;
+
+-- 3. Make email NOT NULL after populating data
+ALTER TABLE public.profiles
+ALTER COLUMN email SET NOT NULL;
+
+-- 4. Modify the handle_new_user function to include email
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    INSERT INTO public.profiles (
+        id,
+        full_name,
+        phone_number,
+        avatar_url,
+        preferred_language,
+        email
+    )
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+        COALESCE(NEW.raw_user_meta_data->>'phone_number', NULL),
+        COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL),
+        COALESCE(NEW.raw_user_meta_data->>'preferred_language', 'en'),
+        NEW.email
+    );
+
+    -- Assign default 'user' role
+    INSERT INTO public.user_roles (id, role_id)
+    SELECT NEW.id, r.id
+    FROM public.roles r
+    WHERE r.name = 'user';
+
+    RETURN NEW;
+END;
+$$;

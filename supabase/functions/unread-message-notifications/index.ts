@@ -1,3 +1,8 @@
+import { Buffer } from "https://deno.land/std@0.177.0/node/buffer.ts";
+
+globalThis.Buffer = Buffer;
+
+
 // @deno-types="https://deno.land/std@0.177.0/http/server.d.ts"
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 // @deno-types="npm:@supabase/supabase-js@2.7.1"
