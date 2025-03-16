@@ -148,6 +148,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
   }
 
   const handleBackToList = () => {
+    useChatStore.getState().setActiveConversation(null)
     router.push('/chat')
   }
 

@@ -21,15 +21,26 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
-  conversations?: {
-    buyer_id: string;
-    seller_id: string;
-    listing_id: string;
-    listing?: {
-      title: string;
-      [key: string]: any;
-    }[];
-  };
+}
+
+interface Conversation {
+  id: string;
+  buyer_id: string;
+  seller_id: string;
+  listing_id: string;
+  listing?: {
+    title: string;
+    [key: string]: any;
+  }[];
+  messages?: Message[];
+}
+
+// Group by conversation data structure
+interface ConversationWithMessages {
+  conversation: Conversation;
+  messages: Message[];
+  recipientId: string;
+  senderId: string;
 }
 
 // Define the CORS headers
@@ -41,24 +52,22 @@ const corsHeaders = {
 // Define translations for email content
 const translations = {
   en: {
-    subject: 'New Message on Aswaq Online',
-    newMessage: 'New Message',
+    subject: 'New Messages on Aswaq Online',
+    newMessages: 'New Messages',
     from: 'From',
     regarding: 'Regarding',
-    messagePreview: 'Message Preview',
+    messagesCount: 'You have {count} unread messages',
     viewConversation: 'View Conversation',
-    unreadMessage: 'You have an unread message',
     team: 'The Aswaq Online Team',
     automaticMessage: 'This is an automated message from our secure notification system.'
   },
   ar: {
-    subject: 'رسالة جديدة على أسواق أونلاين',
-    newMessage: 'رسالة جديدة',
+    subject: 'رسائل جديدة على أسواق أونلاين',
+    newMessages: 'رسائل جديدة',
     from: 'من',
     regarding: 'بخصوص',
-    messagePreview: 'معاينة الرسالة',
+    messagesCount: 'لديك {count} رسائل غير مقروءة',
     viewConversation: 'عرض المحادثة',
-    unreadMessage: 'لديك رسالة غير مقروءة',
     team: 'فريق أسواق أونلاين',
     automaticMessage: 'هذه رسالة آلية من نظام الإشعارات الآمن الخاص بنا.'
   }
@@ -97,19 +106,12 @@ Deno.serve(async (req: Request) => {
         conversation_id,
         sender_id,
         content,
-        created_at,
-        conversations:conversation_id (
-          buyer_id,
-          seller_id,
-          listing_id,
-          listing:listings(title)
-        )
+        created_at
       `)
       .is('read_at', null)
       .is('notification_sent', null)
       .lt('created_at', fiveMinutesAgo)
-      .order('created_at', { ascending: true })
-      .limit(50); // Process in batches to avoid timeouts
+      .order('created_at', { ascending: true });
     
     if (error) {
       throw new Error(`Error fetching unread messages: ${error.message}`);
@@ -124,24 +126,80 @@ Deno.serve(async (req: Request) => {
       });
     }
     
-    console.log(`Found ${unreadMessages.length} unread messages to send notifications for`);
+    console.log(`Found ${unreadMessages.length} unread messages to process`);
     
-    // Get all user IDs for batch fetching profiles
-    const userIds = new Set<string>();
-    for (const message of unreadMessages as Message[]) {
-      const conversation = message.conversations;
-      if (conversation) {
-        // Determine recipient (opposite of sender)
-        const recipientId = message.sender_id === conversation.buyer_id
-          ? conversation.seller_id
-          : conversation.buyer_id;
-        
-        userIds.add(recipientId);
-        userIds.add(message.sender_id);
+    // Group messages by conversation_id
+    const conversationMap = new Map<string, Message[]>();
+    
+    unreadMessages.forEach((message: Message) => {
+      const conversationId = message.conversation_id;
+      if (!conversationMap.has(conversationId)) {
+        conversationMap.set(conversationId, []);
       }
+      conversationMap.get(conversationId)!.push(message);
+    });
+    
+    console.log(`Grouped into ${conversationMap.size} unique conversations`);
+    
+    // Fetch conversation details for all affected conversations
+    const conversationIds = Array.from(conversationMap.keys());
+    const { data: conversations, error: conversationsError } = await supabase
+      .from('conversations')
+      .select(`
+        id,
+        buyer_id,
+        seller_id,
+        listing_id,
+        listing:listings(title)
+      `)
+      .in('id', conversationIds);
+    
+    if (conversationsError) {
+      throw new Error(`Error fetching conversations: ${conversationsError.message}`);
     }
     
-    // Fetch all relevant user profiles in a single query
+    // Create a map for easy lookup
+    const conversationsById = new Map<string, Conversation>();
+    conversations?.forEach((conversation: Conversation) => {
+      conversationsById.set(conversation.id, conversation);
+    });
+    
+    // Collect all user IDs we need to fetch
+    const userIds = new Set<string>();
+    
+    // Organize data by conversation and determine recipients
+    const conversationsWithMessages: ConversationWithMessages[] = [];
+    
+    for (const [conversationId, messages] of conversationMap.entries()) {
+      const conversation = conversationsById.get(conversationId);
+      if (!conversation) continue;
+      
+      // Determine recipient and sender based on the most recent message
+      const latestMessage = messages.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0];
+      
+      // For consistency, we'll send notification to the opposite person of the sender
+      // of the latest message in the conversation
+      const recipientId = latestMessage.sender_id === conversation.buyer_id
+        ? conversation.seller_id
+        : conversation.buyer_id;
+      
+      userIds.add(recipientId);
+      
+      // Keep track of all senders to show in the email
+      messages.forEach(message => userIds.add(message.sender_id));
+      
+      // Add to our consolidated list
+      conversationsWithMessages.push({
+        conversation,
+        messages,
+        recipientId,
+        senderId: latestMessage.sender_id
+      });
+    }
+    
+    // Fetch all user profiles at once
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, full_name, email, notification_preferences, locale')
@@ -157,34 +215,27 @@ Deno.serve(async (req: Request) => {
       profilesMap.set(profile.id, profile);
     });
     
-    // Set up async task for handling emails
-    const processMessagesTask = async () => {
-      // Process messages and send notifications
-      let notificationsSent = 0;
+    // Process each conversation and send notifications
+    const processConversationsTask = async () => {
+      let emailsSent = 0;
       const messageIdsToUpdate = [];
       
-      for (const message of unreadMessages as Message[]) {
-        const conversation = message.conversations;
-        if (!conversation) continue;
-        
-        // Determine recipient (opposite of sender)
-        const recipientId = message.sender_id === conversation.buyer_id
-          ? conversation.seller_id
-          : conversation.buyer_id;
-        
+      for (const { conversation, messages, recipientId, senderId } of conversationsWithMessages) {
         const recipientProfile = profilesMap.get(recipientId);
-        const senderProfile = profilesMap.get(message.sender_id);
+        const senderProfile = profilesMap.get(senderId);
         
         if (!recipientProfile || !senderProfile) {
-          console.error(`Missing profile data for message ${message.id}`);
-          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          console.error(`Missing profile data for conversation ${conversation.id}`);
+          // Mark all messages as processed anyway
+          messages.forEach(msg => messageIdsToUpdate.push(msg.id));
           continue;
         }
         
         // Skip if recipient has disabled chat email notifications
         if (recipientProfile.notification_preferences?.chat_email === false) {
           console.log(`Recipient ${recipientId} has disabled chat email notifications`);
-          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          // Mark all messages as processed anyway
+          messages.forEach(msg => messageIdsToUpdate.push(msg.id));
           continue;
         }
         
@@ -197,7 +248,8 @@ Deno.serve(async (req: Request) => {
         
         if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword || !fromEmail) {
           console.error('Missing email configuration');
-          messageIdsToUpdate.push(message.id); // Mark as processed anyway
+          // Mark all messages as processed anyway
+          messages.forEach(msg => messageIdsToUpdate.push(msg.id));
           continue;
         }
         
@@ -215,10 +267,18 @@ Deno.serve(async (req: Request) => {
         // Get listing title if available
         const listingTitle = conversation.listing?.[0]?.title;
         
-        // Create a safe message preview
-        const messagePreview = message.content.length > 100
-          ? message.content.substring(0, 100) + '...'
-          : message.content;
+        // Format message previews - limit to last 3 messages
+        const messagePreviews = messages
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 3)
+          .map(message => {
+            const senderName = profilesMap.get(message.sender_id)?.full_name || 'Unknown';
+            const preview = message.content.length > 100
+              ? message.content.substring(0, 100) + '...'
+              : message.content;
+            
+            return { sender: senderName, content: preview, time: message.created_at };
+          });
         
         // Get recipient's preferred locale
         const locale = recipientProfile.locale || 'en';
@@ -229,6 +289,9 @@ Deno.serve(async (req: Request) => {
         // Prepare email HTML
         const appUrl = Deno.env.get('NEXT_PUBLIC_URL') || 'https://aswaq.online';
         const year = new Date().getFullYear();
+        
+        // Format message count text
+        const messageCountText = t.messagesCount.replace('{count}', messages.length.toString());
         
         const emailHtml = `<!DOCTYPE html>
 <html lang="${locale}" dir="${isRtl ? 'rtl' : 'ltr'}">
@@ -243,20 +306,33 @@ Deno.serve(async (req: Request) => {
       </div>
       
       <div style="padding: 30px; text-align: ${isRtl ? 'right' : 'left'};">
-        <h1 style="color: #2d3748; font-size: 24px; margin-top: 0; text-align: center;">${t.newMessage}</h1>
+        <h1 style="color: #2d3748; font-size: 24px; margin-top: 0; text-align: center;">${t.newMessages}</h1>
         <div style="height: 2px; background-color: #e0e0e0; margin: 20px auto; width: 100px;"></div>
         
         <p><strong>${t.from}:</strong> ${senderProfile.full_name}</p>
         
         ${listingTitle ? `<p><strong>${t.regarding}:</strong> ${listingTitle}</p>` : ''}
         
-        <div style="margin: 25px 0; padding: 15px; background-color: #f8fafc; border-${isRtl ? 'right' : 'left'}: 4px solid #006eb8; border-radius: 4px;">
-          <p><strong>${t.messagePreview}:</strong></p>
-          <p>${messagePreview}</p>
+        <p style="color: #2d3748; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">
+          ${messageCountText}
+        </p>
+        
+        <div style="margin: 25px 0;">
+          ${messagePreviews.map((preview, index) => `
+            <div style="padding: 15px; background-color: #f8fafc; border-${isRtl ? 'right' : 'left'}: 4px solid #006eb8; border-radius: 4px; margin-bottom: 10px;">
+              <p style="margin-top: 0; color: #4a5568; font-size: 14px;">
+                <strong>${preview.sender}:</strong> 
+                <span style="color: #718096; font-size: 12px;">
+                  ${new Date(preview.time).toLocaleString(locale)}
+                </span>
+              </p>
+              <p style="margin-bottom: 0;">${preview.content}</p>
+            </div>
+          `).join('')}
         </div>
         
         <div style="text-align: center; margin-top: 30px;">
-          <a href="${appUrl}/chat?id=${message.conversation_id}" 
+          <a href="${appUrl}/chat?id=${conversation.id}" 
              style="background-color: #006eb8; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px;">
             ${t.viewConversation}
           </a>
@@ -282,12 +358,14 @@ Deno.serve(async (req: Request) => {
             html: emailHtml
           });
           
-          console.log(`Sent notification email to ${recipientProfile.email} for message ${message.id}`);
-          messageIdsToUpdate.push(message.id);
-          notificationsSent++;
+          console.log(`Sent notification email to ${recipientProfile.email} for conversation ${conversation.id} with ${messages.length} messages`);
+          
+          // Mark all messages in this conversation as processed
+          messages.forEach(msg => messageIdsToUpdate.push(msg.id));
+          emailsSent++;
         } catch (emailError: unknown) {
           const errorMessage = emailError instanceof Error ? emailError.message : String(emailError);
-          console.error(`Error sending email for message ${message.id}:`, errorMessage);
+          console.error(`Error sending email for conversation ${conversation.id}:`, errorMessage);
         }
       }
       
@@ -303,15 +381,15 @@ Deno.serve(async (req: Request) => {
         }
       }
       
-      console.log(`Processed ${unreadMessages.length} messages and sent ${notificationsSent} notifications`);
+      console.log(`Processed ${unreadMessages.length} messages across ${conversationsWithMessages.length} conversations and sent ${emailsSent} notification emails`);
     };
 
     // Begin processing messages in the background without blocking the response
-    EdgeRuntime.waitUntil(processMessagesTask());
+    EdgeRuntime.waitUntil(processConversationsTask());
     
     return new Response(JSON.stringify({ 
       status: 'success', 
-      message: 'Processing unread messages in the background'
+      message: `Processing ${conversationMap.size} conversations with unread messages in the background`
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     });

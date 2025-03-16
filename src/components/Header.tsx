@@ -146,15 +146,6 @@ export default async function Header() {
                   </SheetContent>
                 </Sheet>
               )}
-              
-              {/* Add ChatButton to mobile view for logged-in users */}
-              {profile && (
-                <div className="md:hidden">
-                  <ChatButton 
-                    path={getLocalizedPath("/chat", locale)} 
-                  />
-                </div>
-              )}
             </div>
           </div>
         </nav>
