@@ -49,6 +49,7 @@ const defaultTranslations = {
     attachImage: '',
     noMessages: '',
     searchConversations: '',
+    conversations: '',
     noConversations: '',
     selectConversation: '',
     conversationNotFound: '',

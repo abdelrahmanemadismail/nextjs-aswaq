@@ -28,7 +28,7 @@ interface ChatMessagesProps {
 
 export function ChatMessages({ conversationId }: ChatMessagesProps) {
   const router = useRouter()
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const [currentUserId, setCurrentUserId] = useState<string>()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [imageZoom, setImageZoom] = useState(1)
@@ -67,13 +67,47 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
     }
   }, [conversationId, conversationMessages.length, markAsRead]); // Add dependencies
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  // Check if user is near bottom of message container
+  const isNearBottom = () => {
+    if (!messagesContainerRef.current) return true;
+    
+    const container = messagesContainerRef.current;
+    // Consider "near bottom" if within 100px of the bottom
+    return container.scrollHeight - container.scrollTop - container.clientHeight < 100;
   }
 
+  // Scroll to bottom function that only affects the container
+  const scrollToBottom = () => {
+    if (!messagesContainerRef.current) return;
+    
+    const container = messagesContainerRef.current;
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Smart scroll function that checks position first
+  const smartScrollToBottom = () => {
+    if (!messagesContainerRef.current) return;
+    
+    if (isNearBottom()) {
+      const container = messagesContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+
+  // Scroll to bottom when new messages arrive
   useEffect(() => {
-    scrollToBottom()
-  }, [conversationMessages])
+    if (conversationMessages.length > 0) {
+      smartScrollToBottom();
+    }
+  }, [conversationMessages]);
+
+  // Initial scroll to bottom when chat is first loaded
+  useEffect(() => {
+    if (!isLoadingMessages && conversationMessages.length > 0) {
+      // Use setTimeout to ensure the DOM has been fully rendered
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [isLoadingMessages, conversationMessages.length]);
 
   // Reset zoom and rotation when a new image is selected
   useEffect(() => {
@@ -105,6 +139,9 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
         content: content || "", // Use empty string for null/undefined content
         attachments
       })
+      
+      // Force scroll to bottom after sending a message
+      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error("Error sending message:", error)
     }
@@ -225,7 +262,10 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 md:p-4">
+      <div 
+        className="flex-1 overflow-y-auto p-3 md:p-4" 
+        ref={messagesContainerRef}
+      >
         {isLoadingMessages ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -365,7 +405,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
                 )
               })
             )}
-            <div ref={messagesEndRef} />
+            {/* We don't need a visible end marker */}
           </div>
         )}
       </div>

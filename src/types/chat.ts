@@ -51,6 +51,7 @@ export interface Message {
     setActiveConversation: (conversationId: string | null) => void
     fetchConversations: () => Promise<void>
     updateConversation: (conversationId: string) => Promise<void>
+    fetchLastMessages: () => Promise<Record<string, Message>>
     fetchMessages: (conversationId: string) => Promise<void>
     sendMessage: (message: NewMessage) => Promise<void>
     markAsRead: (conversationId: string) => Promise<void>

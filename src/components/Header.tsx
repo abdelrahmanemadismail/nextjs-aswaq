@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import SearchInput from "@/components/SearchInput";
 import { Menu } from "lucide-react";
-import { Messages } from "@/components/Icons";
 import { UserMenu } from "@/components/UserMenu";
 // import NotificationsPanel from "@/components/NotificationsPanel";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -13,6 +12,7 @@ import { headers } from "next/headers";
 import { i18n, Locale } from "@/i18n.config";
 import { createClient } from "@/utils/supabase/server";
 import getTrans from "@/utils/translation";
+import { ChatButton } from "@/components/ChatButton"; // Import the new ChatButton component
 
 // Function to get a localized path
 function getLocalizedPath(path: string, locale: string) {
@@ -79,17 +79,14 @@ export default async function Header() {
                 <LanguageSwitcher />
               </div>
 
-              {/* Messages */}
+              {/* Messages with Unread Count - Replace the old Messages button */}
               {profile && (
-                <Link href={getLocalizedPath("/chat", locale)} className="hidden md:flex">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-primary hover:text-primary"
-                  >
-                    <Messages className="scale-150" />
-                  </Button>
-                </Link>
+                <div className="hidden md:flex">
+                  <ChatButton 
+                    locale={locale} 
+                    path={getLocalizedPath("/chat", locale)} 
+                  />
+                </div>
               )}
 
               {/* User Menu if logged in */}
@@ -145,15 +142,20 @@ export default async function Header() {
                             {t.auth.signup}
                           </Button>
                         </Link>
-                        
-                        {/* Mobile menu language switcher */}
-                        {/* <div className="px-2 py-2">
-                          <LanguageSwitcher />
-                        </div> */}
                       </div>
                     </div>
                   </SheetContent>
                 </Sheet>
+              )}
+              
+              {/* Add ChatButton to mobile view for logged-in users */}
+              {profile && (
+                <div className="md:hidden">
+                  <ChatButton 
+                    locale={locale} 
+                    path={getLocalizedPath("/chat", locale)} 
+                  />
+                </div>
               )}
             </div>
           </div>

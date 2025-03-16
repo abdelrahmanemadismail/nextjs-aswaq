@@ -31,11 +31,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
           buyer:profiles!buyer_id(id, full_name, avatar_url),
           seller:profiles!seller_id(id, full_name, avatar_url)
         `)
-        .order('last_message_at', { ascending: false })
+        .order('last_message_at', { ascending: false }) // Explicitly order by last_message_at descending
   
       if (error) throw error
   
-      set({ conversations: data })
+      // Ensure conversations are properly sorted by date (most recent first)
+      const sortedData = data.sort((a, b) => 
+        new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+      );
+      
+      set({ conversations: sortedData })
     } catch (error) {
       set({ error: 'Failed to load conversations' })
       console.error('Error fetching conversations:', error)
@@ -62,16 +67,85 @@ export const useChatStore = create<ChatState>((set, get) => ({
   
       if (error) throw error
   
-      set((state) => ({
-        conversations: state.conversations
-          .map(conv => conv.id === conversationId ? data : conv)
-          .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
-      }))
+      set((state) => {
+        // Remove the old conversation
+        const filteredConversations = state.conversations.filter(
+          conv => conv.id !== conversationId
+        );
+        
+        // Add the updated conversation
+        const updatedConversations = [data, ...filteredConversations];
+        
+        // Sort by last_message_at to ensure proper ordering
+        return {
+          conversations: updatedConversations.sort((a, b) => 
+            new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+          )
+        };
+      });
     } catch (error) {
       console.error('Error updating conversation:', error)
     }
   },
 
+  fetchLastMessages: async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return {}
+  
+      // First, get all conversation IDs
+      const { data: conversations, error: convError } = await supabase
+        .from('conversations')
+        .select('id')
+      
+      if (convError || !conversations || conversations.length === 0) {
+        console.error('Error fetching conversations:', convError);
+        return {};
+      }
+      
+      // Use PostgreSQL's powerful query capabilities
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .in('conversation_id', conversations.map(c => c.id))
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Error fetching last messages:', error);
+        return {};
+      }
+      
+      // Process the results to get only the latest message for each conversation
+      const lastMessages: Record<string, Message> = {};
+      
+      if (data && data.length > 0) {
+        // Group by conversation_id
+        const grouped: Record<string, Message[]> = {};
+        
+        data.forEach(message => {
+          if (!grouped[message.conversation_id]) {
+            grouped[message.conversation_id] = [];
+          }
+          grouped[message.conversation_id].push(message);
+        });
+        
+        // For each conversation, get the latest message by created_at
+        Object.keys(grouped).forEach(conversationId => {
+          const messages = grouped[conversationId];
+          messages.sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          lastMessages[conversationId] = messages[0];
+        });
+      }
+      
+      return lastMessages;
+    } catch (error) {
+      console.error('Error fetching last messages:', error);
+      return {};
+    }
+  },
+  
   fetchMessages: async (conversationId) => {
     set({ isLoadingMessages: true, error: null })
     try {
@@ -101,20 +175,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const sender_id = (await supabase.auth.getUser()).data.user?.id 
     if (!sender_id) return;
     
+    // Current timestamp for consistency
+    const timestamp = new Date().toISOString();
+    
     // Create optimistic message
     const optimisticMessage: Message = {
       id: crypto.randomUUID(),
       conversation_id,
-      sender_id: sender_id,
+      sender_id,
       content,
       attachments,
       is_system_message: false,
-      created_at: new Date().toISOString(),
+      created_at: timestamp,
     }
-  
+
     // Add optimistic message to state
     get().addOptimisticMessage(optimisticMessage)
-  
+
     try {
       // Insert the message into the database
       const { error: messageError } = await supabase
@@ -125,21 +202,34 @@ export const useChatStore = create<ChatState>((set, get) => ({
           content,
           attachments
         }])
-  
+
       if (messageError) throw messageError
-  
-      // Update the conversation's last_message_at timestamp
-      const { error: conversationError } = await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', conversation_id)
-  
-      if (conversationError) throw conversationError
       
-      // Update conversation in the local state
-      await get().updateConversation(conversation_id)
+      // Optimistically move the conversation to the top of the list
+      set((state) => {
+        // Find the conversation
+        const conversationToUpdate = state.conversations.find(c => c.id === conversation_id);
+        if (!conversationToUpdate) return state;
+        
+        // Create updated conversation with new timestamp
+        const updatedConversation = {
+          ...conversationToUpdate,
+          last_message_at: timestamp
+        };
+        
+        // Remove the old conversation
+        const otherConversations = state.conversations.filter(c => c.id !== conversation_id);
+        
+        // Return with the updated conversation at the top
+        return {
+          ...state,
+          conversations: [updatedConversation, ...otherConversations]
+        };
+      });
+      
+      // Re-fetch all conversations to ensure proper sorting after database updates
+      await get().fetchConversations();
     } catch (error) {
-      // Handle error - maybe revert optimistic update
       set({ error: 'Failed to send message' })
       console.error('Error sending message:', error)
     }
@@ -165,7 +255,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         .from('messages')
         .update({ read_at: new Date().toISOString() })
         .in('id', messagesToUpdate.map(msg => msg.id))
-      
+
       if (error) throw error
       
       // Update messages in the local state
@@ -192,12 +282,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
       console.error('Error marking messages as read:', error)
     }
   },
+  
   fetchUnreadCounts: async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return {}
   
-      // Use a simpler query approach that's type-safe
+      // Use the database index for read_at IS NULL for efficiency
       const { data, error } = await supabase
         .from('messages')
         .select('conversation_id')
@@ -220,6 +311,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return {}
     }
   },
+  
   addOptimisticMessage: (message) => {
     set((state) => ({
       messages: {
@@ -271,8 +363,11 @@ const setupRealtimeSubscriptions = () => {
     // Add the new message to the state
     state.addOptimisticMessage(message)
     
-    // Update conversation in list to reflect new message
+    // Update conversation in list to reflect new message and move to top
     await state.updateConversation(message.conversation_id)
+    
+    // Always re-fetch all conversations to ensure proper ordering
+    await state.fetchConversations();
     
     // If this conversation is active, mark as read
     if (state.activeConversationId === message.conversation_id) {
@@ -299,7 +394,12 @@ const setupRealtimeSubscriptions = () => {
   }, async (payload) => {
     const conversation = payload.new as Conversation
     const state = useChatStore.getState()
+    
+    // When a conversation is updated, we need to update our state and re-sort
     await state.updateConversation(conversation.id)
+    
+    // Re-fetch all conversations to ensure proper ordering
+    await state.fetchConversations();
   })
 
   // Subscribe to new conversations

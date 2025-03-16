@@ -1462,7 +1462,61 @@ CREATE POLICY "Users can send messages in their conversations"
             AND (buyer_id = auth.uid() OR seller_id = auth.uid())
         )
     );
+-- Policy for marking messages as read
+CREATE POLICY "Users can mark messages as read if recipient"
+    ON public.messages FOR UPDATE
+    USING (
+        -- User must be in the conversation
+        EXISTS (
+            SELECT 1 FROM conversations
+            WHERE conversations.id = conversation_id
+            AND (buyer_id = auth.uid() OR seller_id = auth.uid())
+        )
+        -- User is not the sender of the message (can only mark others' messages as read)
+        AND sender_id != auth.uid()
+    )
+    WITH CHECK (
+        -- User must be in the conversation
+        EXISTS (
+            SELECT 1 FROM conversations
+            WHERE conversations.id = conversation_id
+            AND (buyer_id = auth.uid() OR seller_id = auth.uid())
+        )
+        -- User is not the sender of the message (can only mark others' messages as read)
+        AND sender_id != auth.uid()
+    );
 
+-- Create function to ensure only read_at can be updated
+CREATE OR REPLACE FUNCTION public.restrict_message_updates()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    -- Allow only read_at to be updated, all other fields must remain unchanged
+    IF (
+        NEW.id = OLD.id AND
+        NEW.conversation_id = OLD.conversation_id AND
+        NEW.sender_id = OLD.sender_id AND
+        NEW.content = OLD.content AND
+        NEW.attachments = OLD.attachments AND
+        NEW.is_system_message = OLD.is_system_message AND
+        NEW.created_at = OLD.created_at
+        -- read_at is allowed to change
+    ) THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'Only the read_at field can be updated in messages';
+    END IF;
+END;
+$$;
+
+-- Create trigger to restrict message updates
+CREATE TRIGGER restrict_message_updates
+    BEFORE UPDATE ON public.messages
+    FOR EACH ROW
+    EXECUTE FUNCTION public.restrict_message_updates();
 -- =======================================================
 -- SECTION 6: REPORTS AND NOTIFICATIONS
 -- =======================================================
