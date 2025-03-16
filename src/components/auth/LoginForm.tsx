@@ -125,7 +125,21 @@ const LoginForm = () => {
           title: t.auth.signInSuccess,
           description: t.auth.signInSuccessDescription,
         });
-        router.push(getLocalizedPath("/"));
+        
+        // Check for redirect URL in query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redirectTo');
+        
+        if (redirectTo) {
+          // Make sure redirectTo is a relative URL (to prevent open redirect vulnerabilities)
+          if (redirectTo.startsWith('/')) {
+            router.push(redirectTo);
+          } else {
+            router.push(getLocalizedPath("/"));
+          }
+        } else {
+          router.push(getLocalizedPath("/"));
+        }
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
