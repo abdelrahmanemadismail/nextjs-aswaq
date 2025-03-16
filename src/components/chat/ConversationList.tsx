@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { Search, MessageCircle, Check, Filter, SlidersHorizontal, Inbox, Loader2, X } from "lucide-react"
+import { Search, MessageCircle, Check, SlidersHorizontal, Inbox, Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChatStore } from "@/lib/stores/use-chat-store"
 import { Conversation, Message } from "@/types/chat"
@@ -321,9 +321,12 @@ export function ConversationList({
                 )}
                 <span>
                   {lastMessages[conversation.id].content || 
-                  (lastMessages[conversation.id].attachments && lastMessages[conversation.id].attachments?.length! > 0 ? 
-                    `Attachment${lastMessages[conversation.id].attachments?.length! > 1 ? 's' : ''}` : 
-                    "Empty message")}
+                   (() => {
+                     const attachments = lastMessages[conversation.id].attachments || [];
+                     return attachments.length > 0 
+                       ? `Attachment${attachments.length > 1 ? 's' : ''}` 
+                       : "Empty message";
+                   })()}
                 </span>
               </>
             ) : unreadCount > 0 ? (
@@ -475,7 +478,7 @@ export function ConversationList({
             <Inbox className="h-12 w-12 text-muted-foreground mb-3 opacity-50" />
             {searchQuery ? (
               <p className="text-muted-foreground max-w-xs">
-                No conversations match your search for <strong>"{searchQuery}"</strong>
+                No conversations match your search for <strong>&quot;{searchQuery}&quot;</strong>
               </p>
             ) : filterType === 'unread' ? (
               <p className="text-muted-foreground max-w-xs">

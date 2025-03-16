@@ -83,7 +83,6 @@ export default async function Header() {
               {profile && (
                 <div className="hidden md:flex">
                   <ChatButton 
-                    locale={locale} 
                     path={getLocalizedPath("/chat", locale)} 
                   />
                 </div>
@@ -152,7 +151,6 @@ export default async function Header() {
               {profile && (
                 <div className="md:hidden">
                   <ChatButton 
-                    locale={locale} 
                     path={getLocalizedPath("/chat", locale)} 
                   />
                 </div>

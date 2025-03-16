@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Messages } from "@/components/Icons"
@@ -8,17 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/utils/supabase/client"
 
 interface ChatButtonProps {
-  locale: string
   path: string
 }
 
-export function ChatButton({ locale, path }: ChatButtonProps) {
+export function ChatButton({ path }: ChatButtonProps) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
 
   // Function to fetch unread message count
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
@@ -46,7 +45,7 @@ export function ChatButton({ locale, path }: ChatButtonProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [supabase]) // Add supabase as a dependency
 
   // Use polling instead of realtime subscriptions
   useEffect(() => {
@@ -62,7 +61,7 @@ export function ChatButton({ locale, path }: ChatButtonProps) {
     return () => {
       clearInterval(intervalId)
     }
-  }, []) // Empty dependency array to run only on mount
+  }, [fetchUnreadCount]) // Add fetchUnreadCount to the dependency array
 
   return (
     <Link href={path} className="relative">

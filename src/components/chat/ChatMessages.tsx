@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useMemo, useState } from "react"
+import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -68,38 +68,38 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
   }, [conversationId, conversationMessages.length, markAsRead]); // Add dependencies
 
   // Check if user is near bottom of message container
-  const isNearBottom = () => {
+  const isNearBottom = useCallback(() => {
     if (!messagesContainerRef.current) return true;
     
     const container = messagesContainerRef.current;
     // Consider "near bottom" if within 100px of the bottom
     return container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-  }
+  }, []);
 
   // Scroll to bottom function that only affects the container
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (!messagesContainerRef.current) return;
     
     const container = messagesContainerRef.current;
     container.scrollTop = container.scrollHeight;
-  }
+  }, []);
 
   // Smart scroll function that checks position first
-  const smartScrollToBottom = () => {
+  const smartScrollToBottom = useCallback(() => {
     if (!messagesContainerRef.current) return;
     
     if (isNearBottom()) {
       const container = messagesContainerRef.current;
       container.scrollTop = container.scrollHeight;
     }
-  }
+  }, [isNearBottom]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     if (conversationMessages.length > 0) {
       smartScrollToBottom();
     }
-  }, [conversationMessages]);
+  }, [conversationMessages, smartScrollToBottom]);
 
   // Initial scroll to bottom when chat is first loaded
   useEffect(() => {
@@ -107,7 +107,7 @@ export function ChatMessages({ conversationId }: ChatMessagesProps) {
       // Use setTimeout to ensure the DOM has been fully rendered
       setTimeout(scrollToBottom, 100);
     }
-  }, [isLoadingMessages, conversationMessages.length]);
+  }, [isLoadingMessages, conversationMessages.length, scrollToBottom]);
 
   // Reset zoom and rotation when a new image is selected
   useEffect(() => {
