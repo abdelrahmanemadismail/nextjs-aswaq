@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { Locale } from "@/i18n.config";
 import { Directions, Languages } from "@/constants/enums";
 import { GoogleTagManager } from '@next/third-parties/google'
+import Script from 'next/script';
 
 export async function generateStaticParams() {
   return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
@@ -34,13 +35,13 @@ const Spinner = () => (
   </div>
 );
 
-export async function generateMetadata({ 
-  params 
+export async function generateMetadata({
+  params
 }: {
   params: Promise<{ locale: Locale }>
 }): Promise<Metadata> {
   const locale = (await params).locale;
-  
+
   // Shared icons and other metadata
   const sharedMetadata = {
     icons: {
@@ -60,17 +61,17 @@ export async function generateMetadata({
       follow: true,
     }
   };
-  
+
   // Language-specific metadata
   if (locale === Languages.ARABIC) {
     return {
       title: "أسواق أونلاين | أسرع طريقة للبيع والشراء في الإمارات",
       description: "بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد في دبي وجميع أنحاء الإمارات. اشترك بأرخص الأسعار وابدأ البيع اليوم!",
       keywords: [
-        "شراء وبيع في الإمارات", "عروض سريعة في دبي", "سوق إلكتروني في الإمارات", 
-        "أفضل سوق في الإمارات", "صفقات سريعة في الإمارات", "شراء وبيع السيارات في الإمارات", 
-        "بيع سيارتي بسرعة في دبي", "شراء سيارات مستعملة في دبي", "مشترين سيارات في دبي", 
-        "بيع سيارة بسرعة في الإمارات", "شراء وبيع الإلكترونيات في الإمارات", 
+        "شراء وبيع في الإمارات", "عروض سريعة في دبي", "سوق إلكتروني في الإمارات",
+        "أفضل سوق في الإمارات", "صفقات سريعة في الإمارات", "شراء وبيع السيارات في الإمارات",
+        "بيع سيارتي بسرعة في دبي", "شراء سيارات مستعملة في دبي", "مشترين سيارات في دبي",
+        "بيع سيارة بسرعة في الإمارات", "شراء وبيع الإلكترونيات في الإمارات",
         "بيع الهواتف مقابل النقد في دبي", "نقد فوري للإلكترونيات في دبي",
         "شراء وبيع الملابس في الإمارات", "بيع الملابس مقابل النقد في دبي",
         "نقد سريع مقابل الملابس في الإمارات", "شراء وبيع الأثاث في الإمارات",
@@ -99,11 +100,11 @@ export async function generateMetadata({
       title: "Aswaq.Online | Fastest Way to Buy & Sell in UAE",
       description: "Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE. Enjoy the cheapest subscription rates and reach trusted buyers instantly.",
       keywords: [
-        "Buy and sell in UAE", "Fast deals in Dubai", "Online marketplace UAE", 
-        "Best marketplace UAE", "Quick deals UAE", "Buy and sell cars UAE", 
-        "Sell my car fast Dubai", "Buy used cars in Dubai", "Car buyers in Dubai", 
-        "Quick car sale UAE", "Buy and sell electronics UAE", "Sell phones for cash Dubai", 
-        "Instant cash for electronics Dubai", "Buy and sell fashion UAE", 
+        "Buy and sell in UAE", "Fast deals in Dubai", "Online marketplace UAE",
+        "Best marketplace UAE", "Quick deals UAE", "Buy and sell cars UAE",
+        "Sell my car fast Dubai", "Buy used cars in Dubai", "Car buyers in Dubai",
+        "Quick car sale UAE", "Buy and sell electronics UAE", "Sell phones for cash Dubai",
+        "Instant cash for electronics Dubai", "Buy and sell fashion UAE",
         "Sell clothes for cash Dubai", "Quick cash for clothes UAE",
         "Buy and sell furniture UAE", "Sell used furniture fast Dubai", "Cash for furniture UAE"
       ],
@@ -141,7 +142,51 @@ export default async function RootLayout({
       lang={locale}
       dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
     >
-      <GoogleTagManager gtmId={process.env.gtmId||"GTM-XYZ"} />
+      {/* TikTok Pixel Code */}
+      <Script id="tiktok-pixel" strategy="lazyOnload">
+        {`
+          !function (w, d, t) {
+            w.TiktokAnalyticsObject = t;
+            var ttq = w[t] = w[t] || [];
+            ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
+            ttq.setAndDefer = function(t, e) {
+              t[e] = function() {
+                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+              }
+            };
+            for (var i = 0; i < ttq.methods.length; i++) {
+              ttq.setAndDefer(ttq, ttq.methods[i]);
+            }
+            ttq.instance = function(t) {
+              for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) {
+                ttq.setAndDefer(e, ttq.methods[n]);
+              }
+              return e;
+            };
+            ttq.load = function(e, n) {
+              var r = "https://analytics.tiktok.com/i18n/pixel/events.js";
+              var o = n && n.partner;
+              ttq._i = ttq._i || {};
+              ttq._i[e] = [];
+              ttq._i[e]._u = r;
+              ttq._t = ttq._t || {};
+              ttq._t[e] = +new Date;
+              ttq._o = ttq._o || {};
+              ttq._o[e] = n || {};
+              var script = document.createElement("script");
+              script.type = "text/javascript";
+              script.async = true;
+              script.src = r + "?sdkid=" + e + "&lib=" + t;
+              var firstScript = document.getElementsByTagName("script")[0];
+              firstScript.parentNode.insertBefore(script, firstScript);
+            };
+            
+            ttq.load('CVLTPQBC77UCTQ7C5C5G');
+            ttq.page();
+          }(window, document, 'ttq');
+        `}
+      </Script>
+      <GoogleTagManager gtmId={process.env.gtmId || "GTM-XYZ"} />
       <body className={locale === Languages.ARABIC ? cairo.className : lato.className}>
         <div>
           <ProfileProvider>
