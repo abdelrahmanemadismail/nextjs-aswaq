@@ -57,7 +57,7 @@ const Footer = async () => {
                 <LinkedinLogo />
               </a>
               <a 
-                href="https://www.instagram.com/aswaqdotonline/" 
+                href="https://www.instagram.com/aswaq.online4" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-pink-600 transition-colors"
@@ -75,7 +75,7 @@ const Footer = async () => {
                 <FacebookLogo />
               </a>
               <a 
-                href="https://tiktok.com" 
+                href="https://www.tiktok.com/@aswaq.online?is_from_webapp=1&sender_device=pc" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-black transition-colors"
@@ -84,7 +84,7 @@ const Footer = async () => {
                 <TiktokLogo />
               </a>
               <a 
-                href="https://pinterest.com" 
+                href="https://www.pinterest.com/aswaqonline454/?invite_code=be0e1646502c4f98abf3f1dacef69390&sender=1147714423696409266" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-red-600 transition-colors"
@@ -93,7 +93,7 @@ const Footer = async () => {
                 <PinterestLogo />
               </a>
               <a 
-                href="https://snapchat.com" 
+                href="https://www.snapchat.com/add/aswaq.online?share_id=H2liFY6OdyU&locale=ar-AE" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-yellow-400 transition-colors"
