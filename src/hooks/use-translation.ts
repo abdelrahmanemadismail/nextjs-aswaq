@@ -412,6 +412,11 @@ const defaultTranslations = {
       customerSupport: '',
       secureTransactions: '',
     },
+    announce: {
+      text: '',
+      link: '',
+      button: ''
+    },
     howItWorks: {
       title: '',
       subtitle: '',

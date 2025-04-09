@@ -224,3 +224,36 @@ export async function createListing(data: ListingFormData): Promise<string> {
   const { slug } = await createListingWithoutImages(minimalData);
   return slug;
 }
+
+/**
+ * Get the count of listings created in the last 24 hours
+ * @returns The count of listings created in the last 24 hours
+ */
+export async function getRecentListingsCount(): Promise<number> {
+  try {
+    const supabase = await createClient();
+    
+    // Calculate the date 24 hours ago
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+    
+    // Format the date for Supabase query
+    const formattedDate = twentyFourHoursAgo.toISOString();
+    
+    // Query for listings created in the last 24 hours
+    const { count, error } = await supabase
+      .from('listings')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', formattedDate);
+    
+    if (error) {
+      console.error('Error fetching recent listings count:', error);
+      return 0;
+    }
+    
+    return count || 0;
+  } catch (error) {
+    console.error('Error in getRecentListingsCount:', error);
+    return 0;
+  }
+}

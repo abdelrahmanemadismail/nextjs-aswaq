@@ -1,40 +1,51 @@
-import type { Metadata } from "next";
-import { Cairo, Lato } from "next/font/google";
-import "./globals.css";
-
-import { Toaster } from "@/components/ui/toaster";
-import { ProfileProvider } from "@/context/ProfileContext";
-import { Suspense } from "react";
-import { Loader2 } from 'lucide-react';
-import { Locale } from "@/i18n.config";
-import { Directions, Languages } from "@/constants/enums";
-import { GoogleTagManager } from '@next/third-parties/google'
+import type { Metadata, Viewport } from 'next';
+import { Cairo, Lato } from 'next/font/google';
+import { Suspense } from 'react';
 import Script from 'next/script';
+import { Loader2 } from 'lucide-react';
 
-export async function generateStaticParams() {
-  return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
+import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
+import { ProfileProvider } from '@/context/ProfileContext';
+import { Locale } from '@/i18n.config';
+import { Languages, Directions } from '@/constants/enums';
+import { GoogleTagManager } from '@next/third-parties/google';
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 }
 
+// Fonts
 const lato = Lato({
-  subsets: ["latin"],
-  weight: ["300", "400", "700"],
-  style: ["normal", "italic"],
-  preload: true,
-  display: "swap",
-});
-const cairo = Cairo({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  subsets: ['latin'],
+  weight: ['300', '400', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
   preload: true,
 });
 
-// Simple spinner component
+const cairo = Cairo({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+  preload: true,
+});
+
+// Spinner fallback
 const Spinner = () => (
   <div className="flex justify-center items-center h-screen w-screen">
-    <Loader2 className="text-primary" />
+    <Loader2 className="animate-spin text-primary" size={48} />
   </div>
 );
 
+// Static routes for locales
+export async function generateStaticParams() {
+  return Object.values(Languages).map((locale) => ({ locale }));
+}
+
+// Metadata generator
 export async function generateMetadata({
   params
 }: {
@@ -42,13 +53,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = (await params).locale;
 
-  // Shared icons and other metadata
-  const sharedMetadata = {
+  const shared = {
+    metadataBase: new URL('https://aswaq.online'),
     icons: {
       icon: '/favicon.ico',
       apple: '/apple-icon.png',
     },
-    metadataBase: new URL('https://aswaq.online'),
+    robots: {
+      index: true,
+      follow: true,
+    },
     alternates: {
       canonical: '/',
       languages: {
@@ -56,30 +70,22 @@ export async function generateMetadata({
         'ar-AE': '/ar',
       },
     },
-    robots: {
-      index: true,
-      follow: true,
-    }
   };
 
-  // Language-specific metadata
   if (locale === Languages.ARABIC) {
     return {
-      title: "أسواق أونلاين | أسرع طريقة للبيع والشراء في الإمارات",
-      description: "بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد في دبي وجميع أنحاء الإمارات. اشترك بأرخص الأسعار وابدأ البيع اليوم!",
+      ...shared,
+      title: 'أسواق أونلاين | أسرع طريقة للبيع والشراء في الإمارات',
+      description:
+        'بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد في دبي وجميع أنحاء الإمارات.',
       keywords: [
-        "شراء وبيع في الإمارات", "عروض سريعة في دبي", "سوق إلكتروني في الإمارات",
-        "أفضل سوق في الإمارات", "صفقات سريعة في الإمارات", "شراء وبيع السيارات في الإمارات",
-        "بيع سيارتي بسرعة في دبي", "شراء سيارات مستعملة في دبي", "مشترين سيارات في دبي",
-        "بيع سيارة بسرعة في الإمارات", "شراء وبيع الإلكترونيات في الإمارات",
-        "بيع الهواتف مقابل النقد في دبي", "نقد فوري للإلكترونيات في دبي",
-        "شراء وبيع الملابس في الإمارات", "بيع الملابس مقابل النقد في دبي",
-        "نقد سريع مقابل الملابس في الإمارات", "شراء وبيع الأثاث في الإمارات",
-        "بيع الأثاث بسرعة في دبي", "نقد فوري مقابل الأثاث في الإمارات"
+        'شراء وبيع في الإمارات', 'سوق إلكتروني', 'بيع سيارات في دبي',
+        'شراء إلكترونيات مستعملة', 'بيع ملابس مقابل النقد', 'بيع أثاث مستعمل', 'أسواق أون لاين', "أسواق أونلاين", 'Aswaq Online'
       ],
       openGraph: {
         title: 'أسواق.أونلاين | أسرع طريقة للبيع والشراء في الإمارات',
-        description: 'بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد في دبي وجميع أنحاء الإمارات',
+        description:
+          'بع بسرعة وسهولة في الإمارات مع Aswaq.Online! أسرع طريقة لبيع السيارات، الإلكترونيات، الأزياء والمزيد.',
         url: 'https://aswaq.online/ar',
         siteName: 'Aswaq.Online',
         locale: 'ar_AE',
@@ -89,46 +95,43 @@ export async function generateMetadata({
             url: 'https://aswaq.online/og-image.png',
             width: 1200,
             height: 630,
-            alt: 'أسواق.أونلاين - سوق التسوق الإلكتروني في الإمارات',
-          }
+            alt: 'أسواق.أونلاين - سوق الإمارات',
+          },
         ],
       },
-      ...sharedMetadata,
-    };
-  } else {
-    return {
-      title: "Aswaq.Online | Fastest Way to Buy & Sell in UAE",
-      description: "Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE. Enjoy the cheapest subscription rates and reach trusted buyers instantly.",
-      keywords: [
-        "Buy and sell in UAE", "Fast deals in Dubai", "Online marketplace UAE",
-        "Best marketplace UAE", "Quick deals UAE", "Buy and sell cars UAE",
-        "Sell my car fast Dubai", "Buy used cars in Dubai", "Car buyers in Dubai",
-        "Quick car sale UAE", "Buy and sell electronics UAE", "Sell phones for cash Dubai",
-        "Instant cash for electronics Dubai", "Buy and sell fashion UAE",
-        "Sell clothes for cash Dubai", "Quick cash for clothes UAE",
-        "Buy and sell furniture UAE", "Sell used furniture fast Dubai", "Cash for furniture UAE"
-      ],
-      openGraph: {
-        title: 'Aswaq.Online | Fastest Way to Buy & Sell in UAE',
-        description: 'Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE.',
-        url: 'https://aswaq.online/en',
-        siteName: 'Aswaq.Online',
-        locale: 'en_US',
-        type: 'website',
-        images: [
-          {
-            url: 'https://aswaq.online/og-image.png',
-            width: 1200,
-            height: 630,
-            alt: 'Aswaq Online - UAE E-commerce Marketplace',
-          }
-        ],
-      },
-      ...sharedMetadata,
     };
   }
+
+  return {
+    ...shared,
+    title: 'Aswaq.Online | Fastest Way to Buy & Sell in UAE',
+    description:
+      'Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE.',
+    keywords: [
+      'Buy and sell in UAE', 'Online marketplace UAE', 'Sell cars fast in Dubai',
+      'Cash for phones UAE', 'Sell clothes online', 'Used furniture UAE','Aswaq Online', 'Cheap phones UAE', 'Cheap cars UAE'
+    ],
+    openGraph: {
+      title: 'Aswaq.Online | Fastest Way to Buy & Sell in UAE',
+      description:
+        "Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE. Enjoy the cheapest subscription rates and reach trusted buyers instantly.",
+      url: 'https://aswaq.online/en',
+      siteName: 'Aswaq.Online',
+      locale: 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: 'https://aswaq.online/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: 'Aswaq Online - UAE Marketplace',
+        },
+      ],
+    },
+  };
 }
 
+// Main layout
 export default async function RootLayout({
   params,
   children,
@@ -137,65 +140,35 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = (await params).locale;
+  const isArabic = locale === Languages.ARABIC;
+
   return (
-    <html
-      lang={locale}
-      dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
-    >
-      {/* TikTok Pixel Code */}
+    <html lang={locale} dir={isArabic ? Directions.RTL : Directions.LTR}>
+      {/* TikTok Pixel */}
       <Script id="tiktok-pixel" strategy="lazyOnload">
         {`
-          !function (w, d, t) {
-            w.TiktokAnalyticsObject = t;
-            var ttq = w[t] = w[t] || [];
-            ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
-            ttq.setAndDefer = function(t, e) {
-              t[e] = function() {
-                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-              }
-            };
-            for (var i = 0; i < ttq.methods.length; i++) {
-              ttq.setAndDefer(ttq, ttq.methods[i]);
-            }
-            ttq.instance = function(t) {
-              for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) {
-                ttq.setAndDefer(e, ttq.methods[n]);
-              }
-              return e;
-            };
-            ttq.load = function(e, n) {
-              var r = "https://analytics.tiktok.com/i18n/pixel/events.js";
-              var o = n && n.partner;
-              ttq._i = ttq._i || {};
-              ttq._i[e] = [];
-              ttq._i[e]._u = r;
-              ttq._t = ttq._t || {};
-              ttq._t[e] = +new Date;
-              ttq._o = ttq._o || {};
-              ttq._o[e] = n || {};
-              var script = document.createElement("script");
-              script.type = "text/javascript";
-              script.async = true;
-              script.src = r + "?sdkid=" + e + "&lib=" + t;
-              var firstScript = document.getElementsByTagName("script")[0];
-              firstScript.parentNode.insertBefore(script, firstScript);
-            };
-            
-            ttq.load('CVLTPQBC77UCTQ7C5C5G');
-            ttq.page();
-          }(window, document, 'ttq');
-        `}
+          !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+          ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+          ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)));}};
+          for(var i=0;i<ttq.methods.length;i++){ttq.setAndDefer(ttq,ttq.methods[i]);}
+          ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js";
+          var o=n&&n.partner;ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;
+          ttq._o=ttq._o||{};ttq._o[e]=n||{};var script=document.createElement("script");
+          script.type="text/javascript";script.async=true;script.src=r+"?sdkid="+e+"&lib="+t;
+          var firstScript=document.getElementsByTagName("script")[0];firstScript.parentNode.insertBefore(script,firstScript);};
+          ttq.load('CVLTPQBC77UCTQ7C5C5G');ttq.page();
+        `} 
       </Script>
-      <GoogleTagManager gtmId={process.env.gtmId || "GTM-XYZ"} />
-      <body className={locale === Languages.ARABIC ? cairo.className : lato.className}>
-        <div>
-          <ProfileProvider>
-            <Suspense fallback={<Spinner />}>
-              {children}
-            </Suspense>
-          </ProfileProvider>
-          <Toaster />
-        </div>
+
+      <GoogleTagManager gtmId={process.env.gtmId || 'GTM-XYZ'} />
+
+      <body className={isArabic ? cairo.className : lato.className}>
+        <ProfileProvider>
+          <Suspense fallback={<Spinner />}>
+            {children}
+          </Suspense>
+        </ProfileProvider>
+        <Toaster />
       </body>
     </html>
   );

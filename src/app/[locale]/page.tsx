@@ -11,9 +11,8 @@ import {
   MessageSquare,
 } from "lucide-react"
 import Header from "@/components/Header"
-import CategoryBar from "@/components/CategoryBar"
 import { getCategories } from "@/actions/category-actions"
-import MainSearch from "@/components/MainSearch"
+import { getRecentListingsCount } from "@/actions/listing-actions"
 import Footer from "@/components/Footer"
 import PackageList from "@/components/checkout/PackageList"
 import getTrans from "@/utils/translation"
@@ -42,11 +41,10 @@ export default async function LandingPage({
     // Otherwise, prepend the current locale
     return path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
   };
-
   const locale = (await params).locale;
   const t = await getTrans(locale)
   const categories = (await getCategories()).filter(category => category.display_in_hero)
-
+  const recentListingsCount = await getRecentListingsCount()
   const statistics = [
     { number: "10+", label: t.homepage.statistics.categories, icon: ShoppingBag },
     { number: "24/7", label: t.homepage.statistics.customerSupport, icon: HeadphonesIcon },
@@ -114,26 +112,68 @@ export default async function LandingPage({
   ]
 
   return (
+    <>
     <div className="flex min-h-screen flex-col">
       <div className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Header />
-        <CategoryBar />
+        <div className="w-full bg-[#006EB8] text-white text-center py-2 px-4 text-sm font-medium">
+        {t.homepage.announce.text}
+        <a href={t.homepage.announce.link} className="underline font-semibold hover:text-blue-200 ml-1">
+          {t.homepage.announce.button}
+        </a>
       </div>
+      </div>
+      
+
       <main className="flex-1">
         {/* Enhanced Hero Section */}
-        <section className="relative bg-gradient-to-b from-primary/10 to-background py-12 md:py-20 lg:py-24 overflow-hidden">
-          <div className="mx-auto px-4 text-center relative z-10">
-            <div className="animate-fade-in-up">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                {t.homepage.heroTitle}
-                <span className="text-primary block mt-2">{t.homepage.heroTitleHighlight}</span>
-              </h1>
-              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto">
-                {t.homepage.heroSubtitle}
-              </p>
-              <MainSearch />
+        <section className="relative bg-gradient-to-b from-primary/10 to-background py-12 md:py-20 lg:py-24 overflow-hidden -mt-2">
+        <div className="container mx-auto px-2 md:px-4 lg:px-6 relative z-10 -mt-10">
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 ">
+
+              {/* Text Content */}
+              <div className="w-full md:w-1/2 text-center md:text-left animate-fade-in-up">
+                <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+                  {t.homepage.heroTitle}
+                  <span className="block mt-2 text-primary">
+                  {t.homepage.heroTitleHighlight}
+                  </span>
+                </h1>
+                <div className="mt-8 flex flex-col sm:flex-row sm:justify-start items-center sm:items-start gap-4 ltr:flex-row rtl:flex-row-reverse">
+
+                  <Link 
+                    href="/listings" 
+                    className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-md hover:bg-primary/90 transition"
+                  >
+                    {t.homepage.sellButton}
+                  </Link>
+                  <span className="text-sm text-muted-foreground">
+                    🚀 {recentListingsCount}{t.homepage.sellButtonAnnounce}
+                  </span>
+                </div>
+                <p className="mt-6 text-xl text-muted-foreground max-w-2xl md:max-w-none">
+                  {t.homepage.heroSubtitle}
+                </p>
+
+                
+              </div>
+
+              {/* Hero Image */}
+              <div className="w-full md:w-1/2 flex justify-center md:justify-end mt-8 md:mt-0">
+                <div className="relative w-full max-w-md rounded-xl overflow-hidden shadow-lg">
+                  <Image
+                    src="/hero-i-remove.png" 
+                    alt="Arab woman using phone"
+                    width={800}
+                    height={800}
+                    className="object-cover rounded-xl"
+                  />
+                </div>
+              </div>
+
             </div>
-            <div className="mt-12 grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:justify-center">
+
+            <div className="mt-16 grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:justify-center">
               {categories.map((category) => (
                 <Link
                   key={category.name}
@@ -156,12 +196,14 @@ export default async function LandingPage({
               ))}
             </div>
           </div>
-          {/* Decorative elements */}
+
+          {/* Decorative Background Circles */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/5" />
             <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/5" />
           </div>
         </section>
+
 
         {/* Packages Section */}
         <PackageList />
@@ -198,9 +240,6 @@ export default async function LandingPage({
                     <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                     <p className="text-center text-muted-foreground">{item.description}</p>
                   </div>
-                  {item.step !== (locale === 'ar' ? '٣' : '3')
-                    // <ArrowRight className="hidden md:block absolute top-8 -right-4 h-8 w-8 text-muted-foreground" />
-                  }
                 </div>
               ))}
             </div>
@@ -269,5 +308,6 @@ export default async function LandingPage({
       </main>
       <Footer />
     </div>
+      </>
   )
 }
