@@ -44,7 +44,7 @@ export default async function LandingPage({
   const locale = (await params).locale;
   const t = await getTrans(locale)
   const categories = (await getCategories()).filter(category => category.display_in_hero)
-  const recentListingsCount = await getRecentListingsCount()
+  const recentListingsCount = await getRecentListingsCount() + 4
   const statistics = [
     { number: "10+", label: t.homepage.statistics.categories, icon: ShoppingBag },
     { number: "24/7", label: t.homepage.statistics.customerSupport, icon: HeadphonesIcon },
@@ -129,8 +129,7 @@ export default async function LandingPage({
         {/* Enhanced Hero Section */}
         <section className="relative bg-gradient-to-b from-primary/10 to-background py-12 md:py-20 lg:py-24 overflow-hidden -mt-2">
         <div className="container mx-auto px-2 md:px-4 lg:px-6 relative z-10 -mt-10">
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 ">
-
+        <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 "> 
               {/* Text Content */}
               <div className="w-full md:w-1/2 text-center md:text-left animate-fade-in-up">
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
@@ -142,7 +141,7 @@ export default async function LandingPage({
                 <div className="mt-8 flex flex-col sm:flex-row sm:justify-start items-center sm:items-start gap-4 ltr:flex-row rtl:flex-row-reverse">
 
                   <Link 
-                    href="/listings" 
+                    href={t.homepage.announce.link} 
                     className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-md hover:bg-primary/90 transition"
                   >
                     {t.homepage.sellButton}
