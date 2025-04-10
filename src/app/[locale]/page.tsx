@@ -17,6 +17,7 @@ import Footer from "@/components/Footer"
 import PackageList from "@/components/checkout/PackageList"
 import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
+import { createClient } from "@/utils/supabase/client"
 
 export default async function LandingPage({
   params
@@ -41,6 +42,9 @@ export default async function LandingPage({
     // Otherwise, prepend the current locale
     return path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
   };
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser();
   const locale = (await params).locale;
   const t = await getTrans(locale)
   const categories = (await getCategories()).filter(category => category.display_in_hero)
@@ -118,7 +122,7 @@ export default async function LandingPage({
         <Header />
         <div className="w-full bg-[#006EB8] text-white text-center py-2 px-4 text-sm font-medium">
         {t.homepage.announce.text}
-        <a href={t.homepage.announce.link} className="underline font-semibold hover:text-blue-200 ml-1">
+        <a href={user ? "/sell" : "/auth/signup"} className="underline font-semibold hover:text-blue-200 ml-1">
           {t.homepage.announce.button}
         </a>
       </div>
@@ -141,7 +145,7 @@ export default async function LandingPage({
                 <div className="mt-8 flex flex-col sm:flex-row sm:justify-start items-center sm:items-start gap-4 ltr:flex-row rtl:flex-row-reverse">
 
                   <Link 
-                    href={t.homepage.announce.link} 
+                    href={user ? "/sell" : "/auth/signup"}
                     className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-md hover:bg-primary/90 transition"
                   >
                     {t.homepage.sellButton}
