@@ -34,34 +34,34 @@ export function UserMenu() {
   const [unreadCount, setUnreadCount] = useState(0);
   const supabase = createClient();
   
-  // Fetch unread messages count
-  const fetchUnreadCount = async () => {
-    try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      // Query for unread messages
-      const { data, error } = await supabase
-        .from('messages')
-        .select('id')
-        .neq('sender_id', user.id)
-        .is('read_at', null);
-        
-      if (error) {
-        console.error('Error fetching unread count:', error);
-        return;
-      }
-      
-      // Set the unread count
-      setUnreadCount(data?.length || 0);
-    } catch (error) {
-      console.error('Error in fetchUnreadCount:', error);
-    }
-  };
-
   // Use polling to update unread count
   useEffect(() => {
+    // Define fetchUnreadCount inside useEffect to avoid dependency issues
+    const fetchUnreadCount = async () => {
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        // Query for unread messages
+        const { data, error } = await supabase
+          .from('messages')
+          .select('id')
+          .neq('sender_id', user.id)
+          .is('read_at', null);
+          
+        if (error) {
+          console.error('Error fetching unread count:', error);
+          return;
+        }
+        
+        // Set the unread count
+        setUnreadCount(data?.length || 0);
+      } catch (error) {
+        console.error('Error in fetchUnreadCount:', error);
+      }
+    };
+    
     // Fetch initial count
     fetchUnreadCount();
     
@@ -74,7 +74,7 @@ export function UserMenu() {
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [supabase]); // Only depend on supabase client
   
   const handleSignOut = async () => {
     try {
