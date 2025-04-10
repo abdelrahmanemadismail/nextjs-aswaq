@@ -17,7 +17,7 @@ import Footer from "@/components/Footer"
 import PackageList from "@/components/checkout/PackageList"
 import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "@/utils/supabase/server"
 
 export default async function LandingPage({
   params
