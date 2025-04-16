@@ -120,19 +120,21 @@ export default async function LandingPage({
     <div className="flex min-h-screen flex-col">
       <div className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Header />
-        <div className="w-full bg-[#006EB8] text-white text-center py-2 px-4 text-sm font-medium">
-        {t.homepage.announce.text}
-        <a href={user ? "/sell" : "/auth/signup"} className="underline font-semibold hover:text-blue-200 ml-1">
-          {t.homepage.announce.button}
-        </a>
-      </div>
+        <div className="hidden md:block w-full bg-[#006EB8] text-white text-center py-2 px-4 text-sm font-medium">
+  {t.homepage.announce.text}
+  <a href={user ? "/sell" : "/auth/signup"} className="underline font-semibold hover:text-blue-200 ml-1">
+    {t.homepage.announce.button}
+  </a>
+</div>
+
       </div>
       
 
       <main className="flex-1">
         {/* Enhanced Hero Section */}
-        <section className="relative bg-gradient-to-b from-primary/10 to-background py-12 md:py-20 lg:py-24 overflow-hidden -mt-2">
-        <div className="container mx-auto px-2 md:px-4 lg:px-6 relative z-10 -mt-10">
+        <section className="relative bg-gradient-to-b from-primary/10 to-background pt-6 md:pt-20 lg:pt-24 pb-12 overflow-hidden mt-0 md:-mt-2">
+  <div className="container mx-auto px-2 md:px-4 lg:px-6 relative z-10 mt-0 md:-mt-10">
+
         <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 "> 
               {/* Text Content */}
               <div className="w-full md:w-1/2 text-center md:text-left animate-fade-in-up">
