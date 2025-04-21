@@ -134,8 +134,9 @@ export async function getRamadanPackage(): Promise<{ success: boolean; message: 
       }
     }
 
-    // Calculate expiration date (validity_days from now)
-    const expiresAt = new Date(2025, 2, 30) // Months are 0-indexed, so March is 2
+    // Calculate expiration date (30 days from now)
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 30)
 
     // Create user package record
     const { error: insertError } = await supabaseAdmin
