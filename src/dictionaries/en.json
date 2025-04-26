@@ -405,7 +405,7 @@
       "secureTransactions": "Secure Transactions"
     },
     "announce":{
-      "text":"📣 We're accouncing a 10 days free account offer - No card needed! ",
+      "text":"📣 We're accouncing a 14 days free account offer - No card needed! ",
       "link":"/auth/signup",
       "button":"Sign Up Now →"
     },
