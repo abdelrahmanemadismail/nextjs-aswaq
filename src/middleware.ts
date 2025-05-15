@@ -118,20 +118,20 @@ export async function middleware(request: NextRequest) {
   // Step 4: Check auth and redirect for protected routes if needed
   // Get the path without the locale prefix for easier checks
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
-  if (user && (pathWithoutLocale.startsWith('/sell'))){
-    const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // if (user && (pathWithoutLocale.startsWith('/sell'))){
+  //   const { data: profile } = await supabase
+  //   .from('profiles')
+  //   .select('*')
+  //   .eq('id', user.id)
+  //   .single()
 
-    if(profile.verification_status !== 'verified')
-    {
-      const verifyUrl = request.nextUrl.clone()
-      verifyUrl.pathname = `/${currentLocale}/profile/verification`
-      return NextResponse.redirect(verifyUrl)
-    }
-  }
+  //   if(profile.verification_status !== 'verified')
+  //   {
+  //     const verifyUrl = request.nextUrl.clone()
+  //     verifyUrl.pathname = `/${currentLocale}/profile/verification`
+  //     return NextResponse.redirect(verifyUrl)
+  //   }
+  // }
 
   // Check if logged-in user is trying to access login or signup pages
   if (user && (pathWithoutLocale === '/auth/login' || pathWithoutLocale === '/auth/signup')) {
