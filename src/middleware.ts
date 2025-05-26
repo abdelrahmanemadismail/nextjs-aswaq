@@ -29,6 +29,19 @@ function getLocale(request: NextRequest): string | undefined {
   return locale;
 }
 
+// Helper function to validate country slug
+async function validateCountrySlug(supabase: ReturnType<typeof createServerClient>, slug: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('locations')
+    .select('id')
+    .eq('type', 'country')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .single()
+  
+  return !!data
+}
+
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
@@ -68,6 +81,27 @@ export async function middleware(request: NextRequest) {
   // Check for language switch parameter in URL
   const url = new URL(request.url)
   const switchLangParam = url.searchParams.get('setLang')
+  const switchCountryParam = url.searchParams.get('setCountry')
+
+  // Handle country switch if setCountry parameter is present
+  if (switchCountryParam) {
+    const isValidCountry = await validateCountrySlug(supabase, switchCountryParam)
+    
+    if (isValidCountry) {
+      // Create a response to redirect to the same page but without the setCountry param
+      const newUrl = new URL(request.url)
+      newUrl.searchParams.delete('setCountry')
+      const countrySwitchResponse = NextResponse.redirect(newUrl)
+
+      // Set cookie for the new country preference (1 year expiry)
+      countrySwitchResponse.cookies.set('preferred-country', switchCountryParam, {
+        maxAge: 60 * 60 * 24 * 365,
+        path: '/'
+      })
+
+      return countrySwitchResponse
+    }
+  }
 
   // Step 1: Check if the pathname has a supported locale
   const pathname = request.nextUrl.pathname
@@ -118,20 +152,6 @@ export async function middleware(request: NextRequest) {
   // Step 4: Check auth and redirect for protected routes if needed
   // Get the path without the locale prefix for easier checks
   const pathWithoutLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '')
-  // if (user && (pathWithoutLocale.startsWith('/sell'))){
-  //   const { data: profile } = await supabase
-  //   .from('profiles')
-  //   .select('*')
-  //   .eq('id', user.id)
-  //   .single()
-
-  //   if(profile.verification_status !== 'verified')
-  //   {
-  //     const verifyUrl = request.nextUrl.clone()
-  //     verifyUrl.pathname = `/${currentLocale}/profile/verification`
-  //     return NextResponse.redirect(verifyUrl)
-  //   }
-  // }
 
   // Check if logged-in user is trying to access login or signup pages
   if (user && (pathWithoutLocale === '/auth/login' || pathWithoutLocale === '/auth/signup')) {

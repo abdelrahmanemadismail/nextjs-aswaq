@@ -14,10 +14,10 @@ import Header from "@/components/Header"
 import { getCategories } from "@/actions/category-actions"
 import { getRecentListingsCount } from "@/actions/listing-actions"
 import Footer from "@/components/Footer"
-import PackageList from "@/components/checkout/PackageList"
 import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
 import { createClient } from "@/utils/supabase/server"
+import SignupPopup from '@/components/SignupPopup';
 
 export default async function LandingPage({
   params
@@ -117,6 +117,7 @@ export default async function LandingPage({
 
   return (
     <>
+    <SignupPopup locale={locale} />
     <div className="flex min-h-screen flex-col">
       <div className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Header />
@@ -208,10 +209,6 @@ export default async function LandingPage({
             <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/5" />
           </div>
         </section>
-
-
-        {/* Packages Section */}
-        <PackageList />
 
         {/* Statistics Section */}
         <section className="py-20 bg-muted/30">

@@ -8,6 +8,7 @@ import { Menu } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
 // import NotificationsPanel from "@/components/NotificationsPanel";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { CountrySelector } from "./country-selector";
 import { headers } from "next/headers";
 import { i18n, Locale } from "@/i18n.config";
 import { createClient } from "@/utils/supabase/server";
@@ -47,21 +48,21 @@ export default async function Header() {
 
   return (
     <header className="border-b bg-background">
-      <div className="w-full lg:max-w-[1400px]  mx-auto">
-        <nav className="px-2 lg:px-4 py-3">
-          <div className="flex items-center justify-between gap-4 md:gap-6 lg:gap-8">
+      <div className="w-full lg:max-w-[1400px] mx-auto">
+        <nav className="px-1 sm:px-2 lg:px-4 py-2 sm:py-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {/* Logo */}
             <Link href={getLocalizedPath("/", locale)} className="flex-shrink-0" prefetch={true}>
               <Image
                 src="/logo.svg"
                 alt="ASWAQ Online"
-                width={140}
+                width={100}
                 height={40}
                 className="h-16"
                 priority
               />
             </Link>
-
+            <CountrySelector />
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl hidden md:flex">
               <SearchInput />
@@ -74,8 +75,8 @@ export default async function Header() {
                 <NotificationsPanel />
               )} */}
 
-              {/* Language Switcher */}
-              <div>
+              {/* Language and Country Selectors */}
+              <div className="flex items-center gap-2">
                 <LanguageSwitcher />
               </div>
 
