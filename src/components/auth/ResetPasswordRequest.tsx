@@ -154,7 +154,7 @@ const ResetPasswordRequest: React.FC = () => {
           <span className="text-muted-foreground">{t.auth.rememberPassword} </span>
           <Link
             href={getLocalizedPath('/auth/login')}
-            className="text-primary underline-offset-4 hover:underline text-sm"
+            className="text-primary2 underline-offset-4 hover:underline text-sm"
           >
             {t.auth.signIn}
           </Link>

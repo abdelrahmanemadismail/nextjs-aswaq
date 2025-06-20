@@ -87,7 +87,7 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
     return (
         <Button
             variant="ghost"
-            className={`justify-center gap-2 text-primary w-full ${className}`}
+            className={`justify-center gap-2 text-[#090A0A] w-full ${className}`}
             onClick={switchLanguage}
         >
             <Globe className="h-4 w-4" />

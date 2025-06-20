@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useLocationStore } from '@/hooks/use-location-store'
 import {
@@ -13,11 +13,13 @@ import {
 import { Label } from '@/components/ui/label'
 import { useTranslation } from '@/hooks/use-translation'
 import { Languages } from '@/constants/enums'
+import Cookies from 'js-cookie'
 
 export function LocationSelector() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t, locale } = useTranslation()
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   
   const {
     countries,
@@ -36,45 +38,69 @@ export function LocationSelector() {
     fetchLocations()
   }, [fetchLocations])
 
-  // Initialize selection from URL params
+  // Initialize selection from cookie or URL params
   useEffect(() => {
-    const countryParam = searchParams.get('country') 
-    const cityParam = searchParams.get('city')
-    
-    // Set initial country to UAE if not already selected
-    if (!selectedCountry) {
-      setSelectedCountry('a8c73ef2-9db4-460e-8999-79a386632bf7')
-    }
+    if (countries.length > 0 && isInitialLoad) {
+      const countryParam = searchParams.get('country') 
+      const cityParam = searchParams.get('city')
+      const preferredCountrySlug = Cookies.get('preferred-country')
 
-    if (countryParam && countryParam !== selectedCountry) {
-      setSelectedCountry(countryParam)
+      let countryToSet = null
+      
+      // Priority: URL param > Cookie > Default (first in list)
+      if (countryParam) {
+        countryToSet = countries.find(c => c.slug === countryParam)
+      } else if (preferredCountrySlug) {
+        countryToSet = countries.find(c => c.slug === preferredCountrySlug)
+      } else if (countries.length > 0) {
+        countryToSet = countries[0];
+      }
+      
+      if (countryToSet) {
+        setSelectedCountry(countryToSet.id)
+        
+        // If we're setting from cookie and there's no country in URL, update the URL
+        if (!countryParam && preferredCountrySlug) {
+          const params = new URLSearchParams(searchParams)
+          params.set('country', countryToSet.slug)
+          params.set('page', '1')
+          router.push(`/listings?${params.toString()}`)
+        }
+        
+        if (cityParam) {
+          const cityToSet = cities[countryToSet.id]?.find(ci => ci.slug === cityParam)
+          if (cityToSet) {
+            setSelectedCity(cityToSet.id)
+          }
+        }
+      }
+      setIsInitialLoad(false)
     }
-    if (cityParam && cityParam !== selectedCity) {
-      setSelectedCity(cityParam)
-    }
-  }, [searchParams, selectedCountry, selectedCity, setSelectedCountry, setSelectedCity])
+  }, [countries, cities, searchParams, isInitialLoad, setSelectedCountry, setSelectedCity, router])
 
-  const handleCountryChange = (value: string) => {
-    // Update store
-    setSelectedCountry(value)
+  const handleCountryChange = (countryId: string) => {
+    setSelectedCountry(countryId)
+    const country = countries.find(c => c.id === countryId)
     
-    // Update URL
-    const params = new URLSearchParams(searchParams)
-    params.set('country', value)
-    params.delete('city') // Reset city when country changes
-    params.set('page', '1')
-    router.push(`/listings?${params.toString()}`)
+    if (country) {
+      const params = new URLSearchParams(searchParams)
+      params.set('country', country.slug)
+      params.delete('city') 
+      params.set('page', '1')
+      router.push(`/listings?${params.toString()}`)
+    }
   }
 
-  const handleCityChange = (value: string) => {
-    // Update store
-    setSelectedCity(value)
-    
-    // Update URL
-    const params = new URLSearchParams(searchParams)
-    params.set('city', value)
-    params.set('page', '1')
-    router.push(`/listings?${params.toString()}`)
+  const handleCityChange = (cityId: string) => {
+    setSelectedCity(cityId)
+    const city = cities[selectedCountry!]?.find(c => c.id === cityId)
+
+    if (city) {
+      const params = new URLSearchParams(searchParams)
+      params.set('city', city.slug)
+      params.set('page', '1')
+      router.push(`/listings?${params.toString()}`)
+    }
   }
 
   return (
@@ -105,7 +131,7 @@ export function LocationSelector() {
           <Select
             value={selectedCity || ''}
             onValueChange={handleCityChange}
-            disabled={isLoadingCities}
+            disabled={isLoadingCities || !cities[selectedCountry]}
           >
             <SelectTrigger id="city">
               <SelectValue placeholder={t.listings.location.selectCity} />

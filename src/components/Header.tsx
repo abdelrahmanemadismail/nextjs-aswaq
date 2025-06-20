@@ -62,7 +62,9 @@ export default async function Header() {
                 priority
               />
             </Link>
-            <CountrySelector />
+            <div className="hidden md:block">
+              <CountrySelector />
+            </div>
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl hidden md:flex">
               <SearchInput />
@@ -130,6 +132,9 @@ export default async function Header() {
                     <div className="flex flex-col gap-4 mt-8">
                       <div className="px-2">
                         <SearchInput />
+                      </div>
+                      <div className="px-2">
+                        <CountrySelector />
                       </div>
                       <div className="flex flex-col gap-2">
                         <Link href={getLocalizedPath("/auth/login", locale)}>

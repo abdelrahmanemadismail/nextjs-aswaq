@@ -54,13 +54,13 @@ export default async function ContactPage() {
                 <div className="grid gap-6">
                   <Card>
                     <CardContent className="flex items-start gap-4 p-6">
-                      <div className="rounded-full bg-primary/10 p-3">
-                        <Mail className="h-5 w-5 text-primary" />
+                      <div className="rounded-full bg-primary2/10 p-3">
+                        <Mail className="h-5 w-5 text-primary2" />
                       </div>
                       <div>
                         <CardTitle className="text-base mb-1">{t.contact.emailUs}</CardTitle>
                         <CardDescription>
-                          <a href="mailto:support@aswaq.online" className="text-primary hover:underline">
+                          <a href="mailto:support@aswaq.online" className="text-primary2 hover:underline">
                             support@aswaq.online
                           </a>
                         </CardDescription>

@@ -42,7 +42,7 @@ const MainSearch = () => {
                 placeholder={t.common.searchPlaceholder}
                 className="h-12 text-lg border-none"
                 />
-                <Button size="lg" className="h-12 px-8" type="submit">
+                <Button size="lg" className="h-12 px-8 bg-primary2" type="submit">
                     <Search className="h-5 w-5 mr-2" />
                     {t.common.search}
                 </Button>

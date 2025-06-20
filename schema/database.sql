@@ -701,6 +701,7 @@ CREATE TABLE public.locations (
     name_ar text NOT NULL,
     slug text NOT NULL,
     type text CHECK (type IN ('country', 'city')) NOT NULL,
+    code text, -- ISO 3166-1 alpha-2 country code
     latitude numeric(10,8),
     longitude numeric(11,8),
     is_active boolean NOT NULL DEFAULT true,
@@ -716,6 +717,10 @@ CREATE TABLE public.locations (
     CONSTRAINT locations_hierarchy_check CHECK (
         (type = 'country' AND parent_id IS NULL) OR
         (type = 'city' AND parent_id IS NOT NULL)
+    ),
+    CONSTRAINT locations_code_format CHECK (
+        (type = 'country' AND code ~ '^[A-Z]{2}$') OR
+        (type = 'city' AND code IS NULL)
     )
 );
 
@@ -2215,67 +2220,68 @@ $$;
 
 -- Insert United Arab Emirates (country)
 INSERT INTO public.locations (
-    id, parent_id, name, name_ar, slug, type, latitude, longitude, is_active, created_at, updated_at
+    id, parent_id, name, name_ar, slug, type, code, latitude, longitude, is_active, created_at, updated_at
 )
 VALUES
     ('a8c73ef2-9db4-460e-8999-79a386632bf7', NULL,
      'United Arab Emirates', 'الإمارات العربية المتحدة',
-     'uae', 'country', 23.4241, 53.8478,
+     'uae', 'country', 'AE', 23.4241, 53.8478,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     name_ar = EXCLUDED.name_ar,
     slug = EXCLUDED.slug,
     type = EXCLUDED.type,
+    code = EXCLUDED.code,
     latitude = EXCLUDED.latitude,
     longitude = EXCLUDED.longitude,
     is_active = EXCLUDED.is_active;
 
 -- Insert UAE cities
 INSERT INTO public.locations (
-    id, parent_id, name, name_ar, slug, type, latitude, longitude, is_active, created_at, updated_at
+    id, parent_id, name, name_ar, slug, type, code, latitude, longitude, is_active, created_at, updated_at
 )
 VALUES
     -- Dubai
     ('25216c3e-08f6-4a56-b158-38ee29eec066', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Dubai', 'دبي',
-     'dubai', 'city', 25.2048, 55.2708,
+     'dubai', 'city', 'AE', 25.2048, 55.2708,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Abu Dhabi
     ('3d39475c-845c-41a4-9805-f3c54ee98c1b', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Abu Dhabi', 'أبوظبي',
-     'abu-dhabi', 'city', 24.4539, 54.3773,
+     'abu-dhabi', 'city', 'AE', 24.4539, 54.3773,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Sharjah
     ('3fafc729-3524-4a12-b67b-cb6650dab040', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Sharjah', 'الشارقة',
-     'sharjah', 'city', 25.3463, 55.4209,
+     'sharjah', 'city', 'AE', 25.3463, 55.4209,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Ajman
     ('e8cc14bf-1d75-428c-bd91-86120753497a', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Ajman', 'عجمان',
-     'ajman', 'city', 25.4111, 55.4354,
+     'ajman', 'city', 'AE', 25.4111, 55.4354,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Ras Al Khaimah
     ('94d42eaa-4ed8-40b2-ae31-28b07ebe5b17', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Ras Al Khaimah', 'رأس الخيمة',
-     'ras-al-khaimah', 'city', 25.7895, 55.9432,
+     'ras-al-khaimah', 'city', 'AE', 25.7895, 55.9432,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Fujairah
     ('6929c5f6-0972-4753-9306-95a851925d8d', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Fujairah', 'الفجيرة',
-     'fujairah', 'city', 25.1288, 56.3265,
+     'fujairah', 'city', 'AE', 25.1288, 56.3265,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Umm Al Quwain
     ('0381742c-c1d0-44d8-b818-243a4bfcb009', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Umm Al Quwain', 'أم القيوين',
-     'umm-al-quwain', 'city', 25.5647, 55.5554,
+     'umm-al-quwain', 'city', 'AE', 25.5647, 55.5554,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00')
 ON CONFLICT (id) DO UPDATE SET
     parent_id = EXCLUDED.parent_id,
@@ -2283,6 +2289,7 @@ ON CONFLICT (id) DO UPDATE SET
     name_ar = EXCLUDED.name_ar,
     slug = EXCLUDED.slug,
     type = EXCLUDED.type,
+    code = EXCLUDED.code,
     latitude = EXCLUDED.latitude,
     longitude = EXCLUDED.longitude,
     is_active = EXCLUDED.is_active;

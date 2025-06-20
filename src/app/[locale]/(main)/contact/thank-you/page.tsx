@@ -21,8 +21,8 @@ export default async function ThankYouPage() {
         <section className="py-16 md:py-24">
           <div className="px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-8 max-w-2xl mx-auto">
-              <div className="rounded-full bg-primary/10 p-4">
-                <CheckCircle className="h-16 w-16 text-primary" />
+              <div className="rounded-full bg-primary2/10 p-4">
+                <CheckCircle className="h-16 w-16 text-primary2" />
               </div>
               
               <div className="space-y-4">

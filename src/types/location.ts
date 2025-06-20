@@ -26,6 +26,7 @@ export interface Country extends Location {
   type: 'country'
   parent_id: null
   cities?: City[]
+  code: string // ISO 3166-1 alpha-2 country code
 }
 
 export interface CityWithCountry {

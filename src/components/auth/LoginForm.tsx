@@ -195,7 +195,7 @@ const LoginForm = () => {
             <Label htmlFor="password">{t.auth.password}</Label>
             <Link
               href={getLocalizedPath("/auth/reset-password/request")}
-              className="text-primary underline-offset-4 hover:underline text-sm"
+              className="text-primary2 underline-offset-4 hover:underline text-sm"
             >
               {t.auth.forgotPassword}
             </Link>

@@ -66,7 +66,7 @@ const AboutUs = async () => {
         <Card className="text-center p-6">
           <CardContent className="pt-6">
             <div className="flex justify-center mb-4">
-              <ShieldCheck className="h-12 w-12 text-primary" />
+              <ShieldCheck className="h-12 w-12 text-primary2" />
             </div>
             <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
               {t.about.features.customerTrust.title}
@@ -81,7 +81,7 @@ const AboutUs = async () => {
         <Card className="text-center p-6">
           <CardContent className="pt-6">
             <div className="flex justify-center mb-4">
-              <UX className="h-12 w-12 text-primary" />
+              <UX className="h-12 w-12 text-primary2" />
             </div>
             <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
               {t.about.features.userExperience.title}
@@ -96,7 +96,7 @@ const AboutUs = async () => {
         <Card className="text-center p-6">
           <CardContent className="pt-6">
             <div className="flex justify-center mb-4">
-              <Culture className="h-12 w-12 text-primary" />
+              <Culture className="h-12 w-12 text-primary2" />
             </div>
             <h3 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
               {t.about.features.culturalRelevance.title}

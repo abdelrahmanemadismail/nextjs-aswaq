@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Country } from '@/types/location'
-import { MapPin } from 'lucide-react'
+import Image from 'next/image'
 import {
   Select,
   SelectContent,
@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from '@/lib/utils'
 
 export function CountrySelector() {
   const [countries, setCountries] = useState<Country[]>([])
@@ -33,11 +32,21 @@ export function CountrySelector() {
 
         if (!error && data) {
           setCountries(data as Country[])
-          // Set initial selected country from URL if available
+          
+          // First check for the preferred-country cookie
+          const cookies = document.cookie.split(';')
+          const countryCookie = cookies.find(c => c.trim().startsWith('preferred-country='))
+          const countrySlug = countryCookie ? countryCookie.split('=')[1].trim() : null
+
+          // If no cookie, check URL params
           const url = new URL(window.location.href)
-          const countrySlug = url.searchParams.get('setCountry')
-          if (countrySlug) {
-            const country = data.find(c => c.slug === countrySlug)
+          const urlCountrySlug = url.searchParams.get('setCountry')
+          
+          // Use cookie value first, then URL param as fallback
+          const finalSlug = countrySlug || urlCountrySlug
+          
+          if (finalSlug) {
+            const country = data.find(c => c.slug === finalSlug)
             if (country) setSelectedCountry(country)
           }
         }
@@ -68,7 +77,7 @@ export function CountrySelector() {
   if (loading) {
     return (
       <div className="h-10 bg-muted/50 animate-pulse rounded-md flex items-center justify-center px-3">
-        <MapPin className="h-5 w-5 text-muted-foreground" />
+        <div className="h-4 w-6 bg-muted-foreground/20 rounded-full" />
       </div>
     )
   }
@@ -76,39 +85,47 @@ export function CountrySelector() {
   return (
     <div className="relative">
       <Select onValueChange={handleCountryChange} value={selectedCountry?.slug}>
-        <SelectTrigger className={cn(
-          "h-10 w-10 md:w-full px-3",
-          "hover:bg-accent hover:text-accent-foreground",
-          "transition-colors duration-200",
-          "flex items-center justify-between gap-2",
-          "border-none bg-background",
-          "[&>svg]:hidden"
-        )}>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <MapPin className="text-primary h-4 w-4 shrink-0" />
-            <SelectValue>
-              <span className="truncate hidden md:flex">
-                {selectedCountry ? selectedCountry.name : 'Select Country'}
-              </span>
-            </SelectValue>
-          </div>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue>
+            {selectedCountry ? (
+              <div className="flex items-center gap-2">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden ring-1 ring-border">
+                  <Image
+                    src={`https://flag.vercel.app/m/${selectedCountry.code || 'AE'}.svg`}
+                    alt={selectedCountry.name}
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/flags/default.svg"
+                    }}
+                  />
+                </div>
+                <span className="truncate">{selectedCountry.name}</span>
+              </div>
+            ) : (
+              'Select Country'
+            )}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent 
-          className="w-[200px] sm:w-[250px] max-h-[300px] overflow-y-auto"
-          position="popper"
-          sideOffset={8}
-        >
-          <div className="px-2 py-1.5 text-sm text-muted-foreground border-b">
-            Select Country
-          </div>
+        <SelectContent>
           {countries.map((country) => (
             <SelectItem 
               key={country.id} 
               value={country.slug}
-              className="cursor-pointer hover:bg-accent"
+              className="cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <div className="relative w-6 h-6 rounded-full overflow-hidden ring-1 ring-border">
+                  <Image
+                    src={`https://flag.vercel.app/m/${country.code || 'AE'}.svg`}
+                    alt={country.name}
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/flags/default.svg"
+                    }}
+                  />
+                </div>
                 <span className="truncate">{country.name}</span>
               </div>
             </SelectItem>

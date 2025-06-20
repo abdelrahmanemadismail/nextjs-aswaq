@@ -28,37 +28,37 @@ export default async function HelpCenter() {
   
   const categories: HelpCategory[] = [
     {
-      icon: <User className="h-8 w-8 text-primary" />,
+      icon: <User className="h-8 w-8 text-primary2" />,
       name: t.help.categories.accounts.name,
       slug: "accounts",
       description: t.help.categories.accounts.description
     },
     {
-      icon: <ListTodo className="h-8 w-8 text-primary" />,
+      icon: <ListTodo className="h-8 w-8 text-primary2" />,
       name: t.help.categories.listingServices.name,
       slug: "listing-services",
       description: t.help.categories.listingServices.description
     },
     {
-      icon: <CreditCard className="h-8 w-8 text-primary" />,
+      icon: <CreditCard className="h-8 w-8 text-primary2" />,
       name: t.help.categories.paymentsAndPurchases.name,
       slug: "payments-purchases",
       description: t.help.categories.paymentsAndPurchases.description
     },
     {
-      icon: <ImageIcon className="h-8 w-8 text-primary" />,
+      icon: <ImageIcon className="h-8 w-8 text-primary2" />,
       name: t.help.categories.advertising.name,
       slug: "advertising",
       description: t.help.categories.advertising.description
     },
     {
-      icon: <FileText className="h-8 w-8 text-primary" />,
+      icon: <FileText className="h-8 w-8 text-primary2" />,
       name: t.help.categories.paidListing.name,
       slug: "paid-listing",
       description: t.help.categories.paidListing.description
     },
     {
-      icon: <ShieldCheck className="h-8 w-8 text-primary" />,
+      icon: <ShieldCheck className="h-8 w-8 text-primary2" />,
       name: t.help.categories.safetySecurity.name,
       slug: "safety-security",
       description: t.help.categories.safetySecurity.description
@@ -121,7 +121,7 @@ export default async function HelpCenter() {
             <Link key={category.slug} href={`/${locale}/help/categories/${category.slug}`}>
               <Card className="hover:bg-muted/50 transition-colors">
                 <CardContent className="p-6 flex gap-4">
-                  <div className="p-2 bg-primary/10 rounded-lg h-fit">
+                  <div className="p-2 bg-primary2/10 rounded-lg h-fit">
                     {category.icon}
                   </div>
                   <div className="space-y-1">

@@ -11,8 +11,8 @@ import {
   MessageSquare,
 } from "lucide-react"
 import Header from "@/components/Header"
-import { getCategories } from "@/actions/category-actions"
-import { getRecentListingsCount } from "@/actions/listing-actions"
+// import { getCategories } from "@/actions/category-actions"
+// import { getRecentListingsCount } from "@/actions/listing-actions"
 import Footer from "@/components/Footer"
 import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
@@ -47,8 +47,8 @@ export default async function LandingPage({
   const { data: { user } } = await supabase.auth.getUser();
   const locale = (await params).locale;
   const t = await getTrans(locale)
-  const categories = (await getCategories()).filter(category => category.display_in_hero)
-  const recentListingsCount = await getRecentListingsCount() + 4
+  // const categories = (await getCategories()).filter(category => category.display_in_hero)
+  // const recentListingsCount = await getRecentListingsCount() + 4
   const statistics = [
     { number: "10+", label: t.homepage.statistics.categories, icon: ShoppingBag },
     { number: "24/7", label: t.homepage.statistics.customerSupport, icon: HeadphonesIcon },
@@ -121,7 +121,7 @@ export default async function LandingPage({
     <div className="flex min-h-screen flex-col">
       <div className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Header />
-        <div className="hidden md:block w-full bg-[#006EB8] text-white text-center py-2 px-4 text-sm font-medium">
+        <div className="hidden md:block w-full bg-primary2 text-white text-center py-2 px-4 text-sm font-medium">
   {t.homepage.announce.text}
   <a href={user ? "/sell" : "/auth/signup"} className="underline font-semibold hover:text-blue-200 ml-1">
     {t.homepage.announce.button}
@@ -132,81 +132,40 @@ export default async function LandingPage({
       
 
       <main className="flex-1">
-        {/* Enhanced Hero Section */}
-        <section className="relative bg-gradient-to-b from-primary/10 to-background pt-6 md:pt-20 lg:pt-24 pb-12 overflow-hidden mt-0 md:-mt-2">
-  <div className="container mx-auto px-2 md:px-4 lg:px-6 relative z-10 mt-0 md:-mt-10">
-
-        <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 "> 
-              {/* Text Content */}
-              <div className="w-full md:w-1/2 text-center md:text-left animate-fade-in-up">
-                <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
-                  {t.homepage.heroTitle}
-                  <span className="block mt-2 text-primary">
-                  {t.homepage.heroTitleHighlight}
-                  </span>
-                </h1>
-                <div className="mt-8 flex flex-col sm:flex-row sm:justify-start items-center sm:items-start gap-4 ltr:flex-row rtl:flex-row-reverse">
-
-                  <Link 
-                    href={user ? "/sell" : "/auth/signup"}
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-lg font-semibold text-white shadow-md hover:bg-primary/90 transition"
-                  >
-                    {t.homepage.sellButton}
-                  </Link>
-                  <span className="text-sm text-muted-foreground">
-                    🚀 {recentListingsCount}{t.homepage.sellButtonAnnounce}
-                  </span>
-                </div>
-                <p className="mt-6 text-xl text-muted-foreground max-w-2xl md:max-w-none">
-                  {t.homepage.heroSubtitle}
-                </p>
-
-                
-              </div>
-
-              {/* Hero Image */}
-              <div className="w-full md:w-1/2 flex justify-center md:justify-end mt-8 md:mt-0">
-                <div className="relative w-full max-w-md rounded-xl overflow-hidden shadow-lg">
-                  <Image
-                    src="/hero-i-remove.png" 
-                    alt="Arab woman using phone"
-                    width={800}
-                    height={800}
-                    className="object-cover rounded-xl"
-                  />
-                </div>
-              </div>
-
-            </div>
-
-            <div className="mt-16 grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:justify-center">
-              {categories.map((category) => (
-                <Link
-                  key={category.name}
-                  href={`/listings?category=${category.slug}`}
-                  prefetch={true}
-                  className="group flex flex-col items-center p-2 sm:p-4 bg-background rounded-lg shadow-sm hover:shadow-md transition-all h-[120px] w-[100px] sm:w-[120px]"
-                >
-                  <div className="h-16 w-16 flex items-center justify-center">
-                    <Image
-                      src={category.hero_image || "/placeholder.svg"}
-                      alt={category.name}
-                      width={32}
-                      height={32}
-                    />
-                  </div>
-                  <span className="mt-2 text-xs sm:text-sm font-medium text-center line-clamp-2">
-                    {locale === 'ar' && category.name_ar ? category.name_ar : category.name}
-                  </span>
-                </Link>
-              ))}
-            </div>
+        {/* Enhanced Hero Section - Redesigned to match provided image */}
+        <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden p-0">
+          {/* Background image with gradient overlay */}
+          <div className="absolute inset-0 w-full h-full">
+            <Image
+              src="/Frame 1261153564.png"
+              alt="Handshake background"
+              fill
+              className="object-cover w-full h-full"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-700/60 to-orange-400/60" />
           </div>
-
-          {/* Decorative Background Circles */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/5" />
-            <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/5" />
+          <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-4 md:px-8 py-16 gap-8">
+            {/* Left: Text Content */}
+            <div className="w-full md:w-1/2 text-white text-left">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 whitespace-pre-line">
+                {t.homepage.heroTitle}
+                <span className="block mt-2 text-primary">
+                  {t.homepage.heroTitleHighlight}
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl mb-8 max-w-xl">
+                {t.homepage.heroSubtitle}
+              </p>
+              <Link
+                href={user ? "/sell" : "/auth/signup"}
+                className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg rounded-lg px-8 py-4 shadow-lg transition-colors"
+              >
+                {t.homepage.sellButton}
+              </Link>
+            </div>
+            {/* Right: Empty for spacing on desktop, image is in background */}
+            <div className="hidden md:block w-1/2" />
           </div>
         </section>
 

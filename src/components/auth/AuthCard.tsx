@@ -26,14 +26,14 @@ export default function AuthCard({ children, title="Continue to ASWAQ" }: { chil
           {t.auth.agreementPrefix}
           <div>
             <Link
-              className="text-primary underline-offset-4 hover:underline px-1 text-xs"
+              className="text-primary2 underline-offset-4 hover:underline px-1 text-xs"
               href={getLocalizedPath("/terms-of-service")}
             >
               {t.footer.termsOfService}
             </Link>
             {t.auth.agreementConnector}
             <Link
-              className="text-primary underline-offset-4 hover:underline px-1 text-xs"
+              className="text-primary2 underline-offset-4 hover:underline px-1 text-xs"
               href={getLocalizedPath("/privacy-policy")}
             >
               {t.footer.privacyPolicy}

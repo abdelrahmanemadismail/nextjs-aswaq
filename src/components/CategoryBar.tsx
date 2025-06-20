@@ -69,7 +69,7 @@ const CategoryBar = async () => {
                   className="flex flex-col items-center flex-shrink-0 group"
                 >
                   <div className="p-2 rounded-lg group-hover:bg-muted transition-colors">
-                    {IconComponent && <IconComponent className="w-5 h-5 text-primary group-hover:text-primary/80" />}
+                    {IconComponent && <IconComponent className="w-5 h-5 text-primary2 group-hover:text-primary2/80" />}
                   </div>
                   <span className="text-sm text-muted-foreground group-hover:text-foreground whitespace-nowrap">
                     {getLocalizedName(category)}

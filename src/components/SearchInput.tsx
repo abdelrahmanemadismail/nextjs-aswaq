@@ -79,6 +79,7 @@ const SearchInput = ({
           className={`
             pr-12
             bg-background
+            text-primary2
             ${sizeClasses[size]}
             transition-colors
             duration-200
@@ -95,6 +96,8 @@ const SearchInput = ({
             absolute
             right-0
             rounded-l-none
+            bg-primary2
+            hover:bg-primary2/90
             ${sizeClasses[size]}
             ${sizeBox[size]}
             ${isLoading ? 'opacity-80' : ''}

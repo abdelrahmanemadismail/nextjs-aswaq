@@ -22,6 +22,11 @@ export const locationFormSchema = z.object({
   
   parent_id: z.string().uuid().nullable(),
   
+  code: z.string()
+    .regex(/^[A-Z]{2}$/, 'Country code must be a 2-letter ISO code')
+    .nullable()
+    .optional(),
+  
   latitude: z.number()
     .min(-90, 'Latitude must be between -90 and 90')
     .max(90, 'Latitude must be between -90 and 90')

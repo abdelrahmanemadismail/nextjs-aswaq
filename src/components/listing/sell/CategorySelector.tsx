@@ -108,13 +108,13 @@ export function CategorySelector({
               <Card
                 key={category.id}
                 className={cn(
-                  "p-4 cursor-pointer hover:border-primary transition-colors",
+                  "p-4 cursor-pointer hover:border-primary2 transition-colors",
                   "flex items-center gap-3",
-                  isSelected && "border-primary bg-primary/5"
+                  isSelected && "border-primary2 bg-primary2/5"
                 )}
                 onClick={() => handleMainCategoryClick(category)}
               >
-                {Icon && <Icon className="h-8 w-8 text-primary" />}
+                {Icon && <Icon className="h-8 w-8 text-primary2" />}
                 <span className="font-medium">{getLocalizedName(category)}</span>
               </Card>
             )
@@ -146,8 +146,8 @@ export function CategorySelector({
                       <Card
                         key={subCategory.id}
                         className={cn(
-                          "p-4 cursor-pointer hover:border-primary transition-colors",
-                          isSelected && "border-primary bg-primary/5"
+                          "p-4 cursor-pointer hover:border-primary2 transition-colors",
+                          isSelected && "border-primary2 bg-primary2/5"
                         )}
                         onClick={() => handleSubCategoryClick(subCategory)}
                       >

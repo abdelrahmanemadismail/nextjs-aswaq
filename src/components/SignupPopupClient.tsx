@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 
 type Locale = 'en' | 'ar';
 
@@ -22,8 +23,21 @@ interface SignupPopupClientProps {
 export const SignupPopupClient = ({ content, locale }: SignupPopupClientProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isUser, setIsUser] = useState<boolean | null>(null);
   
   useEffect(() => {
+    // Check if user is signed in
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsUser(!!user);
+    };
+    checkUser();
+  }, []);
+
+  useEffect(() => {
+    if (isUser === null) return; // Wait for user check
+    if (isUser) return; // Don't show popup if user is signed in
     // Show popup after 15 seconds of page load or on 50% scroll, whichever happens first
     const timer = setTimeout(() => {
       if (!hasInteracted) {
@@ -47,7 +61,7 @@ export const SignupPopupClient = ({ content, locale }: SignupPopupClientProps) =
       clearTimeout(timer);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [hasInteracted]);
+  }, [hasInteracted, isUser]);
   
   const closePopup = () => {
     setIsVisible(false);
@@ -59,7 +73,7 @@ export const SignupPopupClient = ({ content, locale }: SignupPopupClientProps) =
     document.cookie = `signup_popup_shown=true; expires=${expiryDate.toUTCString()}; path=/`;
   };
   
-  if (!isVisible) return null;
+  if (!isVisible || isUser) return null;
   
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm p-4">
@@ -86,7 +100,7 @@ export const SignupPopupClient = ({ content, locale }: SignupPopupClientProps) =
           <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
             {content.benefits.map((benefit, index) => (
               <div key={index} className="flex items-center">
-                <div className="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary flex items-center justify-center">
+                <div className="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary2 flex items-center justify-center">
                   <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
@@ -106,7 +120,7 @@ export const SignupPopupClient = ({ content, locale }: SignupPopupClientProps) =
             </Link>
             
             <p className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-              <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
+              <Link href={`/${locale}/auth/login`} className="text-primary2 hover:underline">
                 {content.secondary}
               </Link>
             </p>

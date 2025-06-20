@@ -4,6 +4,15 @@ import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 import { createServerClient } from '@supabase/ssr'
 
+// Extend NextRequest to include geo information
+type NextRequestWithGeo = NextRequest & {
+  geo?: {
+    country?: string;
+    city?: string;
+    region?: string;
+  };
+};
+
 // Helper function to get the preferred locale from the request
 function getLocale(request: NextRequest): string | undefined {
   // First check if there's a language cookie
@@ -42,7 +51,37 @@ async function validateCountrySlug(supabase: ReturnType<typeof createServerClien
   return !!data
 }
 
-export async function middleware(request: NextRequest) {
+// Helper function to get country from IP
+async function getCountryFromIP(request: NextRequestWithGeo, supabase: ReturnType<typeof createServerClient>): Promise<string | null> {
+  try {
+    // Vercel Edge Functions provide the user's country.
+    // In development, `request.geo` is not available, so we'll use a default.
+    const countryCode = (process.env.NODE_ENV === 'development')
+      ? 'ae' // Default to UAE in development
+      : request.geo?.country?.toLowerCase();
+
+    if (!countryCode) {
+      console.warn("Could not determine country from geo headers. User will need to select a country manually.");
+      return null;
+    }
+
+    // Get country slug from Supabase based on country code
+    const { data: countryData } = await supabase
+      .from('locations')
+      .select('slug')
+      .eq('type', 'country')
+      .eq('code', countryCode.toUpperCase())
+      .eq('is_active', true)
+      .single()
+
+    return countryData?.slug || null
+  } catch (error) {
+    console.error('Error getting country from IP:', error)
+    return null
+  }
+}
+
+export async function middleware(request: NextRequestWithGeo) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
 
@@ -77,6 +116,20 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  // Check for existing country preference
+  const preferredCountry = request.cookies.get('preferred-country')?.value
+  
+  // If no preferred country is set, try to get it from IP
+  if (!preferredCountry) {
+    const countrySlug = await getCountryFromIP(request, supabase)
+    if (countrySlug) {
+      response.cookies.set('preferred-country', countrySlug, {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: '/'
+      })
+    }
+  }
 
   // Check for language switch parameter in URL
   const url = new URL(request.url)
@@ -184,5 +237,7 @@ export const config = {
   matcher: [
     // Skip all internal paths (_next, api, static files, etc.)
     '/((?!_next|api|favicon.ico|images|.*\\.png$|.*\\.svg$).*)',
-  ]
+  ],
+  // Enable geolocation in Edge Runtime
+  runtime: 'experimental-edge'
 }
