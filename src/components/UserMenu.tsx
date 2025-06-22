@@ -26,6 +26,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import { Messages } from "./Icons";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/utils/supabase/client";
+import { CountrySelector } from "@/components/country-selector";
 
 export function UserMenu() {
   const { profile, refreshProfile } = useProfile();
@@ -118,6 +119,9 @@ export function UserMenu() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px]">
+        <div className="px-3 pt-3 pb-1">
+          <CountrySelector />
+        </div>
         <DropdownMenuItem className="gap-2 py-3" onClick={() => router.push(getLocalizedPath("/profile"))}>
           <User className="h-5 w-5 text-primary" />
           <span>{t.account.profile}</span>

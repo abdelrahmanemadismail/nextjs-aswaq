@@ -11,13 +11,14 @@ import {
   MessageSquare,
 } from "lucide-react"
 import Header from "@/components/Header"
-// import { getCategories } from "@/actions/category-actions"
+import { getCategories } from "@/actions/category-actions"
 // import { getRecentListingsCount } from "@/actions/listing-actions"
 import Footer from "@/components/Footer"
 import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
 import { createClient } from "@/utils/supabase/server"
 import SignupPopup from '@/components/SignupPopup';
+import CategoriesBar from '@/components/CategoriesBar';
 
 export default async function LandingPage({
   params
@@ -47,7 +48,7 @@ export default async function LandingPage({
   const { data: { user } } = await supabase.auth.getUser();
   const locale = (await params).locale;
   const t = await getTrans(locale)
-  // const categories = (await getCategories()).filter(category => category.display_in_hero)
+  const categories = (await getCategories()).filter(category => category.display_in_hero)
   // const recentListingsCount = await getRecentListingsCount() + 4
   const statistics = [
     { number: "10+", label: t.homepage.statistics.categories, icon: ShoppingBag },
@@ -133,7 +134,7 @@ export default async function LandingPage({
 
       <main className="flex-1">
         {/* Enhanced Hero Section - Redesigned to match provided image */}
-        <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden p-0">
+        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden p-0 pb-32">
           {/* Background image with gradient overlay */}
           <div className="absolute inset-0 w-full h-full">
             <Image
@@ -168,6 +169,10 @@ export default async function LandingPage({
             <div className="hidden md:block w-1/2" />
           </div>
         </section>
+        {/* Categories Bar Section - now placed just below hero */}
+        <div className="relative z-20 w-full max-w-6xl mx-auto -mt-16 px-4">
+          <CategoriesBar categories={categories} />
+        </div>
 
         {/* Statistics Section */}
         <section className="py-20 bg-muted/30">
