@@ -18,7 +18,7 @@ import getTrans from "@/utils/translation"
 import { Locale } from "@/i18n.config"
 import { createClient } from "@/utils/supabase/server"
 import SignupPopup from '@/components/SignupPopup';
-import CategoriesBar from '@/components/CategoriesBar';
+import CategoriesBanner from '@/components/CategoriesBanner';
 
 export default async function LandingPage({
   params
@@ -170,8 +170,8 @@ export default async function LandingPage({
           </div>
         </section>
         {/* Categories Bar Section - now placed just below hero */}
-        <div className="relative z-20 w-full max-w-6xl mx-auto -mt-16 px-4">
-          <CategoriesBar categories={categories} />
+        <div className="relative z-20 w-full max-w-[95vw] mx-auto -mt-16 px-4">
+          <CategoriesBanner categories={categories} />
         </div>
 
         {/* Statistics Section */}
