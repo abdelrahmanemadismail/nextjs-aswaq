@@ -38,7 +38,7 @@ export async function initiateCheckout({ packageId }: { packageId: string }) {
       name: packageData.name,
       description: packageData.description || `${packageData.name} Package`,
       amount: packageData.price,
-      currency: 'aed'
+      currency: 'usd'
     })
     
     return { success: true, sessionId, checkoutUrl: url }
