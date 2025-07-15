@@ -254,3 +254,140 @@ export default async function RootLayout({
     </html>
   );
 }
+
+// export const metadata: Metadata = {
+//   title: {
+//     default: 'شروع - المنصة العربية الأولى في إدارة المشاريع',
+//     template: '%s | شروع',
+//   },
+//   description: 'المنصة العربية الرائدة في إدارة المشاريع، والقيادة، والتحول، والابتكار، والتميز المؤسسي، والحوكمة، والاستراتيجية',
+//   keywords: [
+//     'ريادة الأعمال',
+//     'الابتكار',
+//     'القيادة',
+//     'التحول الرقمي',
+//     'التقنيات الناشئة',
+//     'الشركات الناشئة',
+//     'الاستثمار',
+//     'التطوير',
+//   ],
+//   authors: [{ name: 'شروع للنشر الرقمي' }],
+//   creator: 'شروع للنشر الرقمي',
+//   publisher: 'شروع للنشر الرقمي',
+  
+//   // Open Graph metadata
+//   openGraph: {
+//     type: 'website',
+//     locale: 'ar_SA',
+//     url: 'https://yoursite.com', // Replace with your actual domain
+//     siteName: 'شروع',
+//     title: 'شروع - المنصة العربية الأولى في إدارة المشاريع',
+//     description: 'المنصة العربية الرائدة في إدارة المشاريع، والقيادة، والتحول، والابتكار، والتميز المؤسسي، والحوكمة، والاستراتيجية',
+//     images: [
+//       {
+//         url: '/og-image.jpg', // Main OG image (1200x630px recommended)
+//         width: 1200,
+//         height: 630,
+//         alt: 'شروع - المنصة العربية الأولى في إدارة المشاريع',
+//       },
+//       {
+//         url: '/og-image-square.jpg', // Square image for some platforms (1200x1200px)
+//         width: 1200,
+//         height: 1200,
+//         alt: 'شروع - المنصة العربية الأولى في إدارة المشاريع',
+//       },
+//     ],
+//   },
+
+//   // Twitter metadata
+//   twitter: {
+//     card: 'summary_large_image',
+//     site: '@YourTwitterHandle', // Replace with your Twitter handle
+//     creator: '@YourTwitterHandle', // Replace with your Twitter handle
+//     title: 'شروع - المنصة العربية الأولى في إدارة المشاريع',
+//     description: 'المنصة العربية الرائدة في إدارة المشاريع، والقيادة، والتحول، والابتكار، والتميز المؤسسي، والحوكمة، والاستراتيجية',
+//     images: ['/twitter-image.jpg'], // Twitter image (1200x600px recommended)
+//   },
+
+//   // Additional metadata
+//   robots: {
+//     index: true,
+//     follow: true,
+//     googleBot: {
+//       index: true,
+//       follow: true,
+//       'max-video-preview': -1,
+//       'max-image-preview': 'large',
+//       'max-snippet': -1,
+//     },
+//   },
+
+//   // Verification tags (add your actual verification codes)
+//   verification: {
+//     google: 'your-google-verification-code',
+//     yandex: 'your-yandex-verification-code',
+//     // Other verification services as needed
+//   },
+
+//   // Alternate languages
+//   alternates: {
+//     canonical: 'https://yoursite.com', // Replace with your actual domain
+//     languages: {
+//       'ar': 'https://yoursite.com',
+//       'en': 'https://yoursite.com/en', // If you have English version
+//     },
+//   },
+
+//   // Additional meta tags
+//   other: {
+//     // Facebook App ID (if you have one)
+//     'fb:app_id': 'your-facebook-app-id',
+    
+//     // Apple mobile web app
+//     'apple-mobile-web-app-capable': 'yes',
+//     'apple-mobile-web-app-status-bar-style': 'default',
+//     'apple-mobile-web-app-title': 'شروع',
+    
+//     // Microsoft application
+//     'msapplication-TileColor': '#ffffff',
+//     'msapplication-TileImage': '/ms-icon-144x144.png',
+    
+//     // Theme color
+//     'theme-color': '#ffffff',
+    
+//     // Robots
+//     'revisit-after': '7 days',
+    
+//     // Language and direction
+//     'content-language': 'ar',
+//     'dir': 'rtl',
+//   },
+
+//   // Icons
+//   icons: {
+//     icon: [
+//       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+//       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+//       { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+//     ],
+//     apple: [
+//       { url: '/apple-icon-57x57.png', sizes: '57x57', type: 'image/png' },
+//       { url: '/apple-icon-60x60.png', sizes: '60x60', type: 'image/png' },
+//       { url: '/apple-icon-72x72.png', sizes: '72x72', type: 'image/png' },
+//       { url: '/apple-icon-76x76.png', sizes: '76x76', type: 'image/png' },
+//       { url: '/apple-icon-114x114.png', sizes: '114x114', type: 'image/png' },
+//       { url: '/apple-icon-120x120.png', sizes: '120x120', type: 'image/png' },
+//       { url: '/apple-icon-144x144.png', sizes: '144x144', type: 'image/png' },
+//       { url: '/apple-icon-152x152.png', sizes: '152x152', type: 'image/png' },
+//       { url: '/apple-icon-180x180.png', sizes: '180x180', type: 'image/png' },
+//     ],
+//     other: [
+//       {
+//         rel: 'android-chrome',
+//         url: '/android-icon-192x192.png',
+//         sizes: '192x192',
+//         type: 'image/png',
+//       },
+//     ],
+//   },
+// }

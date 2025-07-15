@@ -27,7 +27,7 @@ export default async function PackageCard({
   name,
   description,
   price,
-  currency = 'AED',
+  currency = 'USD',
   features,
   className = '',
   isFree = false
