@@ -130,6 +130,25 @@ export default async function PackageList() {
               </div>
             </section>
           )}
+
+          {/* Unlimited Packages */}
+          {packages?.unlimited && packages.unlimited.length > 0 && (
+            <section className="mb-20">
+              <h2 className="text-3xl font-bold mb-8 text-center">{t.payments.unlimitedPackages}</h2>
+              <div className="grid md:grid-cols-3 gap-8">
+                {packages.unlimited.map((pkg) => (
+                  <PackageCard
+                    key={pkg.id}
+                    id={pkg.id}
+                    name={locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}
+                    description={locale === 'ar' && pkg.description_ar ? pkg.description_ar : (pkg.description || undefined)}
+                    price={pkg.price}
+                    features={formatPackageFeatures(pkg)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     );

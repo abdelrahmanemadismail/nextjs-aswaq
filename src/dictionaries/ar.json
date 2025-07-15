@@ -165,6 +165,7 @@
     "freeTierPackages": "الباقات المجانية",
     "durationBasedPackages": "الباقات المحددة بمدة",
     "bulkPackages": "باقات البيع بالجملة",
+    "unlimitedPackages": "باقات غير محدودة",
     "success": {
       "title": "تأكيد الدفع",
       "subtitle": "شراء باقة أسواق أونلاين",

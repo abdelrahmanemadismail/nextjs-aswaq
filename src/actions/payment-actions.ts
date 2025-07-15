@@ -187,7 +187,8 @@ export async function getAvailablePackages() {
     const groupedPackages = {
       free_tier: data.filter(pkg => pkg.package_type === 'free_tier'),
       duration: data.filter(pkg => pkg.package_type === 'duration'),
-      bulk: data.filter(pkg => pkg.package_type === 'bulk')
+      bulk: data.filter(pkg => pkg.package_type === 'bulk'),
+      unlimited: data.filter(pkg => pkg.package_type === 'unlimited'),
     }
     
     return { 

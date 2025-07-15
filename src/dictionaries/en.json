@@ -165,6 +165,7 @@
     "freeTierPackages": "Free Tier Packages",
     "durationBasedPackages": "Duration-Based Packages",
     "bulkPackages": "Bulk Packages",
+    "unlimitedPackages": "Unlimited Packages",
     "success": {
       "title": "Payment Confirmation",
       "subtitle": "ASWAQ.online Package Purchase",

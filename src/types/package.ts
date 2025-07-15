@@ -6,7 +6,7 @@ export interface Package {
     name_ar: string;
     description: string | null;
     price: number;
-    package_type: 'free_tier' | 'duration' | 'bulk';
+    package_type: 'free_tier' | 'duration' | 'bulk' | 'unlimited';
     listing_count: number;
     bonus_listing_count: number;
     duration_days: number;
@@ -42,4 +42,5 @@ export interface Package {
     free_tier: Package[];
     duration: Package[];
     bulk: Package[];
+    unlimited: Package[];
   }
