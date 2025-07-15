@@ -398,7 +398,7 @@
     "heroTitle": "Buy -Sell -Promote",
     "heroTitleHighlight": "Near You",
     "heroSubtitle": "Join hundreds of locals using Aswaq to buy, sell, and promote everything fast. No card needed.",
-    "sellButton":"Start Free Selling Now!",
+    "sellButton":"Start Selling Now!",
     "sellButtonAnnounce":"+ new items listed today",
     "statistics": {
       "categories": "Categories",
@@ -406,7 +406,7 @@
       "secureTransactions": "Secure Transactions"
     },
     "announce":{
-      "text":"📣 We're accouncing a 14 days free account offer - No card needed! ",
+      "text":"📣 We're announcing a 3 days free account offer - No card needed! ",
       "link":"/auth/signup",
       "button":"Sign Up Now →"
     },
