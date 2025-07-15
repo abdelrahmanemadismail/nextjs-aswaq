@@ -40,7 +40,7 @@ export default async function PackageCard({
   const { data: { session } } = await supabase.auth.getSession();
 
   // Convert currency to Arabic if needed
-  const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency;
+  const displayCurrency = locale === Languages.ARABIC ? '$' : currency;
   // Generate the redirect URLs for authentication
   const signupUrl = `/${locale}/auth/signup`;
 
