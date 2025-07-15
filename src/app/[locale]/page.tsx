@@ -19,6 +19,7 @@ import { Locale } from "@/i18n.config"
 import { createClient } from "@/utils/supabase/server"
 import SignupPopup from '@/components/SignupPopup';
 import CategoriesBanner from '@/components/CategoriesBanner';
+import PackageList from "@/components/checkout/PackageList"
 
 export default async function LandingPage({
   params
@@ -188,7 +189,7 @@ export default async function LandingPage({
             </div>
           </div>
         </section>
-
+        <PackageList />
         {/* How It Works Section */}
         <section className="py-20">
           <div className="container mx-auto px-4">
