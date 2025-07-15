@@ -85,8 +85,11 @@ export async function middleware(request: NextRequestWithGeo) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
 
-  // Initialize response variable before using it
-  const response = NextResponse.next({
+  // Check for existing country preference BEFORE creating Supabase client
+  const preferredCountry = request.cookies.get('preferred-country')?.value
+  
+  // Initialize response variable
+  let response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
@@ -102,7 +105,6 @@ export async function middleware(request: NextRequestWithGeo) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          // Use the pre-initialized response
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
@@ -117,17 +119,25 @@ export async function middleware(request: NextRequestWithGeo) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Check for existing country preference
-  const preferredCountry = request.cookies.get('preferred-country')?.value
-  
-  // If no preferred country is set, try to get it from IP
+  // If no preferred country is set, try to get it from IP and set cookie
   if (!preferredCountry) {
     const countrySlug = await getCountryFromIP(request, supabase)
     if (countrySlug) {
+      // Create a new response to ensure the cookie is set
+      response = NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      })
+      
       response.cookies.set('preferred-country', countrySlug, {
         maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/'
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
       })
+      
+      console.log(`Auto-detected country: ${countrySlug}, setting cookie`)
     }
   }
 
@@ -149,7 +159,9 @@ export async function middleware(request: NextRequestWithGeo) {
       // Set cookie for the new country preference (1 year expiry)
       countrySwitchResponse.cookies.set('preferred-country', switchCountryParam, {
         maxAge: 60 * 60 * 24 * 365,
-        path: '/'
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
       })
 
       return countrySwitchResponse
@@ -176,7 +188,9 @@ export async function middleware(request: NextRequestWithGeo) {
     // Set cookie for the new language preference (1 year expiry)
     langSwitchResponse.cookies.set('preferred-language', switchLangParam, {
       maxAge: 60 * 60 * 24 * 365,
-      path: '/'
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     })
 
     return langSwitchResponse
@@ -195,8 +209,23 @@ export async function middleware(request: NextRequestWithGeo) {
     if (user?.user_metadata?.preferred_language) {
       localeRedirectResponse.cookies.set('preferred-language', user.user_metadata.preferred_language, {
         maxAge: 60 * 60 * 24 * 365,
-        path: '/'
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
       })
+    }
+
+    // If we detected a country and set a cookie, preserve it in the redirect response
+    if (!preferredCountry) {
+      const countrySlug = await getCountryFromIP(request, supabase)
+      if (countrySlug) {
+        localeRedirectResponse.cookies.set('preferred-country', countrySlug, {
+          maxAge: 60 * 60 * 24 * 365,
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        })
+      }
     }
 
     return localeRedirectResponse
