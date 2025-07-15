@@ -117,6 +117,7 @@ export async function middleware(request: NextRequestWithGeo) {
   console.log('Existing preferred-country cookie:', preferredCountry)
   
   // Initialize response variable
+// eslint-disable-next-line prefer-const
   let response = NextResponse.next({
     request: {
       headers: requestHeaders,
