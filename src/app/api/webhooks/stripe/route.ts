@@ -94,7 +94,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
         package_id: packageId,
         stripe_payment_intent_id: session.payment_intent,
         amount: amountPaid,
-        currency: session.currency || 'aed',
+        currency: session.currency || 'usd',
         payment_status: 'succeeded',
         status: 'active',
         listings_remaining: packageData.listing_count,
