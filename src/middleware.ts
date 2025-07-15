@@ -40,25 +40,42 @@ function getLocale(request: NextRequest): string | undefined {
 
 // Helper function to validate country slug
 async function validateCountrySlug(supabase: ReturnType<typeof createServerClient>, slug: string): Promise<boolean> {
-  const { data } = await supabase
-    .from('locations')
-    .select('id')
-    .eq('type', 'country')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single()
-  
-  return !!data
+  try {
+    const { data, error } = await supabase
+      .from('locations')
+      .select('id')
+      .eq('type', 'country')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single()
+    
+    if (error) {
+      console.error('Error validating country slug:', error)
+      return false
+    }
+    
+    return !!data
+  } catch (error) {
+    console.error('Exception validating country slug:', error)
+    return false
+  }
 }
 
 // Helper function to get country from IP
 async function getCountryFromIP(request: NextRequestWithGeo, supabase: ReturnType<typeof createServerClient>): Promise<string | null> {
   try {
+    // Debug: Log the geo information
+    console.log('=== COUNTRY DETECTION DEBUG ===')
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+    console.log('request.geo:', request.geo)
+    
     // Vercel Edge Functions provide the user's country.
     // In development, `request.geo` is not available, so we'll use a default.
     const countryCode = (process.env.NODE_ENV === 'development')
       ? 'ae' // Default to UAE in development
       : request.geo?.country?.toLowerCase();
+
+    console.log('Detected country code:', countryCode)
 
     if (!countryCode) {
       console.warn("Could not determine country from geo headers. User will need to select a country manually.");
@@ -66,14 +83,20 @@ async function getCountryFromIP(request: NextRequestWithGeo, supabase: ReturnTyp
     }
 
     // Get country slug from Supabase based on country code
-    const { data: countryData } = await supabase
+    const { data: countryData, error } = await supabase
       .from('locations')
-      .select('slug')
+      .select('slug, name')
       .eq('type', 'country')
       .eq('code', countryCode.toUpperCase())
       .eq('is_active', true)
       .single()
 
+    if (error) {
+      console.error('Error fetching country from database:', error)
+      return null
+    }
+
+    console.log('Found country data:', countryData)
     return countryData?.slug || null
   } catch (error) {
     console.error('Error getting country from IP:', error)
@@ -82,11 +105,16 @@ async function getCountryFromIP(request: NextRequestWithGeo, supabase: ReturnTyp
 }
 
 export async function middleware(request: NextRequestWithGeo) {
+  console.log('=== MIDDLEWARE START ===')
+  console.log('Request URL:', request.url)
+  console.log('Request pathname:', request.nextUrl.pathname)
+  
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
 
   // Check for existing country preference BEFORE creating Supabase client
   const preferredCountry = request.cookies.get('preferred-country')?.value
+  console.log('Existing preferred-country cookie:', preferredCountry)
   
   // Initialize response variable
   let response = NextResponse.next({
@@ -119,17 +147,17 @@ export async function middleware(request: NextRequestWithGeo) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  console.log('User authenticated:', !!user)
+
   // If no preferred country is set, try to get it from IP and set cookie
   if (!preferredCountry) {
+    console.log('No preferred country found, attempting IP detection...')
     const countrySlug = await getCountryFromIP(request, supabase)
+    
     if (countrySlug) {
-      // Create a new response to ensure the cookie is set
-      response = NextResponse.next({
-        request: {
-          headers: requestHeaders,
-        },
-      })
+      console.log('Setting country cookie to:', countrySlug)
       
+      // Set the cookie on the response
       response.cookies.set('preferred-country', countrySlug, {
         maxAge: 60 * 60 * 24 * 365, // 1 year
         path: '/',
@@ -137,8 +165,12 @@ export async function middleware(request: NextRequestWithGeo) {
         sameSite: 'lax'
       })
       
-      console.log(`Auto-detected country: ${countrySlug}, setting cookie`)
+      console.log('Country cookie set successfully')
+    } else {
+      console.log('Could not detect country from IP')
     }
+  } else {
+    console.log('Using existing preferred country:', preferredCountry)
   }
 
   // Check for language switch parameter in URL
@@ -148,9 +180,11 @@ export async function middleware(request: NextRequestWithGeo) {
 
   // Handle country switch if setCountry parameter is present
   if (switchCountryParam) {
+    console.log('Country switch requested:', switchCountryParam)
     const isValidCountry = await validateCountrySlug(supabase, switchCountryParam)
     
     if (isValidCountry) {
+      console.log('Valid country, redirecting and setting cookie')
       // Create a response to redirect to the same page but without the setCountry param
       const newUrl = new URL(request.url)
       newUrl.searchParams.delete('setCountry')
@@ -165,6 +199,8 @@ export async function middleware(request: NextRequestWithGeo) {
       })
 
       return countrySwitchResponse
+    } else {
+      console.log('Invalid country slug:', switchCountryParam)
     }
   }
 
@@ -178,8 +214,12 @@ export async function middleware(request: NextRequestWithGeo) {
   const pathnameParts = pathname.split('/')
   const currentLocale = pathnameParts.length > 1 ? pathnameParts[1] : null
 
+  console.log('Pathname has locale:', pathnameHasLocale)
+  console.log('Current locale:', currentLocale)
+
   // Handle language switch if setLang parameter is present
   if (switchLangParam && i18n.locales.includes(switchLangParam as LanguageType)) {
+    console.log('Language switch requested:', switchLangParam)
     // Create a response to redirect to the same page but without the setLang param
     const newUrl = new URL(request.url)
     newUrl.searchParams.delete('setLang')
@@ -198,6 +238,7 @@ export async function middleware(request: NextRequestWithGeo) {
 
   // Step 2: Redirect if there is no locale in the pathname
   if (!pathnameHasLocale) {
+    console.log('No locale in pathname, redirecting...')
     // Priority: 1. User metadata if logged in, 2. Cookie, 3. Browser preference
     const locale = user?.user_metadata?.preferred_language || getLocale(request)
     const url = new URL(`/${locale}${pathname.startsWith('/') ? pathname : `/${pathname}`}`, request.url)
@@ -215,10 +256,11 @@ export async function middleware(request: NextRequestWithGeo) {
       })
     }
 
-    // If we detected a country and set a cookie, preserve it in the redirect response
+    // IMPORTANT: If we detected a country and there's no existing cookie, set it in the redirect response
     if (!preferredCountry) {
       const countrySlug = await getCountryFromIP(request, supabase)
       if (countrySlug) {
+        console.log('Setting country cookie in locale redirect:', countrySlug)
         localeRedirectResponse.cookies.set('preferred-country', countrySlug, {
           maxAge: 60 * 60 * 24 * 365,
           path: '/',
@@ -251,6 +293,7 @@ export async function middleware(request: NextRequestWithGeo) {
     pathStartsWithPublic.some(p => pathWithoutLocale.startsWith(p))
 
   if (!user && !isPublicPath) {
+    console.log('Redirecting to login for protected route')
     // No user and trying to access protected route
     // Redirect to login page with the correct locale
     const url = request.nextUrl.clone()
@@ -259,6 +302,8 @@ export async function middleware(request: NextRequestWithGeo) {
     return NextResponse.redirect(url)
   }
 
+  console.log('=== MIDDLEWARE END ===')
+  console.log('Final response cookies:', Array.from(response.cookies.getAll()))
   return response
 }
 
