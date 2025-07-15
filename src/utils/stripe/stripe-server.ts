@@ -23,7 +23,7 @@ export async function createCheckoutSession({
   name,
   description,
   amount,
-  currency = 'aed',
+  currency = 'usd',
 }: {
   packageId: string;
   userId: string;
