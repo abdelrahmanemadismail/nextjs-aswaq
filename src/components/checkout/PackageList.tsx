@@ -114,7 +114,7 @@ export default async function PackageList() {
   
           {/* Bulk Packages */}
           {packages?.bulk && packages.bulk.length > 0 && (
-            <section>
+            <section className="mb-20">
               <h2 className="text-3xl font-bold mb-8 text-center">{t.payments.bulkPackages}</h2>
               <div className="grid md:grid-cols-3 gap-8">
                 {packages.bulk.map((pkg) => (
