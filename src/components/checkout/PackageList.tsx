@@ -6,7 +6,6 @@ import { Languages } from '@/constants/enums';
 import getTrans from '@/utils/translation';
 import { headers } from 'next/headers';
 
-
 export default async function PackageList() {
     const url = (await headers()).get('x-url')
     const locale = url?.split('/')[3] as Locale
@@ -27,6 +26,7 @@ export default async function PackageList() {
         </div>
       );
     }
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formatPackageFeatures = (pkg: any) => {
       const features = [];
@@ -53,7 +53,6 @@ export default async function PackageList() {
           features.push(`${pkg.bonus_duration_days} ${t.payments.bonusDay}${pkg.bonus_duration_days > 1 ? 's' : ''}`);
         }
       }
-      // features.push(`${t.payments.validFor} ${pkg.validity_days} ${t.payments.days}`);
       
       if (pkg.is_featured) {
         features.push(t.payments.featuredListings);
@@ -84,6 +83,7 @@ export default async function PackageList() {
                       name={locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}
                       description={locale === 'ar' && pkg.description_ar ? pkg.description_ar : (pkg.description || undefined)}
                       price={pkg.price}
+                      currency="AED"
                       features={formatPackageFeatures(pkg)}
                       isFree={true}
                     />
@@ -105,6 +105,7 @@ export default async function PackageList() {
                     name={locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}
                     description={locale === 'ar' && pkg.description_ar ? pkg.description_ar : (pkg.description || undefined)}
                     price={pkg.price}
+                    currency="AED"
                     features={formatPackageFeatures(pkg)}
                   />
                 ))}
@@ -124,6 +125,7 @@ export default async function PackageList() {
                     name={locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}
                     description={locale === 'ar' && pkg.description_ar ? pkg.description_ar : (pkg.description || undefined)}
                     price={pkg.price}
+                    currency="AED"
                     features={formatPackageFeatures(pkg)}
                   />
                 ))}
@@ -143,6 +145,7 @@ export default async function PackageList() {
                     name={locale === 'ar' && pkg.name_ar ? pkg.name_ar : pkg.name}
                     description={locale === 'ar' && pkg.description_ar ? pkg.description_ar : (pkg.description || undefined)}
                     price={pkg.price}
+                    currency="AED"
                     features={formatPackageFeatures(pkg)}
                   />
                 ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { verifyPayment } from '@/actions/paymob-payment-actions';
+import { verifyPayment } from '@/actions/payment-actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
@@ -16,46 +16,32 @@ export default function PaymentSuccessPage() {
   const { t, getLocalizedPath } = useTranslation();
   
   useEffect(() => {
-    // Paymob sends different parameters based on success/failure
-    const success = searchParams.get('success');
-    const transactionId = searchParams.get('id') || searchParams.get('transaction_id');
-    const orderId = searchParams.get('order');
-    const pending = searchParams.get('pending');
-    const errorOccurred = searchParams.get('error_occured');
-
-    // Check if payment was successful based on Paymob parameters
-    if (success === 'true' && transactionId && !pending && errorOccurred === 'false') {
-      verifyAndProcessPayment(transactionId);
-    } else if (success === 'false' || errorOccurred === 'true') {
+    const sessionId = searchParams.get('session_id');
+    
+    if (!sessionId) {
       setStatus('error');
-      setErrorMessage('Payment was not successful');
-    } else if (pending === 'true') {
-      setStatus('error');
-      setErrorMessage('Payment is still pending. Please wait for confirmation.');
-    } else if (!transactionId) {
-      setStatus('error');
-      setErrorMessage('No transaction ID found in URL');
-    } else {
-      // For any other case, try to verify
-      verifyAndProcessPayment(transactionId);
+      setErrorMessage('No session ID found in URL');
+      return;
     }
-  }, [searchParams]);
-  
-  const verifyAndProcessPayment = async (transactionId: string) => {
-    try {
-      const result = await verifyPayment(transactionId);
-      
-      if (result.error) {
+    
+    const verifyAndProcessPayment = async () => {
+      try {
+        const result = await verifyPayment(sessionId);
+        
+        if (result.error) {
+          setStatus('error');
+          setErrorMessage(result.error);
+        } else {
+          setStatus('success');
+        }
+      } catch (error) {
         setStatus('error');
-        setErrorMessage(result.error);
-      } else {
-        setStatus('success');
+        setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
       }
-    } catch (error) {
-      setStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
-    }
-  };
+    };
+    
+    verifyAndProcessPayment();
+  }, [searchParams]);
   
   const renderContent = () => {
     switch (status) {
@@ -111,10 +97,6 @@ export default function PaymentSuccessPage() {
     }
   };
   
-  // Display transaction details
-  const transactionId = searchParams.get('id') || searchParams.get('transaction_id');
-  const orderId = searchParams.get('order');
-  
   return (
     <div className="max-w-2xl py-20 m-auto">
       <Card className="w-full">
@@ -125,16 +107,8 @@ export default function PaymentSuccessPage() {
         <CardContent>
           {renderContent()}
         </CardContent>
-        <CardFooter className="flex flex-col justify-center border-t pt-6 text-sm text-muted-foreground space-y-1">
-          {transactionId && (
-            <p>{t.payments.success.transactionId}: {transactionId}</p>
-          )}
-          {orderId && (
-            <p>Order ID: {orderId}</p>
-          )}
-          {!transactionId && !orderId && (
-            <p>Transaction ID: N/A</p>
-          )}
+        <CardFooter className="flex justify-center border-t pt-6 text-sm text-muted-foreground">
+          <p>{t.payments.success.transactionId} {searchParams.get('session_id') || 'N/A'}</p>
         </CardFooter>
       </Card>
     </div>
