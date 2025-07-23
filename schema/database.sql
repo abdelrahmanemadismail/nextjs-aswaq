@@ -2774,3 +2774,213 @@ BEGIN
     RETURN NEW;
 END;
 $$;
+
+-- Migration: Add Paymob support to existing tables
+
+-- 1. Add Paymob-specific columns to user_packages table
+ALTER TABLE public.user_packages 
+ADD COLUMN IF NOT EXISTS paymob_transaction_id text UNIQUE,
+ADD COLUMN IF NOT EXISTS paymob_order_id text;
+
+-- 2. Create payment_sessions table to track Paymob sessions
+CREATE TABLE IF NOT EXISTS public.payment_sessions (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id uuid REFERENCES public.profiles(id) NOT NULL,
+    package_id uuid REFERENCES public.packages(id) NOT NULL,
+    paymob_order_id text NOT NULL,
+    merchant_order_id text NOT NULL,
+    payment_key text NOT NULL,
+    paymob_transaction_id text,
+    amount decimal(10,2) NOT NULL,
+    currency text NOT NULL DEFAULT 'AED',
+    status text CHECK (status IN ('pending', 'completed', 'failed', 'expired')) NOT NULL DEFAULT 'pending',
+    error_message text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    expires_at timestamp with time zone DEFAULT (timezone('utc'::text, now()) + INTERVAL '1 hour') NOT NULL
+);
+
+-- 3. Create indexes for payment_sessions
+CREATE INDEX IF NOT EXISTS payment_sessions_user_id_idx ON public.payment_sessions(user_id);
+CREATE INDEX IF NOT EXISTS payment_sessions_package_id_idx ON public.payment_sessions(package_id);
+CREATE INDEX IF NOT EXISTS payment_sessions_paymob_order_id_idx ON public.payment_sessions(paymob_order_id);
+CREATE INDEX IF NOT EXISTS payment_sessions_status_idx ON public.payment_sessions(status);
+CREATE INDEX IF NOT EXISTS payment_sessions_created_at_idx ON public.payment_sessions(created_at DESC);
+
+-- 4. Create trigger for updated_at on payment_sessions
+CREATE TRIGGER handle_payment_sessions_updated_at
+    BEFORE UPDATE ON public.payment_sessions
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- 5. Set up Row Level Security (RLS) for payment_sessions
+ALTER TABLE public.payment_sessions ENABLE ROW LEVEL SECURITY;
+
+-- 6. Create RLS policies for payment_sessions
+CREATE POLICY "Users can view their own payment sessions"
+    ON public.payment_sessions FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own payment sessions"
+    ON public.payment_sessions FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "System can update payment sessions"
+    ON public.payment_sessions FOR UPDATE
+    USING (true); -- Allow system updates via webhook
+
+CREATE POLICY "Admins have full access to payment sessions"
+    ON public.payment_sessions FOR ALL
+    TO authenticated
+    USING (public.is_admin(auth.uid()))
+    WITH CHECK (public.is_admin(auth.uid()));
+
+-- 7. Update packages table to remove Stripe-specific columns and add Paymob support
+-- Remove Stripe columns (optional - you might want to keep them for migration period)
+-- ALTER TABLE public.packages DROP COLUMN IF EXISTS stripe_product_id;
+-- ALTER TABLE public.packages DROP COLUMN IF EXISTS stripe_price_id;
+
+-- Add Paymob-specific columns if needed
+ALTER TABLE public.packages 
+ADD COLUMN IF NOT EXISTS paymob_product_id text,
+ADD COLUMN IF NOT EXISTS currency text DEFAULT 'USD';
+
+-- 8. Update user_packages to remove Stripe dependency
+-- Remove Stripe column reference (optional)
+-- ALTER TABLE public.user_packages DROP COLUMN IF EXISTS stripe_payment_intent_id;
+
+-- 9. Create function to clean up expired payment sessions
+CREATE OR REPLACE FUNCTION public.cleanup_expired_payment_sessions()
+RETURNS void AS
+$BODY$
+BEGIN
+    -- Mark sessions as expired that are older than their expiration time
+    UPDATE public.payment_sessions
+    SET status = 'expired'
+    WHERE status = 'pending'
+    AND expires_at < NOW();
+    
+    -- Optionally delete very old sessions (older than 30 days)
+    DELETE FROM public.payment_sessions
+    WHERE created_at < (NOW() - INTERVAL '30 days');
+END;
+$BODY$
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public;
+
+-- 10. Schedule cleanup function to run daily (if pg_cron is available)
+-- SELECT cron.schedule('cleanup-payment-sessions', '0 2 * * *', $$SELECT public.cleanup_expired_payment_sessions()$$);
+
+-- 11. Create indexes on user_packages for Paymob fields
+CREATE INDEX IF NOT EXISTS user_packages_paymob_transaction_id_idx ON public.user_packages(paymob_transaction_id)
+WHERE paymob_transaction_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS user_packages_paymob_order_id_idx ON public.user_packages(paymob_order_id)
+WHERE paymob_order_id IS NOT NULL;
+
+-- 12. Update admin dashboard to include Paymob payment stats
+CREATE OR REPLACE VIEW public.admin_payment_stats AS
+SELECT
+    -- Total payments
+    (SELECT COUNT(*) FROM public.user_packages WHERE payment_status = 'succeeded') as total_successful_payments,
+    (SELECT COUNT(*) FROM public.user_packages WHERE payment_status = 'pending') as pending_payments,
+    (SELECT COUNT(*) FROM public.user_packages WHERE payment_status = 'failed') as failed_payments,
+    
+    -- Revenue stats
+    (SELECT COALESCE(SUM(amount), 0) FROM public.user_packages WHERE payment_status = 'succeeded') as total_revenue,
+    (SELECT COALESCE(SUM(amount), 0) FROM public.user_packages WHERE payment_status = 'succeeded' AND created_at >= CURRENT_DATE - INTERVAL '30 days') as revenue_last_30_days,
+    (SELECT COALESCE(SUM(amount), 0) FROM public.user_packages WHERE payment_status = 'succeeded' AND created_at >= CURRENT_DATE - INTERVAL '7 days') as revenue_last_7_days,
+    
+    -- Payment sessions stats
+    (SELECT COUNT(*) FROM public.payment_sessions WHERE status = 'pending') as pending_sessions,
+    (SELECT COUNT(*) FROM public.payment_sessions WHERE status = 'completed') as completed_sessions,
+    (SELECT COUNT(*) FROM public.payment_sessions WHERE status = 'failed') as failed_sessions,
+    (SELECT COUNT(*) FROM public.payment_sessions WHERE status = 'expired') as expired_sessions,
+    
+    -- Package popularity
+    (
+        SELECT json_agg(
+            json_build_object(
+                'package_name', p.name,
+                'package_name_ar', p.name_ar,
+                'purchase_count', purchase_count,
+                'total_revenue', total_revenue
+            )
+        )
+        FROM (
+            SELECT 
+                up.package_id,
+                COUNT(*) as purchase_count,
+                SUM(up.amount) as total_revenue
+            FROM public.user_packages up
+            WHERE up.payment_status = 'succeeded'
+            GROUP BY up.package_id
+            ORDER BY purchase_count DESC
+            LIMIT 10
+        ) stats
+        JOIN public.packages p ON p.id = stats.package_id
+    ) as popular_packages;
+
+-- 13. Grant necessary permissions for the payment webhook
+-- This allows the webhook endpoint to access the database
+-- Note: Ensure your Supabase service role key has the necessary permissions
+
+-- 14. Create helper function to get payment session by order ID
+CREATE OR REPLACE FUNCTION public.get_payment_session_by_order_id(order_id_param text)
+RETURNS TABLE (
+    id uuid,
+    user_id uuid,
+    package_id uuid,
+    merchant_order_id text,
+    amount decimal,
+    currency text,
+    status text,
+    created_at timestamp with time zone
+)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT
+        ps.id,
+        ps.user_id,
+        ps.package_id,
+        ps.merchant_order_id,
+        ps.amount,
+        ps.currency,
+        ps.status,
+        ps.created_at
+    FROM public.payment_sessions ps
+    WHERE ps.paymob_order_id = order_id_param
+    LIMIT 1;
+$$;
+
+-- 15. Create function to update payment session status
+CREATE OR REPLACE FUNCTION public.update_payment_session_status(
+    order_id_param text,
+    new_status text,
+    transaction_id_param text DEFAULT NULL,
+    error_message_param text DEFAULT NULL
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    rows_affected integer;
+BEGIN
+    UPDATE public.payment_sessions
+    SET 
+        status = new_status,
+        paymob_transaction_id = COALESCE(transaction_id_param, paymob_transaction_id),
+        error_message = COALESCE(error_message_param, error_message),
+        updated_at = NOW()
+    WHERE paymob_order_id = order_id_param;
+    
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    
+    RETURN rows_affected > 0;
+END;
+$$;

@@ -1,9 +1,8 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
-import StripeCheckoutButton from './StripeCheckoutButton';
+import PaymobCheckoutButton from './PaymobCheckoutButton';
 import { Button } from '../ui/button';
 import { Languages } from "@/constants/enums";
-// import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { Locale } from '@/i18n.config';
@@ -27,7 +26,7 @@ export default async function PackageCard({
   name,
   description,
   price,
-  currency = 'USD',
+  currency = 'AED', // Changed default currency to AED for UAE market
   features,
   className = '',
   isFree = false
@@ -40,7 +39,8 @@ export default async function PackageCard({
   const { data: { session } } = await supabase.auth.getSession();
 
   // Convert currency to Arabic if needed
-  const displayCurrency = locale === Languages.ARABIC ? '$' : currency;
+  const displayCurrency = locale === Languages.ARABIC ? 'د.إ' : currency; // AED symbol in Arabic
+  
   // Generate the redirect URLs for authentication
   const signupUrl = `/${locale}/auth/signup`;
 
@@ -74,7 +74,7 @@ export default async function PackageCard({
         ) : isFree ? (
           <ClaimPackageForm buttonText={t.payments.getStarted} />
         ) : (
-          <StripeCheckoutButton
+          <PaymobCheckoutButton
             packageId={id}
             className="w-full"
             buttonText={t.payments.selectPackage}
