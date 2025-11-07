@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { formatDistance } from "date-fns"
 import { StartChat } from "@/components/chat/StartChat"
 import { useTranslation } from "@/hooks/use-translation"
-import { Languages } from "@/constants/enums"
+import { Languages, CURRENCY } from "@/constants/enums"
 
 // Define the listing type
 export interface Listing {
@@ -50,7 +50,7 @@ export default function FullWidthListingCard({
   listing,
   className = "",
   onLike,
-  currency = "AED"
+  currency = CURRENCY.SYMBOL
 }: FullWidthListingCardProps) {
   const { t, getLocalizedPath, locale } = useTranslation();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
@@ -70,10 +70,10 @@ export default function FullWidthListingCard({
   const listingCondition = isArabic && listing.condition_ar ? listing.condition_ar : listing.condition;
 
   // Format vehicle details for display
-  const mileage = listing.vehicle_details?.mileage 
+  const mileage = listing.vehicle_details?.mileage
     ? `${listing.vehicle_details.mileage.toLocaleString()} ${t.listings.km}`
     : undefined
-    
+
   const year = listing.vehicle_details?.year?.toString()
 
   return (
@@ -108,22 +108,22 @@ export default function FullWidthListingCard({
               {currency} {typeof listing.price === 'number' ? listing.price.toLocaleString() : listing.price}
             </h2>
             <div className="flex gap-1 md:gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="text-muted-foreground hover:text-foreground hover:bg-accent h-8 w-8 md:h-10 md:w-10"
                 title={t.listings.share}
               >
                 <Share2 className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
-              <LikeButton 
+              <LikeButton
                 onLike={onLike}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent"
                 size="sm"
               />
             </div>
           </div>
-          
+
           <Link href={getLocalizedPath(`/listings/${listing.slug}`)} className="block">
             <p className="text-lg md:text-xl text-muted-foreground line-clamp-2">{listingTitle}</p>
 
@@ -156,9 +156,9 @@ export default function FullWidthListingCard({
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 md:mt-6">
           {/* Default to all contact methods if not specified */}
           {(!listing.contact_methods || listing.contact_methods.includes('phone')) && (
-            <Button 
+            <Button
               variant="outline"
-              size="default" 
+              size="default"
               className="flex-1 border-primary text-primary hover:bg-primary/10 hover:text-primary text-sm md:text-base"
               onClick={() => {
                 if (listing.phone_number) {
@@ -172,18 +172,18 @@ export default function FullWidthListingCard({
               {t.listings.call}
             </Button>
           )}
-          
+
           {(!listing.contact_methods || listing.contact_methods.includes('chat')) && (
-            <StartChat 
+            <StartChat
               listingId={listing.id}
               sellerId={listing.user_id}
               className="flex-1 text-sm md:text-base"
             />
           )}
-          
+
           {(!listing.contact_methods || listing.contact_methods.includes('whatsapp')) && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="default"
               className="flex-1 border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 hover:text-[#25D366] text-sm md:text-base"
               onClick={() => {

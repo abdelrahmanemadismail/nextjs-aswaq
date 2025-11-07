@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { CheckCircle2 } from 'lucide-react';
 import StripeCheckoutButton from './StripeCheckoutButton';
 import { Button } from '../ui/button';
-import { Languages } from "@/constants/enums";
+// import { CURRENCY } from "@/constants/enums";
 // import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { headers } from 'next/headers';
@@ -10,13 +10,13 @@ import { Locale } from '@/i18n.config';
 import getTrans from '@/utils/translation';
 import { createClient } from '@/utils/supabase/server';
 import { ClaimPackageForm } from './ClaimPackageForm';
+import { UaeDirham } from '../Icons/UaeDirham';
 
 interface PackageCardProps {
   id: string;
   name: string;
   description?: string;
   price: number;
-  currency?: string;
   features: string[];
   className?: string;
   isFree?: boolean;
@@ -27,7 +27,6 @@ export default async function PackageCard({
   name,
   description,
   price,
-  currency = 'USD',
   features,
   className = '',
   isFree = false
@@ -39,8 +38,6 @@ export default async function PackageCard({
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Convert currency to Arabic if needed
-  const displayCurrency = locale === Languages.ARABIC ? '$' : currency;
   // Generate the redirect URLs for authentication
   const signupUrl = `/${locale}/auth/signup`;
 
@@ -51,8 +48,14 @@ export default async function PackageCard({
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold mb-4">
-          {price > 0 ? price.toFixed(2) : t.payments.free} <span className="text-sm">{isFree ? "" : displayCurrency}</span>
+        <div className="text-3xl font-bold mb-4 flex items-center">
+          {price > 0 ? (
+            <>
+              {price.toFixed(2)} <UaeDirham className="h-6 w-6 ml-2" />
+            </>
+          ) : (
+            t.payments.free
+          )}
         </div>
 
         <ul className="space-y-2">

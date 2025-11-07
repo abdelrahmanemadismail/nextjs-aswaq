@@ -8,7 +8,7 @@ import ImageNavigation from "@/components/ImageNavigation"
 import Link from "next/link"
 import { formatDistance } from "date-fns"
 import { useTranslation } from "@/hooks/use-translation"
-import { Languages } from "@/constants/enums"
+import { Languages, CURRENCY } from "@/constants/enums"
 
 export interface ListingCardProps {
   photos: string[]
@@ -42,7 +42,7 @@ export default function ListingCard({
   location,
   location_ar,
   timestamp,
-  currency = "AED",
+  currency = CURRENCY.SYMBOL,
   className = "",
   onLike,
   initialLiked = false,
