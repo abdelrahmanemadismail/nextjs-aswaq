@@ -172,7 +172,7 @@ BEGIN
         SET deleted_at = NULL
         WHERE id = NEW.id AND deleted_at IS NOT NULL;
     END IF;
-    
+
     RETURN NEW;
 END;
 $BODY$
@@ -582,7 +582,7 @@ SET search_path = public
 AS $$
     -- First check if the category exists
     WITH category AS (
-        SELECT 
+        SELECT
             fc.id,
             CASE WHEN lang = 'ar' AND fc.name_ar IS NOT NULL THEN fc.name_ar ELSE fc.name END as category_name,
             CASE WHEN lang = 'ar' AND fc.description_ar IS NOT NULL THEN fc.description_ar ELSE fc.description END as category_description
@@ -591,12 +591,12 @@ AS $$
         AND fc.is_active = true
         LIMIT 1
     )
-    
-    SELECT 
+
+    SELECT
         c.category_name,
         c.category_description,
         COALESCE(
-            (SELECT 
+            (SELECT
                 json_agg(
                     json_build_object(
                         'id', fa.id,
@@ -976,7 +976,7 @@ CREATE TABLE public.listings (
         END
     ) STORED,
     status text CHECK (status IN ('active', 'sold', 'unavailable')) NOT NULL DEFAULT 'active',
-    contact_methods contact_method[] DEFAULT ARRAY['phone', 'chat', 'whatsapp']::contact_method[];
+    contact_methods contact_method[] DEFAULT ARRAY['phone', 'chat', 'whatsapp']::contact_method[],
     is_featured boolean NOT NULL DEFAULT false,
     is_active boolean NOT NULL DEFAULT false,
     views_count integer NOT NULL DEFAULT 0,
@@ -1699,7 +1699,7 @@ $$;
 -- =======================================================
 
 -- Create package types
-CREATE TYPE package_type_enum AS ENUM ('free_tier', 'duration', 'bulk');
+CREATE TYPE package_type_enum AS ENUM ('free_tier', 'duration', 'bulk', "unlimited");
 
 -- Create packages table
 CREATE TABLE packages (
@@ -2245,43 +2245,43 @@ VALUES
     -- Dubai
     ('25216c3e-08f6-4a56-b158-38ee29eec066', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Dubai', 'دبي',
-     'dubai', 'city', 'AE', 25.2048, 55.2708,
+     'dubai', 'city', null, 25.2048, 55.2708,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Abu Dhabi
     ('3d39475c-845c-41a4-9805-f3c54ee98c1b', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Abu Dhabi', 'أبوظبي',
-     'abu-dhabi', 'city', 'AE', 24.4539, 54.3773,
+     'abu-dhabi', 'city', null, 24.4539, 54.3773,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Sharjah
     ('3fafc729-3524-4a12-b67b-cb6650dab040', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Sharjah', 'الشارقة',
-     'sharjah', 'city', 'AE', 25.3463, 55.4209,
+     'sharjah', 'city', null, 25.3463, 55.4209,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Ajman
     ('e8cc14bf-1d75-428c-bd91-86120753497a', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Ajman', 'عجمان',
-     'ajman', 'city', 'AE', 25.4111, 55.4354,
+     'ajman', 'city', null, 25.4111, 55.4354,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Ras Al Khaimah
     ('94d42eaa-4ed8-40b2-ae31-28b07ebe5b17', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Ras Al Khaimah', 'رأس الخيمة',
-     'ras-al-khaimah', 'city', 'AE', 25.7895, 55.9432,
+     'ras-al-khaimah', 'city', null, 25.7895, 55.9432,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Fujairah
     ('6929c5f6-0972-4753-9306-95a851925d8d', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Fujairah', 'الفجيرة',
-     'fujairah', 'city', 'AE', 25.1288, 56.3265,
+     'fujairah', 'city', null, 25.1288, 56.3265,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00'),
 
     -- Umm Al Quwain
     ('0381742c-c1d0-44d8-b818-243a4bfcb009', 'a8c73ef2-9db4-460e-8999-79a386632bf7',
      'Umm Al Quwain', 'أم القيوين',
-     'umm-al-quwain', 'city', 'AE', 25.5647, 55.5554,
+     'umm-al-quwain', 'city', null, 25.5647, 55.5554,
      TRUE, '2025-02-17 19:12:15.935864+00', '2025-02-17 19:12:15.935864+00')
 ON CONFLICT (id) DO UPDATE SET
     parent_id = EXCLUDED.parent_id,
@@ -2698,9 +2698,9 @@ WHERE read_at IS NULL AND notification_sent IS NULL;
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_schema = 'public' 
-        AND table_name = 'profiles' 
+        SELECT FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = 'profiles'
         AND column_name = 'notification_preferences'
     ) THEN
         ALTER TABLE public.profiles
@@ -2716,9 +2716,9 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_schema = 'public' 
-        AND table_name = 'profiles' 
+        SELECT FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = 'profiles'
         AND column_name = 'locale'
     ) THEN
         ALTER TABLE public.profiles
