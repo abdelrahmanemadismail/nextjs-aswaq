@@ -1,15 +1,15 @@
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["nodejs_20", "pnpm"]
 
 [phases.install]
 cmds = [
-  "npm install -g pnpm@9 && npx pnpm install --frozen-lockfile --prod=false"
+  "pnpm install --frozen-lockfile --no-optional"
 ]
 
 [phases.build]
 cmds = [
-  "npx pnpm run build"
+  "pnpm run build"
 ]
 
 [start]
-cmd = "npx pnpm start"
+cmd = "pnpm start"
