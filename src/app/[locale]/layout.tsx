@@ -11,6 +11,12 @@ import { Locale } from '@/i18n.config';
 import { Languages, Directions } from '@/constants/enums';
 import { GoogleTagManager } from '@next/third-parties/google';
 
+function getSafeLocale(locale: string): Locale {
+  return locale === Languages.ARABIC || locale === Languages.ENGLISH
+    ? locale
+    : Languages.ENGLISH;
+}
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -50,9 +56,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ locale: Locale }>
+  params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const locale = (await params).locale;
+  const locale = getSafeLocale((await params).locale);
 
   const shared = {
     metadataBase: new URL('https://aswaq.online'),
@@ -129,7 +135,7 @@ export async function generateMetadata({
       'Sell Fast & Easy in UAE with Aswaq.Online! The fastest way to sell cars, electronics, fashion, and more in Dubai and across the UAE. Commission-free with the cheapest subscription rates.',
     keywords: [
       'Buy and sell in UAE', 'Online marketplace UAE', 'Sell cars fast in Dubai',
-      'Cash for phones UAE', 'Sell clothes online', 'Used furniture UAE','Aswaq Online', 
+      'Cash for phones UAE', 'Sell clothes online', 'Used furniture UAE','Aswaq Online',
       'Cheap phones UAE', 'Cheap cars UAE', 'Dubai marketplace', 'Abu Dhabi classifieds',
       'Second hand items UAE', 'Commission-free marketplace'
     ],
@@ -164,10 +170,10 @@ export default async function RootLayout({
   params,
   children,
 }: Readonly<{
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
   children: React.ReactNode;
 }>) {
-  const locale = (await params).locale;
+  const locale = getSafeLocale((await params).locale);
   const isArabic = locale === Languages.ARABIC;
 
   return (
@@ -176,11 +182,11 @@ export default async function RootLayout({
         {/* Preconnect to important domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        
+
         {/* Manifest file for PWA */}
         <link rel="manifest" href="/manifest.json" />
       </head>
-      
+
       {/* Structured Data for Organization */}
       <Script
         id="structured-data-organization"
@@ -205,7 +211,7 @@ export default async function RootLayout({
           })
         }}
       />
-      
+
       {/* Structured Data for WebSite */}
       <Script
         id="structured-data-website"
@@ -238,7 +244,7 @@ export default async function RootLayout({
           script.type="text/javascript";script.async=true;script.src=r+"?sdkid="+e+"&lib="+t;
           var firstScript=document.getElementsByTagName("script")[0];firstScript.parentNode.insertBefore(script,firstScript);};
           ttq.load('CVLTPQBC77UCTQ7C5C5G');ttq.page();
-        `} 
+        `}
       </Script>
 
       <GoogleTagManager gtmId={process.env.gtmId || 'GTM-XYZ'} />
@@ -274,7 +280,7 @@ export default async function RootLayout({
 //   authors: [{ name: 'شروع للنشر الرقمي' }],
 //   creator: 'شروع للنشر الرقمي',
 //   publisher: 'شروع للنشر الرقمي',
-  
+
 //   // Open Graph metadata
 //   openGraph: {
 //     type: 'website',
@@ -342,22 +348,22 @@ export default async function RootLayout({
 //   other: {
 //     // Facebook App ID (if you have one)
 //     'fb:app_id': 'your-facebook-app-id',
-    
+
 //     // Apple mobile web app
 //     'apple-mobile-web-app-capable': 'yes',
 //     'apple-mobile-web-app-status-bar-style': 'default',
 //     'apple-mobile-web-app-title': 'شروع',
-    
+
 //     // Microsoft application
 //     'msapplication-TileColor': '#ffffff',
 //     'msapplication-TileImage': '/ms-icon-144x144.png',
-    
+
 //     // Theme color
 //     'theme-color': '#ffffff',
-    
+
 //     // Robots
 //     'revisit-after': '7 days',
-    
+
 //     // Language and direction
 //     'content-language': 'ar',
 //     'dir': 'rtl',
